@@ -20,6 +20,7 @@ export function compassGeometry(counts: readonly number[]) {
     count,
     outer: point(index, 174),
     label: point(index, 232),
+    touchLabel: point(index, 248),
     radar: point(index, maximum === 0 ? 0 : 174 * .75 * values[index] / maximum),
   }));
 }

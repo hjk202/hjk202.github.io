@@ -10,8 +10,9 @@
 - [AGENTS.md](./AGENTS.md)：Codex 工作约束。
 - [docs/architecture.md](./docs/architecture.md)：架构边界和工程说明。
 - [docs/content-guide.md](./docs/content-guide.md)：字段、公开条件、内容增删与维护示例。
+- [docs/release-checklist.md](./docs/release-checklist.md)：Phase 3支持矩阵、验证证据与发布/真机验收操作。
 
-按用户授权逐个实施和验收 milestone；每项通过后更新 PLAN.md。Phase 2 完成后暂停等待用户验收，Phase 3 需要新的授权。
+按用户授权逐个实施和验收 milestone；每项通过后更新 PLAN.md。当前用户已授权Phase 3，逐项验证，完成阶段后暂停验收；手机真机检查集中到上线后。
 
 ## 环境
 

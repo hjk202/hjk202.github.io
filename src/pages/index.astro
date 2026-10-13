@@ -17,11 +17,11 @@ import Compass from '../shell/home/Compass.astro';
     position: relative; isolation: isolate; min-height: 100svh; display: grid; grid-template-rows: auto 1fr auto; overflow: clip;
     background: radial-gradient(ellipse at 50% 25%, var(--environment-light), transparent 68%), var(--background);
   }
-  .home-header { display: flex; align-items: center; justify-content: space-between; padding: 24px clamp(24px, 5vw, 72px); }
+  .home-header { display: flex; align-items: center; justify-content: space-between; padding: max(24px, env(safe-area-inset-top)) max(clamp(24px, 5vw, 72px), env(safe-area-inset-right)) 24px max(clamp(24px, 5vw, 72px), env(safe-area-inset-left)); }
   .identity { display: flex; flex-direction: column; gap: 2px; font-size: 1rem; font-weight: 600; letter-spacing: .11em; }
   .identity span { font-size: .47rem; font-weight: 400; letter-spacing: .2em; color: var(--muted); }
   .home-main { display: grid; place-items: center; }
-  .home-footer { text-align: center; padding: 6px 24px 30px; }
+  .home-footer { text-align: center; padding: 6px 24px max(30px, env(safe-area-inset-bottom)); }
   .home-footer h1 { font-family: 'Iowan Old Style', 'Palatino Linotype', Georgia, serif; font-size: clamp(21px, 2vw, 28px); font-weight: 400; margin: 0; letter-spacing: -.025em; line-height: 1.15; }
   .home-footer p { font-size: .55rem; letter-spacing: .24em; color: var(--muted); margin: 10px 0 0; }
 </style>
