@@ -12,11 +12,11 @@
 
 | 项目 | 状态 |
 | --- | --- |
-| 当前任务 | Phase 3 批量授权实施，逐项验证；完成后暂停验收 |
-| 当前指定实施 milestone | 3.7 In Progress；3.1–3.6 Done，3.8 Pending |
+| 当前任务 | Phase 3 批量授权实施；3.7等待GitHub身份认证，现有demo未覆盖 |
+| 当前指定实施 milestone | 3.7 Blocked；3.1–3.6 Done，3.8 Pending |
 | 当前授权范围 | 用户授权实施 Phase 3；先保存 Git v0，再允许覆盖现有 hjk202.github.io demo；保留远程历史，不强制推送 |
 | 项目实施 | Phase 1、2 与 D1–D8 技术完成，用户认可当前基线；Phase 3 逐项进行，真机验收集中上线后 |
-| 下一候选 milestone | 3.7 通过后执行 3.8；本轮已有批量授权，仍逐项完成验证 |
+| 下一候选 milestone | 完成GitHub登录后继续3.7；通过后执行3.8，既有发布授权不重复请求 |
 
 创建这两份文档不代表 milestone 1.1 已开始或已完成。所有实施 milestone 初始为 `Pending`。
 
@@ -1228,7 +1228,7 @@ ModuleShell.astro 仅增加通用 module-page 包裹层和来自元数据的 dat
 ## Phase 3 Detailed Plan
 
 **规划日期**：2026-10-13。  
-**阶段状态**：In Progress；3.1–3.6 Done，当前执行3.7。  
+**阶段状态**：In Progress；3.1–3.6 Done，3.7 Blocked于GitHub身份认证，3.8 Pending。  
 **本轮授权**：2026-10-13用户授权实施Phase 3，先用Git保存当前版本为v0，允许覆盖 https://hjk202.github.io/ 的已有demo。逐项执行和验证，不扩展未来Phase。  
 **新增约定**：用户要求移动端保持简单、能看能用，并明确同意把OPPO Find X7 Ultra默认浏览器的真机验收集中在上线后3.8；3.3/3.4先完成自动化与模拟验收，未实测手机不得标为已通过。Git v0已保存于ad0e0af，本项前提前初始化Git是用户明确授权的例外。  
 **需求依据**：NEED.md 第43节手机端、第44–46节材质与动画、第47节技术栈，以及第55–56节获准修订；视觉基线为 DESIGN.md 与 D1–D8 的已完成结果。用户已认可当前效果，本阶段不重新设计网站。
@@ -1277,7 +1277,7 @@ Phase 3 把已经成立的个人空间变成手机上可用、可公开访问、
 | 3.4 | 四模块移动阅读与局部操作 | Done | 3.2、3.3 |
 | 3.5 | 页面元信息、favicon与404 | Done | 3.4 |
 | 3.6 | 可重复静态构建与发布管线准备 | Done | 3.5 |
-| 3.7 | 首次GitHub Pages公开发布 | In Progress | 3.6；用户已授权覆盖旧demo，待认证核实Pages |
+| 3.7 | 首次GitHub Pages公开发布 | Blocked（等待GitHub登录） | 3.6；用户已授权覆盖旧demo，认证后核实Pages |
 | 3.8 | 真机、线上与内容更新闭环验收 | Pending | 3.7 |
 
 默认按上表顺序执行，一次一个milestone。本轮用户已明确授权批量执行Phase 3；仍逐项验证和更新状态，失败先修复，不能越过门槛。
@@ -1579,7 +1579,7 @@ npm ci与公共工程检查；根路径和npm run build -- --base /personal-spac
 
 ### Milestone 3.7 — 首次GitHub Pages公开发布
 
-**Status**：In Progress  
+**Status**：Blocked  
 **Dependencies**：3.6 Done；目标账号/仓库/可见性/分支/地址与实际发布授权明确。
 
 #### Goal / Scope
@@ -1620,7 +1620,7 @@ Pages可用性需按真实账户和仓库条件核验；不默认改变仓库可
 
 #### 后续依赖 / Completion Record
 
-为3.8提供真实访问地址；没有线上完成证据时Phase 3不能记Done。待执行。
+为3.8提供真实访问地址；没有线上完成证据时Phase 3不能记Done。**Progress / Blocker（2026-10-13）**：发布前npm run lint/typecheck（74files0诊断）/test（24项）/build（9页）与40e2e全部退出0，verify-release通过，首发准备提交9c974dc保留origin/main为祖先，产品树与已验收候选一致。已添加准确origin并fetch旧demo（046d0ba，只有index.html），本地标签demo-before-phase3保留其原始提交；v0仍为ad0e0af。以ours合并保留双方历史，没有强制推送。GCM当前没有已认证账户，已通过现有代理启动GitHub设备登录并向用户提供登录入口；等待人工完成账号认证。这是缺少凭据，不是缺少发布授权。尚未推送、修改Pages、触发Actions或覆盖旧站；未将本地成功当作线上Done。认证后核实Pages源/权限，再按既有授权发布。3.8未开始，已批准的Me GitHub链接尚未提前添加。
 
 ### Milestone 3.8 — 真机、线上与内容更新闭环验收
 

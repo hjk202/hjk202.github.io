@@ -40,7 +40,7 @@
 | 3.4 | lint/typecheck/23单元/build；根与子路径各38e2e；WebKit15；设计两引擎各5；内容/空各1通过 | .cache/3.4-*.log；320px真实页面与长分类截图；200%字号压力探针 | Done |
 | 3.5 | lint/typecheck/24单元/9页build；根与真实site子路径各40e2e；WebKit head2；第五模块检查+1e2e通过 | .cache/3.5-*.log；真实404/默认与内容head/favicon；root正式site待3.6配置 | Done |
 | 3.6 | 干净npm ci/lint/typecheck/24unit/build；根/base各40e2e；干净40/15；隔离契约与资产哈希通过 | 候选2991080；15文件manifest一致；.cache/3.6-*.log与performance.json | Done |
-| 3.7 | 待执行 | 真实仓库/Actions/线上URL，旧demo历史保留 | In Progress |
+| 3.7 | 发布前lint/typecheck/24unit/9页build/40e2e通过；线上未执行 | 本地9c974dc保留旧046d0ba历史；v0/demo-before-phase3已保存，待账号登录 | Blocked |
 | 3.8 | 待执行 | OPPO基础验收、真实内容更新部署、维护流程 | Pending |
 
 ## 真机基础验收（上线后）
@@ -91,4 +91,4 @@ Windows检查沿用npm.cmd，本地浏览器缓存可由PLAYWRIGHT_BROWSERS_PATH
 
 ## 发布与维护记录
 
-3.6已通过本地与干净候选检查：产品候选2991080，15文件清单在.cache/release-manifest.json与release-candidate/.cache/release-manifest.json，完全一致。尚未推送、修改Pages或部署；真实Actions与线上结果留3.7/3.8。必要的文档完成记录会形成后续提交，但不改变已验证的产品/构建输入；线上工作流仍重新检查它实际部署的提交和同一dist。
+3.6已通过本地与干净候选检查：产品候选2991080，15文件清单在.cache/release-manifest.json与release-candidate/.cache/release-manifest.json，完全一致。3.7取回旧046d0ba并作为9c974dc的祖先保留；两份本地备份标签已建立。当前缺少已认证GitHub账户，设备登录等待用户完成；不要把这一阻塞误读成重新请求发布许可。尚未推送、修改Pages或部署；真实Actions与线上结果留3.7/3.8。必要的文档完成记录会形成后续提交，但不改变已验证的产品/构建输入；线上工作流仍重新检查它实际部署的提交和同一dist。
