@@ -13,10 +13,10 @@
 | 项目 | 状态 |
 | --- | --- |
 | 当前任务 | Phase 3 批量授权实施，逐项验证；完成后暂停验收 |
-| 当前指定实施 milestone | 3.6 In Progress；3.1–3.5 Done，其余逐项开始，不同时实施 |
+| 当前指定实施 milestone | 3.7 In Progress；3.1–3.6 Done，3.8 Pending |
 | 当前授权范围 | 用户授权实施 Phase 3；先保存 Git v0，再允许覆盖现有 hjk202.github.io demo；保留远程历史，不强制推送 |
 | 项目实施 | Phase 1、2 与 D1–D8 技术完成，用户认可当前基线；Phase 3 逐项进行，真机验收集中上线后 |
-| 下一候选 milestone | 3.6 通过后执行 3.7；本轮已有批量授权，仍逐项完成验证 |
+| 下一候选 milestone | 3.7 通过后执行 3.8；本轮已有批量授权，仍逐项完成验证 |
 
 创建这两份文档不代表 milestone 1.1 已开始或已完成。所有实施 milestone 初始为 `Pending`。
 
@@ -1228,7 +1228,7 @@ ModuleShell.astro 仅增加通用 module-page 包裹层和来自元数据的 dat
 ## Phase 3 Detailed Plan
 
 **规划日期**：2026-10-13。  
-**阶段状态**：In Progress；3.1–3.5 Done，当前执行3.6。  
+**阶段状态**：In Progress；3.1–3.6 Done，当前执行3.7。  
 **本轮授权**：2026-10-13用户授权实施Phase 3，先用Git保存当前版本为v0，允许覆盖 https://hjk202.github.io/ 的已有demo。逐项执行和验证，不扩展未来Phase。  
 **新增约定**：用户要求移动端保持简单、能看能用，并明确同意把OPPO Find X7 Ultra默认浏览器的真机验收集中在上线后3.8；3.3/3.4先完成自动化与模拟验收，未实测手机不得标为已通过。Git v0已保存于ad0e0af，本项前提前初始化Git是用户明确授权的例外。  
 **需求依据**：NEED.md 第43节手机端、第44–46节材质与动画、第47节技术栈，以及第55–56节获准修订；视觉基线为 DESIGN.md 与 D1–D8 的已完成结果。用户已认可当前效果，本阶段不重新设计网站。
@@ -1276,8 +1276,8 @@ Phase 3 把已经成立的个人空间变成手机上可用、可公开访问、
 | 3.3 | 移动Spotlight与软键盘 | Done | 3.2 |
 | 3.4 | 四模块移动阅读与局部操作 | Done | 3.2、3.3 |
 | 3.5 | 页面元信息、favicon与404 | Done | 3.4 |
-| 3.6 | 可重复静态构建与发布管线准备 | In Progress | 3.5 |
-| 3.7 | 首次GitHub Pages公开发布 | Pending | 3.6；真实目标与发布授权明确 |
+| 3.6 | 可重复静态构建与发布管线准备 | Done | 3.5 |
+| 3.7 | 首次GitHub Pages公开发布 | In Progress | 3.6；用户已授权覆盖旧demo，待认证核实Pages |
 | 3.8 | 真机、线上与内容更新闭环验收 | Pending | 3.7 |
 
 默认按上表顺序执行，一次一个milestone。本轮用户已明确授权批量执行Phase 3；仍逐项验证和更新状态，失败先修复，不能越过门槛。
@@ -1531,7 +1531,7 @@ src/shell/layout/Base.astro、ModuleShell.astro；src/pages/index.astro、404.as
 
 ### Milestone 3.6 — 可重复静态构建与发布管线准备
 
-**Status**：In Progress  
+**Status**：Done  
 **Dependencies**：3.5 Done；正式地址可先登记待输入。
 
 #### Goal / Scope
@@ -1562,12 +1562,12 @@ astro.config.mjs；.github/workflows/check.yml、deploy.yml（实施时按最小
 
 #### Done Criteria
 
-- [ ] 干净安装与构建可复现，版本约定一致，全部检查与产物smoke通过。
-- [ ] 根/项目子路径下，所有入口/索引/内容/404/资产/元信息可用。
-- [ ] 工作流的检查→构建产物→发布依赖、触发范围和权限清楚，可供用户审阅。
-- [ ] 发布候选与版本可对应，回退步骤明确；没有向GitHub执行写入或发布。
-- [ ] 性能结果有环境与基线，必要最小修复已经复验；不宣称实验室结果等于真实用户指标。
-- [ ] 未提供的正式地址保持待输入或仅用于隔离测试，不混入假生产域名。
+- [x] 干净安装与构建可复现，版本约定一致，全部检查与产物smoke通过。
+- [x] 根/项目子路径下，所有入口/索引/内容/404/资产/元信息可用。
+- [x] 工作流的检查→构建产物→发布依赖、触发范围和权限清楚，可供用户审阅。
+- [x] 发布候选与版本可对应，回退步骤明确；没有向GitHub执行写入或发布。
+- [x] 性能结果有环境与基线，必要最小修复已经复验；不宣称实验室结果等于真实用户指标。
+- [x] 正式地址由用户提供且已确认最终URL为https://hjk202.github.io/，配置为该root site与/；模拟base不作为正式域名。
 
 #### Verification
 
@@ -1575,11 +1575,11 @@ npm ci与公共工程检查；根路径和npm run build -- --base /personal-spac
 
 #### 后续依赖 / Completion Record
 
-3.7只发布本项通过验收的候选；正式目标补齐后需复验受影响地址，不重做无关功能。待执行。
+3.7只发布本项通过验收的候选；正式目标补齐后需复验受影响地址，不重做无关功能。**Completion Record（2026-10-13）**：astro.config.mjs统一SITE_URL/BASE_PATH，默认真实用户root地址；单一deploy.yml在push/PR检查、仅main手动发布，部署依赖check，只上传已测试dist、不二次build。官方Actions版本/SHA实际核实并固定；Node22.23.2/npm10.9.8与锁文件保持。新增verify-release.mjs校验YAML触发/权限/依赖/上传边界及产物，生成私有.cache源SHA/文件哈希清单。候选6bfad26，最小换行策略修复后2991080；隔离clone/.cache/release-candidate执行npm ci（369包、0vulnerabilities）、lint、typecheck（74files0诊断）、24unit、root/base build9页均退出0；干净候选40Chromium/15WebKit移动通过，工作区根/base各40e2e通过。第五模块check/build+1e2e，公开/隐藏/空/删除与设计build，设计不等平均5e2e、图片/长代码1e2e、空1e2e，4–7两引擎8组合通过。发现favicon Windows旧检出CRLF差异，仅以.gitattributes固定该资产LF并在候选同步Git保存的LF内容，重新build后15产物哈希全部一致。v0在隔离目录复现；本机375px循环回环加载/搜索测量见.cache/3.6-performance.json：JS原始7327字节，CSS从23229到29362字节；暖加载约8–10ms，未宣称真机/公网指标，无性能重构。所有日志.cache/3.6-*.log，清单见release-manifest.json；README/发布清单记录维护和回退。还未推送、配置Pages或部署；真实云端结果留3.7。
 
 ### Milestone 3.7 — 首次GitHub Pages公开发布
 
-**Status**：Pending  
+**Status**：In Progress  
 **Dependencies**：3.6 Done；目标账号/仓库/可见性/分支/地址与实际发布授权明确。
 
 #### Goal / Scope
