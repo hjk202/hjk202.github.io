@@ -17,6 +17,12 @@ createServer(async (request, response) => {
     response.setHeader('Content-Type', mime[extname(file)] ?? 'application/octet-stream');
     response.end(await readFile(file));
   } catch {
-    response.writeHead(404); response.end('Not found');
+    try {
+      const page = await readFile(resolve(directory, '404.html'));
+      response.writeHead(404, { 'Content-Type': 'text/html; charset=utf-8' });
+      response.end(page);
+    } catch {
+      response.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' }); response.end('Not found');
+    }
   }
 }).listen(Number(process.env.E2E_PORT ?? 4410), '127.0.0.1', () => log('Production test server ready'));

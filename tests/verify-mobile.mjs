@@ -1,4 +1,4 @@
-import { cpSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdirSync, readdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { resolve, join } from 'node:path';
 import { spawn, execFileSync } from 'node:child_process';
 import { once } from 'node:events';
@@ -22,6 +22,7 @@ for (const count of [4, 5, 6, 7]) {
   const isolated = join(isolatedRoot, String(count));
   mkdirSync(isolated, { recursive: true });
   cpSync('src', join(isolated, 'src'), { recursive: true });
+  if (existsSync('public')) cpSync('public', join(isolated, 'public'), { recursive: true });
   for (const file of ['package.json', 'astro.config.mjs', 'tsconfig.json']) cpSync(file, join(isolated, file));
   const first = join(isolated, 'src/modules/think/module.ts');
   writeFileSync(first, readFileSync(first, 'utf8').replace("name: 'Think'", "name: 'Mathematical Observatory'"));

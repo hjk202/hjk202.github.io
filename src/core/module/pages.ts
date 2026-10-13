@@ -19,6 +19,12 @@ export function collectPages(modules: readonly RegisteredModule[], adapters: Rec
       if (typeof page.component !== 'function' || !page.props || typeof page.props !== 'object') {
         throw new Error(`Module ${module.id}: invalid page component or props`);
       }
+      if (page.head !== undefined) {
+        if (!page.head || typeof page.head !== 'object' || Array.isArray(page.head)) throw new Error(`Module ${module.id}: invalid page head`);
+        for (const field of ['title', 'description'] as const) {
+          if (page.head[field] !== undefined && (typeof page.head[field] !== 'string' || !page.head[field].trim())) throw new Error(`Module ${module.id}: head ${field} must be a non-empty string`);
+        }
+      }
       const url = `${module.route}${page.path ? `${page.path}/` : ''}`;
       if (used.has(url)) throw new Error(`Duplicate page URL: ${url}`);
       used.add(url);

@@ -13,10 +13,10 @@
 | 项目 | 状态 |
 | --- | --- |
 | 当前任务 | Phase 3 批量授权实施，逐项验证；完成后暂停验收 |
-| 当前指定实施 milestone | 3.5 In Progress；3.1–3.4 Done，其余逐项开始，不同时实施 |
+| 当前指定实施 milestone | 3.6 In Progress；3.1–3.5 Done，其余逐项开始，不同时实施 |
 | 当前授权范围 | 用户授权实施 Phase 3；先保存 Git v0，再允许覆盖现有 hjk202.github.io demo；保留远程历史，不强制推送 |
 | 项目实施 | Phase 1、2 与 D1–D8 技术完成，用户认可当前基线；Phase 3 逐项进行，真机验收集中上线后 |
-| 下一候选 milestone | 3.5 通过后执行 3.6；本轮已有批量授权，仍逐项完成验证 |
+| 下一候选 milestone | 3.6 通过后执行 3.7；本轮已有批量授权，仍逐项完成验证 |
 
 创建这两份文档不代表 milestone 1.1 已开始或已完成。所有实施 milestone 初始为 `Pending`。
 
@@ -1228,7 +1228,7 @@ ModuleShell.astro 仅增加通用 module-page 包裹层和来自元数据的 dat
 ## Phase 3 Detailed Plan
 
 **规划日期**：2026-10-13。  
-**阶段状态**：In Progress；3.1–3.4 Done，当前执行3.5。  
+**阶段状态**：In Progress；3.1–3.5 Done，当前执行3.6。  
 **本轮授权**：2026-10-13用户授权实施Phase 3，先用Git保存当前版本为v0，允许覆盖 https://hjk202.github.io/ 的已有demo。逐项执行和验证，不扩展未来Phase。  
 **新增约定**：用户要求移动端保持简单、能看能用，并明确同意把OPPO Find X7 Ultra默认浏览器的真机验收集中在上线后3.8；3.3/3.4先完成自动化与模拟验收，未实测手机不得标为已通过。Git v0已保存于ad0e0af，本项前提前初始化Git是用户明确授权的例外。  
 **需求依据**：NEED.md 第43节手机端、第44–46节材质与动画、第47节技术栈，以及第55–56节获准修订；视觉基线为 DESIGN.md 与 D1–D8 的已完成结果。用户已认可当前效果，本阶段不重新设计网站。
@@ -1275,8 +1275,8 @@ Phase 3 把已经成立的个人空间变成手机上可用、可公开访问、
 | 3.2 | 移动Home与Compass | Done | 3.1 |
 | 3.3 | 移动Spotlight与软键盘 | Done | 3.2 |
 | 3.4 | 四模块移动阅读与局部操作 | Done | 3.2、3.3 |
-| 3.5 | 页面元信息、favicon与404 | In Progress | 3.4 |
-| 3.6 | 可重复静态构建与发布管线准备 | Pending | 3.5 |
+| 3.5 | 页面元信息、favicon与404 | Done | 3.4 |
+| 3.6 | 可重复静态构建与发布管线准备 | In Progress | 3.5 |
 | 3.7 | 首次GitHub Pages公开发布 | Pending | 3.6；真实目标与发布授权明确 |
 | 3.8 | 真机、线上与内容更新闭环验收 | Pending | 3.7 |
 
@@ -1486,7 +1486,7 @@ src/modules/me、think、build、keep内的页面/样式；必要的Shell内容�
 
 ### Milestone 3.5 — 页面元信息、favicon与404
 
-**Status**：In Progress  
+**Status**：Done  
 **Dependencies**：3.4 Done。
 
 #### Goal / Scope
@@ -1514,12 +1514,12 @@ src/shell/layout/Base.astro、ModuleShell.astro；src/pages/index.astro、404.as
 
 #### Done Criteria
 
-- [ ] 正式页面title/description/lang与实际内容匹配；同模块的不同内容页可以区分。
-- [ ] 模块提供元信息，共享层没有模块专属分支；第五模块仍有合理缺省。
-- [ ] favicon资源在根/子路径可访问，404显示正确且返回真实404状态，Home/搜索可用。
-- [ ] canonical模板通过根/子路径测试；没有localhost或测试origin被当作生产地址。
-- [ ] 新资产不影响模块内容计数；元信息/404不包含测试素材或假事实。
-- [ ] 公共验证、页面head/错误路径与必要浏览器smoke通过。
+- [x] 正式页面title/description/lang与实际内容匹配；同模块的不同内容页可以区分。
+- [x] 模块提供元信息，共享层没有模块专属分支；第五模块仍有合理缺省。
+- [x] favicon资源在根/子路径可访问，404显示正确且返回真实404状态，Home/搜索可用。
+- [x] canonical模板通过无site根路径及真实site子路径测试；没有localhost或测试origin被当作生产地址。实际root site默认配置在3.6建立并复验。
+- [x] 新资产不影响模块内容计数；元信息/404不包含测试素材或假事实。
+- [x] 公共验证、页面head/错误路径与必要浏览器smoke通过。
 
 #### Verification
 
@@ -1527,11 +1527,11 @@ src/shell/layout/Base.astro、ModuleShell.astro；src/pages/index.astro、404.as
 
 #### 后续依赖 / Completion Record
 
-为3.6正式地址配置与3.7公开可访问性提供基础。待执行。
+为3.6正式地址配置与3.7公开可访问性提供基础。**Completion Record（2026-10-13）**：ModulePage增加可选head.title/description与构建校验，各模块声明自己的公开摘要/标题，路由桥只转交，Base统一zh-CN/description/favicon和已知Astro.site下的无查询canonical；错误页noindex且不输出canonical。新增静态Compass favicon与404，测试服务加载实际404.html并返回404，错误页Home/搜索可用。隔离脚本同时复制public保证测试忠实。npm run lint/typecheck（73 files，0诊断）/test（24项）/build（9页）退出0；根/真实site子路径各40e2e、WebKit head/404 2e2e通过；第五模块typecheck/build/1e2e验证默认head与favicon。审阅320px错误页截图。默认本地配置未设site时不输出假canonical；CLI真实site=https://hjk202.github.io子路径模板已通过，3.6接入正式root默认值并复验。日志.cache/3.5-*.log。公开数量仍[1,1,1,1]，不增加OG图片/SEO库、不改原文或模块内部模型。
 
 ### Milestone 3.6 — 可重复静态构建与发布管线准备
 
-**Status**：Pending  
+**Status**：In Progress  
 **Dependencies**：3.5 Done；正式地址可先登记待输入。
 
 #### Goal / Scope

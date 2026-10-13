@@ -23,6 +23,8 @@ export interface ModulePage {
   path: string;
   component: AstroComponentFactory;
   props: Record<string, unknown>;
+  /** Optional web metadata; never part of the public search snapshot. */
+  head?: { title?: string; description?: string };
 }
 
 export type RegisteredModule = Module & { enabled: boolean };

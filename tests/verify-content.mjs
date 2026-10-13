@@ -14,6 +14,7 @@ const before = snapshot('src');
 const isolated = resolve('.cache', `content-${Date.now()}`);
 mkdirSync(isolated, { recursive: true });
 cpSync('src', join(isolated, 'src'), { recursive: true });
+if (existsSync('public')) cpSync('public', join(isolated, 'public'), { recursive: true });
 for (const file of ['package.json', 'astro.config.mjs', 'tsconfig.json']) cpSync(file, join(isolated, file));
 const directory = join(isolated, 'src/modules/think/content');
 cpSync('tests/fixtures/think/published.md.fixture', join(directory, 'probe.md'));

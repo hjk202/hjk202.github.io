@@ -1,4 +1,4 @@
-import { cpSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdirSync, readFileSync, readdirSync, writeFileSync, existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
@@ -14,6 +14,7 @@ const before = snapshot('src');
 const isolated = resolve('.cache', `design-${Date.now()}`);
 mkdirSync(isolated, { recursive: true });
 cpSync('src', join(isolated, 'src'), { recursive: true });
+if (existsSync('public')) cpSync('public', join(isolated, 'public'), { recursive: true });
 for (const file of ['package.json', 'astro.config.mjs', 'tsconfig.json']) cpSync(file, join(isolated, file));
 const bookmarks = [
   { slug: 'one', title: '工具资源一', description: '工具说明', published: true, sourceUrl: 'https://example.com/one', note: ['个人说明'], category: { id: 'tools', label: '工具' } },

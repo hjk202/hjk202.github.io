@@ -1,4 +1,4 @@
-import { cpSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdirSync, readdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { resolve, join } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
@@ -15,6 +15,7 @@ const snapshot = (directory) => Object.fromEntries(readdirSync(directory, { with
 const before = snapshot('src');
 mkdirSync(isolated, { recursive: true });
 cpSync('src', join(isolated, 'src'), { recursive: true });
+if (existsSync('public')) cpSync('public', join(isolated, 'public'), { recursive: true });
 for (const file of ['package.json', 'astro.config.mjs', 'tsconfig.json']) cpSync(file, join(isolated, file));
 const extra = join(isolated, 'src/modules/observatory');
 mkdirSync(extra);

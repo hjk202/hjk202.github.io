@@ -9,4 +9,4 @@ interface Props { page: RoutedPage }
 const { page } = Astro.props;
 const Page = page.component;
 ---
-<ModuleShell module={page.module}><Page {...page.props} /></ModuleShell>
+<ModuleShell module={page.module} head={page.head}><Page {...page.props} /></ModuleShell>

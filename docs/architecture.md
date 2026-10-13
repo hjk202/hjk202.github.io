@@ -43,6 +43,7 @@ Milestone 1.2、1.3 建立以下约定：
 - module.ts 默认导出 id、name、route、icon、order、enabled、count() 和 search()。
 - Registry 通过固定字面量文件匹配规则在构建期发现模块；不维护需随新模块改写的中心列表。
 - pages.ts 提供模块内相对路径、页面组件及模块专属参数；空相对路径为模块首页。
+- 3.5新增可选head.title/head.description，由模块为自己的公开页面声明；路由桥只转交，ModuleShell/Base统一输出并提供缺省。页面head不加入ModuleMetadata或SearchResult，不解析模块内部模型。中文文档语言、favicon与已知site/base下的canonical由Base处理；404为错误页面，不是模块或内容条目。
 - 通用 src/pages 路由通过 getStaticPaths() 汇总启用模块的页面。模块目录不会自行成为 Astro 路由。
 - 页面描述只适配静态路由，不统一内容类型；新增模块不要求修改 Home、Compass、Spotlight 或 Core 逻辑。
 

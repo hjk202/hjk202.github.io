@@ -14,4 +14,8 @@ test('fifth module joins Compass, shortcuts, search, counts and real routing aut
   await page.getByRole('combobox').press('Enter');
   await expect(page).toHaveURL(/observatory\/$/);
   await expect(page.locator('h1')).toHaveText('Extension verification');
+  await expect(page).toHaveTitle('Observatory — Personal Space');
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', 'Observatory — Personal Space的公开模块。');
+  const icon = await page.locator('link[rel="icon"]').getAttribute('href');
+  expect((await request.get(new URL(icon!, page.url()).href)).status()).toBe(200);
 });

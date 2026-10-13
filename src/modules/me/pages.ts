@@ -1,3 +1,4 @@
 import type { ModulePage } from '../../core/module/types';
 import Profile from './Profile.astro';
-export default [{ path: '', component: Profile, props: {} }] satisfies ModulePage[];
+import { profile } from './data';
+export default [{ path: '', component: Profile, props: {}, head: { title: profile ? `${profile.name} — Me` : 'Me', description: profile?.description ?? '暂无公开介绍。' } }] satisfies ModulePage[];

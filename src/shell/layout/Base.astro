@@ -2,15 +2,21 @@
 import Spotlight from '../home/Spotlight.astro';
 import '../theme/theme.css';
 import '../glass/glass.css';
-interface Props { title: string }
-const { title } = Astro.props;
+import { withBase } from '../../core/module/urls';
+interface Props { title: string; description?: string; noindex?: boolean }
+const { title, description = 'Personal Space：从Compass探索模块，用Spotlight查找公开内容。', noindex = false } = Astro.props;
+const canonical = Astro.site && !noindex ? new URL(Astro.url.pathname, Astro.site).href : undefined;
 ---
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
     <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href={withBase('/favicon.svg', import.meta.env.BASE_URL)} />
+    {canonical && <link rel="canonical" href={canonical} />}
+    {noindex && <meta name="robots" content="noindex" />}
   </head>
   <body><slot /><Spotlight /></body>
 </html>

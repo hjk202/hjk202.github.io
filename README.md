@@ -114,6 +114,8 @@ Remove-Item Env:E2E_DIST, Env:E2E_EXTENSION
 src/pages/index.astro    Compass 首页
 src/pages/[...path].astro 通用模块路由桥
 src/pages/search-index.json.ts 公开搜索快照
+src/pages/404.astro      真实错误页与Home/Spotlight返回
+public/favicon.svg      静态Compass符号
 src/core/module/         契约、构建 Registry、页面校验、地址处理
 src/core/search/         构建投影与浏览器纯匹配
 src/shell/               Shell、Compass、Spotlight、主题与玻璃样式
@@ -125,7 +127,7 @@ eslint.config.mjs       JavaScript / TypeScript / Astro lint
 docs/architecture.md    架构边界
 ```
 
-Think 使用模块内 Markdown，其他模块使用各自 TypeScript 数据与最小校验。首批公开内容为韩江恺的介绍、一篇学习思考文章、NEMU 项目与 Missing Semester 收藏；默认四模块数量均为 1，三个内容详情页和四个模块首页共形成 8 个 HTML 页面（含首页）。此前六份 Demo 已移除。当前未部署线上站点，也未实现 Private 或完整移动端适配。
+Think 使用模块内 Markdown，其他模块使用各自 TypeScript 数据与最小校验。首批公开内容为韩江恺的介绍、一篇学习思考文章、NEMU 项目与 Missing Semester 收藏；默认四模块数量均为 1，三个内容详情页和四个模块首页共形成 8 个正常 HTML 页面（含首页），另有404错误页，共9页；错误页不计入内容。此前六份 Demo 已移除。移动模拟回归已补齐，真机检查与线上发布仍待完成；没有Private。
 
 新增模块只增加 src/modules/<id>/：module.ts 默认导出最小 Module 契约，pages.ts 默认导出页面描述数组（空 path 为模块首页），其余数据与页面由模块管理。目录名与 id 一致，route 为无 base 的逻辑地址，order 唯一，enabled 默认 true。共享层通过固定 glob 自动发现，不维护中心模块列表；统计和搜索目标必须对应实际公开内容与已生成页面。详细边界见 docs/architecture.md。
 

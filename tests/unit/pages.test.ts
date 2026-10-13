@@ -29,3 +29,13 @@ test('logical URLs receive the deployment base exactly once', () => {
   assert.equal(withBase('/search-index.json', '/personal-space/'), '/personal-space/search-index.json');
   for (const path of ['https://example.com', '//example.com', '/../outside', '/a\\b']) assert.throws(() => withBase(path));
 });
+
+test('optional page head preserves module ownership and rejects invalid metadata', () => {
+  const head = { title: 'An actual content title', description: 'A module-owned public summary.' };
+  const [result] = collectPages(modules, { 'sample/pages.ts': [{ ...page, head }] });
+  assert.deepEqual(result.head, head);
+  assert.equal(collectPages(modules, { 'sample/pages.ts': [page] })[0].head, undefined);
+  for (const value of [null, [], 'wrong', { title: '' }, { title: 42 }, { description: '  ' }, { description: false }]) {
+    assert.throws(() => collectPages(modules, { 'sample/pages.ts': [{ ...page, head: value }] }), /head/);
+  }
+});

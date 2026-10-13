@@ -1,12 +1,12 @@
 ---
-import type { ModuleMetadata } from '../../core/module/types';
+import type { ModuleMetadata, ModulePage } from '../../core/module/types';
 import { withBase } from '../../core/module/urls';
 import Base from './Base.astro';
 import SearchButton from './SearchButton.astro';
-interface Props { module: ModuleMetadata }
-const { module } = Astro.props;
+interface Props { module: ModuleMetadata; head?: ModulePage['head'] }
+const { module, head } = Astro.props;
 ---
-<Base title={`${module.name} — Personal Space`}>
+<Base title={`${head?.title ?? module.name} — Personal Space`} description={head?.description ?? `${module.name} — Personal Space的公开模块。`}>
   <div class="module-page" data-module={module.id}>
   <header class="module-header">
     <div><a href={withBase('/', import.meta.env.BASE_URL)} aria-label="Home">HJK</a><span aria-hidden="true">/</span><span>{module.name}</span></div>
