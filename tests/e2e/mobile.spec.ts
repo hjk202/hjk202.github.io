@@ -34,3 +34,92 @@ for (const viewport of [{ width: 320, height: 568 }, { width: 360, height: 640 }
     }
   });
 }
+
+test('mobile search remains usable after reduced viewport and rotation, preserving input and composition', async ({ page }, info) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('./');
+  await page.getByRole('button', { name: 'Search my space', exact: true }).tap();
+  const input = page.getByRole('combobox');
+  await input.fill('底层');
+  await expect(page.getByRole('option')).toHaveCount(1);
+  await page.setViewportSize({ width: 375, height: 320 });
+  await expect(input).toHaveValue('底层');
+  const close = page.getByRole('button', { name: 'Close search' });
+  const bounds = await close.boundingBox();
+  expect(bounds!.width).toBeGreaterThanOrEqual(44);
+  expect(bounds!.height).toBeGreaterThanOrEqual(44);
+  expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(320);
+  const list = await page.locator('#space-results').boundingBox();
+  expect(list!.height).toBeGreaterThan(80);
+  expect(list!.y + list!.height).toBeLessThanOrEqual(320);
+  await page.screenshot({ path: info.outputPath('short-search.png'), animations: 'disabled' });
+  await input.dispatchEvent('compositionstart');
+  await input.press('Enter');
+  await expect(page.getByRole('dialog')).toBeVisible();
+  await input.dispatchEvent('compositionend');
+  await page.setViewportSize({ width: 667, height: 375 });
+  await expect(input).toHaveValue('底层');
+  await input.press('Enter');
+  await expect(page).toHaveURL(/think\/understanding-from-the-bottom\/$/);
+});
+
+test('mobile search long results scroll inside the glass while inputs and retry remain reachable', async ({ page, request, baseURL }) => {
+  await page.setViewportSize({ width: 375, height: 320 });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  const index = await (await request.get(new URL('search-index.json', baseURL!).href)).json();
+  const results = Array.from({ length: 40 }, (_, n) => ({ title: `Mobile topic ${n}`, description: 'A browser-only result used to verify independent scrolling.', module: 'think', url: `/think/mobile-probe-${n}/` }));
+  await page.route('**/search-index.json', (route) => route.fulfill({ json: { ...index, results } }));
+  await page.goto('./');
+  await page.getByRole('button', { name: 'Search my space', exact: true }).tap();
+  await page.getByRole('combobox').fill('Mobile topic');
+  await expect(page.getByRole('option')).toHaveCount(40);
+  const list = page.locator('#space-results');
+  expect(await list.evaluate((element) => element.scrollHeight > element.clientHeight)).toBe(true);
+  for (let n = 0; n < 39; n++) await page.getByRole('combobox').press('ArrowDown');
+  await expect(page.getByRole('option').last()).toHaveAttribute('aria-selected', 'true');
+  expect(await list.evaluate((element) => element.scrollTop)).toBeGreaterThan(0);
+  await page.getByRole('button', { name: 'Close search' }).tap();
+  await expect(page.getByRole('button', { name: 'Search my space', exact: true })).toBeFocused();
+  await page.unroute('**/search-index.json');
+  await page.reload();
+  await page.route('**/search-index.json', (route) => route.abort());
+  await page.getByRole('button', { name: 'Search my space', exact: true }).tap();
+  await expect(page.getByRole('button', { name: 'Try again' })).toBeVisible();
+  await page.unroute('**/search-index.json');
+  await page.getByRole('button', { name: 'Try again' }).tap();
+  await page.getByRole('combobox').fill('NEMU');
+  await expect(page.getByRole('option')).toHaveCount(1);
+});
+
+test('mobile close after viewport change can reopen without stale task and restores scroll', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.goto('./');
+  await page.getByRole('button', { name: 'Search my space', exact: true }).tap();
+  await page.getByRole('combobox').fill('NEMU');
+  await page.waitForTimeout(400);
+  await page.setViewportSize({ width: 667, height: 375 });
+  await page.getByRole('button', { name: 'Close search' }).tap();
+  await expect(page.locator('[data-spotlight]')).toHaveAttribute('data-closing', '');
+  const origin = await page.locator('[data-spotlight]').evaluate((dialog) => {
+    const source = document.querySelector('[data-search-trigger]')!.getBoundingClientRect();
+    const element = dialog as HTMLElement;
+    return { actual: parseFloat(element.style.getPropertyValue('--from-x')), expected: source.left + source.width / 2 - (element.offsetLeft + element.offsetWidth / 2) };
+  });
+  expect(Math.abs(origin.actual - origin.expected)).toBeLessThan(1);
+  await page.getByRole('combobox').press('Control+k');
+  await page.waitForTimeout(400);
+  await expect(page.getByRole('dialog')).toBeVisible();
+  await expect(page.getByRole('combobox')).toHaveValue('NEMU');
+  await page.getByRole('button', { name: 'Close search' }).tap();
+  await expect(page.getByRole('dialog')).not.toBeVisible();
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.evaluate(() => window.scrollTo(0, 80));
+  const scroll = await page.evaluate(() => scrollY);
+  expect(scroll).toBeGreaterThan(0);
+  await page.getByRole('button', { name: 'Search my space', exact: true }).evaluate((button) => (button as HTMLElement).focus({ preventScroll: true }));
+  await page.keyboard.press('Control+k');
+  await page.getByRole('button', { name: 'Close search' }).tap();
+  expect(await page.evaluate(() => scrollY)).toBe(scroll);
+  expect(await page.locator('html').getAttribute('class')).not.toContain('search-open');
+});

@@ -123,6 +123,14 @@ if (dialog) {
     dialog!.close();
     restoreAfterClose();
   }
+  function updateOrigin(source: Element | null = trigger) {
+    const sourceBounds = source?.getBoundingClientRect();
+    const buttonBounds = document.querySelector('[data-search-trigger]')!.getBoundingClientRect();
+    const origin = sourceBounds?.width ? sourceBounds : buttonBounds;
+    // Layout offsets ignore the running transform, including after viewport changes.
+    dialog!.style.setProperty('--from-x', `${origin.left + origin.width / 2 - (dialog!.offsetLeft + dialog!.offsetWidth / 2)}px`);
+    dialog!.style.setProperty('--from-y', `${origin.top + origin.height / 2 - (dialog!.offsetTop + dialog!.offsetHeight / 2)}px`);
+  }
   function close() {
     if (!dialog!.open || dialog!.hasAttribute('data-closing')) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { finishClose(); return; }
@@ -130,6 +138,7 @@ if (dialog) {
     dialog!.style.setProperty('--close-transform', current.transform);
     dialog!.style.setProperty('--close-opacity', current.opacity);
     dialog!.style.setProperty('--close-backdrop-opacity', getComputedStyle(dialog!, '::backdrop').opacity);
+    updateOrigin();
     dialog!.setAttribute('data-closing', '');
     if (getComputedStyle(dialog!).animationName === 'none') finishClose();
     else closeTimer = window.setTimeout(finishClose, 320);
@@ -160,18 +169,13 @@ if (dialog) {
     input.value = '';
     composing = false;
     render();
-    const sourceBounds = (source ?? document.querySelector('[data-search-trigger]'))?.getBoundingClientRect();
-    const buttonBounds = document.querySelector('[data-search-trigger]')!.getBoundingClientRect();
     dialog!.style.animation = 'none';
     dialog!.showModal();
-    const panelBounds = dialog!.getBoundingClientRect();
-    const origin = sourceBounds?.width ? sourceBounds : buttonBounds;
-    dialog!.style.setProperty('--from-x', `${origin.left + origin.width / 2 - (panelBounds.left + panelBounds.width / 2)}px`);
-    dialog!.style.setProperty('--from-y', `${origin.top + origin.height / 2 - (panelBounds.top + panelBounds.height / 2)}px`);
+    updateOrigin(source);
     dialog!.style.removeProperty('animation');
     input.setAttribute('aria-expanded', 'true');
     document.documentElement.classList.add('search-open');
-    input.focus();
+    input.focus({ preventScroll: true });
     void load();
   }
   document.querySelectorAll('[data-search-trigger]').forEach((button) => button.addEventListener('click', () => open(button)));
@@ -213,7 +217,7 @@ if (dialog) {
     pointerStartedOutside = false;
     input.setAttribute('aria-expanded', 'false');
     document.documentElement.classList.remove('search-open');
-    if (trigger instanceof HTMLElement || trigger instanceof SVGElement) trigger.focus();
+    if (trigger instanceof HTMLElement || trigger instanceof SVGElement) trigger.focus({ preventScroll: true });
   }
   dialog.addEventListener('close', restoreAfterClose);
   const outside = (event: PointerEvent | MouseEvent) => {

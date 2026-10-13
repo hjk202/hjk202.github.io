@@ -13,10 +13,10 @@
 | 项目 | 状态 |
 | --- | --- |
 | 当前任务 | Phase 3 批量授权实施，逐项验证；完成后暂停验收 |
-| 当前指定实施 milestone | 3.3 In Progress；3.1–3.2 Done，其余逐项开始，不同时实施 |
+| 当前指定实施 milestone | 3.4 In Progress；3.1–3.3 Done，其余逐项开始，不同时实施 |
 | 当前授权范围 | 用户授权实施 Phase 3；先保存 Git v0，再允许覆盖现有 hjk202.github.io demo；保留远程历史，不强制推送 |
-| 项目实施 | Phase 1、2 与 D1–D8 技术完成，用户认可当前视觉和交互基线；Phase 3 尚未开始 |
-| 下一候选 milestone | 3.3 通过后执行 3.4；本轮已有批量授权，仍逐项完成验证 |
+| 项目实施 | Phase 1、2 与 D1–D8 技术完成，用户认可当前基线；Phase 3 逐项进行，真机验收集中上线后 |
+| 下一候选 milestone | 3.4 通过后执行 3.5；本轮已有批量授权，仍逐项完成验证 |
 
 创建这两份文档不代表 milestone 1.1 已开始或已完成。所有实施 milestone 初始为 `Pending`。
 
@@ -221,7 +221,7 @@ D:\hjk202\
 - **验证方式**：公共验证门槛；桌面与真实移动设备检查；线上路由巡检；至少一次内容更新与重新部署。
 - **后续依赖**：依赖 Phase 1、2，不依赖 Private；为扩展模块提供发布基础。
 
-详细执行范围见 [Phase 3 Detailed Plan](#phase-3-detailed-plan)，拆为 3.1–3.8。本轮仅规划，全部 Pending；3.6 的发布管线准备与 3.7 的实际公开发布是不同验收单元。
+详细执行范围见 [Phase 3 Detailed Plan](#phase-3-detailed-plan)，拆为 3.1–3.8。用户已授权逐项实施并验证；3.6 的发布管线准备与 3.7 的实际公开发布是不同验收单元。
 
 ### Phase 4 — 按实际需要扩展模块
 
@@ -1228,7 +1228,7 @@ ModuleShell.astro 仅增加通用 module-page 包裹层和来自元数据的 dat
 ## Phase 3 Detailed Plan
 
 **规划日期**：2026-10-13。  
-**阶段状态**：In Progress；3.1–3.2 Done，当前执行3.3。  
+**阶段状态**：In Progress；3.1–3.3 Done，当前执行3.4。  
 **本轮授权**：2026-10-13用户授权实施Phase 3，先用Git保存当前版本为v0，允许覆盖 https://hjk202.github.io/ 的已有demo。逐项执行和验证，不扩展未来Phase。  
 **新增约定**：用户要求移动端保持简单、能看能用，并明确同意把OPPO Find X7 Ultra默认浏览器的真机验收集中在上线后3.8；3.3/3.4先完成自动化与模拟验收，未实测手机不得标为已通过。Git v0已保存于ad0e0af，本项前提前初始化Git是用户明确授权的例外。  
 **需求依据**：NEED.md 第43节手机端、第44–46节材质与动画、第47节技术栈，以及第55–56节获准修订；视觉基线为 DESIGN.md 与 D1–D8 的已完成结果。用户已认可当前效果，本阶段不重新设计网站。
@@ -1273,8 +1273,8 @@ Phase 3 把已经成立的个人空间变成手机上可用、可公开访问、
 | --- | --- | --- | --- |
 | 3.1 | 发布基线、支持矩阵与验收清单 | Done | Phase 1、2、D1–D8；用户批量授权 |
 | 3.2 | 移动Home与Compass | Done | 3.1 |
-| 3.3 | 移动Spotlight与软键盘 | In Progress | 3.2 |
-| 3.4 | 四模块移动阅读与局部操作 | Pending | 3.2、3.3 |
+| 3.3 | 移动Spotlight与软键盘 | Done | 3.2 |
+| 3.4 | 四模块移动阅读与局部操作 | In Progress | 3.2、3.3 |
 | 3.5 | 页面元信息、favicon与404 | Pending | 3.4 |
 | 3.6 | 可重复静态构建与发布管线准备 | Pending | 3.5 |
 | 3.7 | 首次GitHub Pages公开发布 | Pending | 3.6；真实目标与发布授权明确 |
@@ -1393,7 +1393,7 @@ src/pages/index.astro、src/shell/home/Compass.astro；必要时geometry.ts、Sh
 
 ### Milestone 3.3 — 移动Spotlight与软键盘
 
-**Status**：In Progress  
+**Status**：Done  
 **Dependencies**：3.2 Done。
 
 #### Goal / Scope
@@ -1420,11 +1420,11 @@ src/shell/home/Spotlight.astro、spotlight.ts、src/shell/glass/glass.css；必�
 
 #### Done Criteria
 
-- [ ] 无软键盘和有软键盘时，输入、关闭和至少一条结果均可达；长列表可滚动。
-- [ ] 查询、重试、中文输入法、选择和跳转保持既有行为，不依赖桌面Hover。
-- [ ] 三种关闭路径及快速重开连贯，关闭后焦点/背景滚动恢复，没有旧任务误关。
-- [ ] 移动模拟完成输入、视口变化、旋转与跳转检查；OPPO真机验收按用户明确约定移至上线后3.8，模拟结果单独标注。
-- [ ] 桌面功能、明暗、减少动态和模糊降级无回归，公共验证通过。
+- [x] 正常与缩小可视高度模拟中，输入、关闭和至少一条结果均可达；长列表可滚动。真实软键盘检查按用户明确约定移至3.8。
+- [x] 查询、重试、中文输入法事件保护、选择和跳转保持既有行为，不依赖桌面Hover。
+- [x] 三种关闭路径及快速重开连贯，关闭后焦点/背景滚动恢复，没有旧任务误关。
+- [x] 移动模拟完成输入、视口变化、旋转与跳转检查；OPPO真机验收按用户明确约定移至上线后3.8，模拟结果单独标注。
+- [x] 桌面功能、明暗、减少动态和模糊降级无回归，公共验证通过。
 
 #### Verification
 
@@ -1434,11 +1434,11 @@ src/shell/home/Spotlight.astro、spotlight.ts、src/shell/glass/glass.css；必�
 
 #### 后续依赖 / Completion Record
 
-3.4依赖可用的共享搜索；真机确认还作为3.8发布验收输入。待执行。
+3.4依赖可用的共享搜索；真机确认还作为3.8发布验收输入。**Completion Record（2026-10-13）**：Spotlight采用90vw、动态高度及flex独立结果滚动，手机关闭/重试44px目标，短高度隐藏辅助键盘提示并保留必要操作；inputmode/enterkeyhint为搜索。viewport声明resizes-content和safe-area，不禁用用户缩放、不添加VisualViewport监听；这是支持浏览器的最小选择，真实OPPO行为留3.8。[Chrome官方viewport行为说明](https://developer.chrome.com/blog/viewport-resize-behavior/)。收起时用当前布局重新计算目标，焦点恢复preventScroll避免短窗口页面跳到顶部；D8动画/重开语义保留。npm run lint/typecheck（71 files，0诊断）/test（23项）/build全部退出0；根/子路径各35e2e、WebKit12移动e2e通过。新增测试验证375×320可视高度、667×375旋转、中文composition事件、40结果独立滚动、失败重试、快速重开和原滚动恢复；正常视口/缩小高度分别检查，明确不是实机键盘。审阅WebKit短高度搜索截图，日志.cache/3.3-*.log。真实内容、搜索算法、Core、依赖未改。
 
 ### Milestone 3.4 — 四模块移动阅读与局部操作
 
-**Status**：Pending  
+**Status**：In Progress  
 **Dependencies**：3.2、3.3 Done。
 
 #### Goal / Scope
@@ -1671,7 +1671,7 @@ Phase 4可在新的明确需求和真实素材出现后扩展；Private仍需Pha
 | 事项 | 当前事实/默认选择 | 影响与处理时点 |
 | --- | --- | --- |
 | 发布平台 | 沿用NEED规定的GitHub Pages + Actions | 不另选平台；3.6准备、3.7操作真实目标 |
-| GitHub账号/仓库/分支 | 当前无.git，未提供目标；不从D:/hjk202推断仓库名或main分支 | 不阻塞3.1–3.5；3.6可准备本地模板，3.7必须补齐 |
+| GitHub账号/仓库/分支 | 已保存本地v0；用户提供站点并允许覆盖，已只读核实hjk202/hjk202.github.io、main、public、有Pages | 写权限与Pages源仍待3.7核实；保留旧demo历史，禁止强制推送 |
 | site/base | 项目站点、用户根站点或自定义域名需要真实目标决定 | 默认先验证根与模拟项目子路径；正式值确认后才用于生产canonical/发布 |
 | 源码可见性 | 网站公开不等于用户已同意源码全部公开 | 3.7确认真实仓库策略与账户Pages条件；不自动创建public仓库 |
 | 自定义域名 | 没有已确认域名，不作为首次发布前提 | 先用指定Pages URL；DNS/CNAME仅在明确要求后配置 |
@@ -1679,7 +1679,7 @@ Phase 4可在新的明确需求和真实素材出现后扩展；Private仍需Pha
 | 字体与文风 | 现有系统字体和用户原文；中文为主、英文混排 | 只修语言标记与跨平台字号/换行，不买字体或做i18n |
 | 页面元信息 | 当前详情页title仍是模块级默认 | 3.5用最小Web元信息声明解决，不扩展搜索/内容模型 |
 | OG分享图 | 不把NEED的品牌示例自动变成必做功能 | 第一版不阻塞于OG；如用户批准静态默认图，再明确最小范围 |
-| 内容更新验证 | 已有4份真实素材，但没有新的更正请求 | 不阻塞3.1–3.7；3.8用认可的真实编辑，缺少时该标准未满足 |
+| 内容更新验证 | 用户同意在Me增加https://github.com/hjk202公开链接 | 3.8作为真实编辑及二次部署验证；当前不提前修改素材 |
 | Build过程材料 | 阶段/更新/问题能力已有，NEMU历史尚未提供 | 本阶段保留真实现状，不以“发布完善”为由补造内容 |
 | Windows与CI差异 | 本机验证有外部测试服务模式，CI尚未执行 | 3.6验证正常生命周期，3.7记录真实Actions结果 |
 | 草稿资源 | 既有验证发现未渲染Markdown可能输出引用的原始资源 | 发布只使用当前明确公开材料；不把published当Private，保密能力仍归Phase 5 |
@@ -1688,6 +1688,8 @@ Phase 4可在新的明确需求和真实素材出现后扩展；Private仍需Pha
 以上是发布计划的待输入和实际限制，不阻塞本轮文档交付，也不授权提前操作外部应用或扩大任何milestone。
 
 ### 本次规划的验证与交付记录
+
+以下为先前规划交付时的历史记录；当前授权和实施状态以本文开头与milestone完成记录为准。
 
 本轮只更新PLAN.md；NEED.md继续作为需求来源，DESIGN.md保留已认可的设计，AGENTS.md执行规则不变。新3.1–3.8全部Pending，没有实现项In Progress。
 

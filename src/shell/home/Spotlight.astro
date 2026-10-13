@@ -7,7 +7,7 @@ import { withBase } from '../../core/module/urls';
     <div class="spotlight-input-row">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg>
       <label class="sr-only" for="space-query">Search my space</label>
-      <input id="space-query" type="text" role="combobox" aria-autocomplete="list" aria-haspopup="listbox" aria-controls="space-results" aria-expanded="false" autocomplete="off" spellcheck="false" placeholder="Search my space..." />
+      <input id="space-query" type="text" inputmode="search" enterkeyhint="search" role="combobox" aria-autocomplete="list" aria-haspopup="listbox" aria-controls="space-results" aria-expanded="false" autocomplete="off" spellcheck="false" placeholder="Search my space..." />
       <button type="button" class="spotlight-close" aria-label="Close search" data-search-close>Esc</button>
     </div>
     <div class="spotlight-body">
@@ -24,14 +24,15 @@ import { withBase } from '../../core/module/urls';
 </script>
 <style is:global>
   .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
-  .spotlight { --panel-top: min(18vh, 150px); width: min(600px, calc(100vw - 40px)); padding: 0; margin: var(--panel-top) auto 0; border-radius: 20px; overflow: hidden; max-height: calc(100svh - var(--panel-top) - 20px); }
-  .spotlight-input-row { display: flex; align-items: center; gap: 16px; padding: 22px 24px; border-bottom: 1px solid var(--edge); }
+  .spotlight { --panel-top: max(env(safe-area-inset-top), min(18dvh, 150px)); width: min(600px, 90vw); padding: 0; margin: var(--panel-top) auto 0; border-radius: 20px; overflow: hidden; max-height: calc(100svh - var(--panel-top) - 20px); max-height: calc(100dvh - var(--panel-top) - max(20px, env(safe-area-inset-bottom))); }
+  .spotlight-panel { display: flex; flex-direction: column; max-height: inherit; }
+  .spotlight-input-row { display: flex; flex-shrink: 0; align-items: center; gap: 16px; padding: 22px 24px; border-bottom: 1px solid var(--edge); }
   .spotlight-input-row svg { flex-shrink: 0; }
   .spotlight input { border: 0; outline: none; background: none; min-width: 0; width: 100%; color: inherit; font-size: 1.15rem; }
   .spotlight-close { border: 1px solid var(--edge); background: transparent; border-radius: 6px; font-size: .65rem; padding: 3px 6px; cursor: pointer; }
-  .spotlight-body { padding: 20px 20px 12px; }
-  .spotlight-caption { margin: 0 6px 16px; text-transform: uppercase; letter-spacing: .15em; font-size: .6rem; }
-  .spotlight-results { max-height: min(360px, calc(100svh - var(--panel-top) - 250px)); overflow-y: auto; overscroll-behavior: contain; }
+  .spotlight-body { display: flex; flex-direction: column; min-height: 0; padding: 20px 20px 12px; }
+  .spotlight-caption { flex-shrink: 0; margin: 0 6px 16px; text-transform: uppercase; letter-spacing: .15em; font-size: .6rem; }
+  .spotlight-results { min-height: 0; max-height: 360px; overflow-y: auto; overscroll-behavior: contain; }
   .spotlight-results.shortcuts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
   .spotlight [role="option"] { display: flex; flex-direction: column; padding: 14px; text-decoration: none; border-radius: 12px; cursor: pointer; }
   .shortcuts [role="option"] { align-items: center; text-align: center; gap: 10px; padding: 18px 4px; }
@@ -39,9 +40,23 @@ import { withBase } from '../../core/module/urls';
   .result-title { font-size: .9rem; font-weight: 500; }
   .result-module { font-size: .6rem; text-transform: uppercase; letter-spacing: .1em; }
   .result-description { font-size: .75rem; line-height: 1.5; margin-top: 4px; }
-  .spotlight-status { padding: 0 6px; font-size: .75rem; }
+  .spotlight-status { flex-shrink: 0; padding: 0 6px; font-size: .75rem; }
   .spotlight-status p:empty { display: none; }
   .spotlight-status button { padding: 5px 10px; border: 1px solid var(--edge); border-radius: 6px; color: inherit; background: transparent; cursor: pointer; }
-  .spotlight-footer { display: flex; justify-content: flex-end; gap: 20px; padding: 12px 26px; border-top: 1px solid var(--edge); font-size: .6rem; }
+  .spotlight-footer { display: flex; flex-shrink: 0; justify-content: flex-end; gap: 20px; padding: 12px 26px; border-top: 1px solid var(--edge); font-size: .6rem; }
   @media (max-width: 480px) { .spotlight-results.shortcuts { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 600px), (pointer: coarse) {
+    .spotlight-input-row { gap: 12px; padding: 12px 16px; }
+    .spotlight input { font-size: 1rem; }
+    .spotlight-close { min-width: 44px; min-height: 44px; }
+    .spotlight-footer { display: none; }
+    .spotlight-body { padding: 12px; }
+    .spotlight-status button { min-height: 44px; }
+  }
+  @media (max-height: 480px) {
+    .spotlight { --panel-top: max(12px, env(safe-area-inset-top)); }
+    .spotlight-caption, .spotlight-footer { display: none; }
+    .spotlight-body { padding: 8px 12px; }
+    .shortcuts [role="option"] { gap: 6px; padding: 10px 4px; }
+  }
 </style>
