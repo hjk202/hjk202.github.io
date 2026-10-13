@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test';
 
+test.use({ hasTouch: true });
+
 test('Me Compass shows peer average while public data still counts one actual profile', async ({ page, request, baseURL }) => {
   const index = await (await request.get(new URL('search-index.json', baseURL!).href)).json();
   expect(index.modules.map((module: { count: number }) => module.count)).toEqual([2, 1, 1, 3]);
@@ -12,6 +14,38 @@ test('Me Compass shows peer average while public data still counts one actual pr
   expect(Math.hypot(x - 300, y - 300)).toBeCloseTo(130.5 * Math.log1p(2) / Math.log1p(3), 5);
   await me.click();
   await expect(page).toHaveURL(/personal-space\/me\/$/);
+});
+
+test('mobile fixture categories, notes and project records support touch and larger text without page overflow', async ({ page }, info) => {
+  for (const width of [320, 375, 768]) {
+    await page.setViewportSize({ width, height: 812 });
+    for (const largerText of [false, true]) {
+      for (const path of ['keep/', 'think/', 'build/record-probe/']) {
+        await page.goto(`./${path}`);
+        if (largerText) await page.addStyleTag({ content: ':root {font-size:200%} body {font-size:200%}' });
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+        if (path === 'keep/') {
+          const category = page.locator('[data-category-filter="systems"]');
+          expect((await category.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+          await category.tap();
+          await expect(page.locator('.bookmark-card:visible')).toHaveCount(1);
+          await page.reload();
+          await expect(category).toHaveAttribute('aria-current', 'true');
+        }
+        if (path === 'think/') await expect(page.locator('.note-body')).toContainText('测试中的想法正文');
+        if (path.startsWith('build/')) {
+          const code = page.locator('.project pre');
+          expect(await code.evaluate((element) => element.scrollWidth > element.clientWidth)).toBe(true);
+          const older = page.locator('.project-update').last();
+          await older.locator('summary').tap();
+          await expect(older).toHaveAttribute('open', '');
+          await page.getByRole('link', { name: '问题与复盘', exact: true }).tap();
+          await expect(page).toHaveURL(/#issues$/);
+        }
+        if (width === 320 && !largerText) await page.screenshot({ path: info.outputPath(path.replaceAll('/', '-') + '.png'), fullPage: true, animations: 'disabled' });
+      }
+    }
+  }
 });
 
 test('Keep multiple categories survive filtering, refresh, Back and detail return under a deployment base', async ({ page }) => {

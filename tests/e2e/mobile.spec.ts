@@ -123,3 +123,34 @@ test('mobile close after viewport change can reopen without stale task and resto
   expect(await page.evaluate(() => scrollY)).toBe(scroll);
   expect(await page.locator('html').getAttribute('class')).not.toContain('search-open');
 });
+
+for (const width of [320, 375, 768]) {
+  test(`mobile ${width}: all real module pages remain readable and usable at normal and larger text sizes`, async ({ page }, info) => {
+    await page.setViewportSize({ width, height: 812 });
+    const errors: string[] = [];
+    page.on('pageerror', (error) => errors.push(error.message));
+    for (const route of ['me/', 'think/', 'think/understanding-from-the-bottom/', 'build/', 'build/nemu/', 'keep/', 'keep/missing-semester/']) {
+      for (const largerText of [false, true]) {
+        await page.goto(`./${route}`);
+        if (largerText) await page.addStyleTag({ content: ':root {font-size:200%} body {font-size:200%}' });
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+        const home = await page.getByRole('link', { name: 'Home', exact: true }).boundingBox();
+        expect(home!.width).toBeGreaterThanOrEqual(44);
+        expect(home!.height).toBeGreaterThanOrEqual(44);
+        if (route === 'think/understanding-from-the-bottom/' && largerText && width === 320) {
+          const equation = page.getByRole('math');
+          expect(await equation.evaluate((element) => element.scrollWidth > element.clientWidth)).toBe(true);
+          expect(await equation.evaluate((element) => { element.scrollLeft = element.scrollWidth; return element.scrollLeft; })).toBeGreaterThan(0);
+        }
+        if (!largerText && width === 320) await page.screenshot({ path: info.outputPath(route.replaceAll('/', '-') + '.png'), fullPage: true, animations: 'disabled' });
+      }
+      await page.getByRole('button', { name: 'Search my space', exact: true }).tap();
+      await expect(page.getByRole('combobox')).toBeFocused();
+      await page.getByRole('combobox').press('Escape');
+      await expect(page.getByRole('dialog')).not.toBeVisible();
+      await page.getByRole('link', { name: 'Home', exact: true }).tap();
+      await expect(page.locator('[data-compass]')).toBeVisible();
+    }
+    expect(errors).toEqual([]);
+  });
+}

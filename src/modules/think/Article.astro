@@ -28,7 +28,8 @@ const Content = post.Content;
   .prose :global(pre) { max-width: 100%; overflow-x: auto; padding: 1.25rem; border: 1px solid var(--edge); border-radius: 10px; line-height: 1.65; }
   .prose :global(pre code) { padding: 0; background: transparent; }
   .prose :global(img) { max-width: 100%; height: auto; }
-  .prose :global(.attention-equation) { display: flex; justify-content: center; align-items: center; gap: .5rem; padding: 1.5rem 0; font: 1.5rem Georgia, serif; }
+  .prose :global(.attention-equation) { display: flex; justify-content: safe center; align-items: center; gap: .5rem; max-width: 100%; overflow-x: auto; padding: 1.5rem 0; font: 1.5rem Georgia, serif; }
+  .prose :global(.attention-equation > *) { flex-shrink: 0; }
   .prose :global(.fraction) { display: inline-flex; flex-direction: column; text-align: center; }
   .prose :global(.fraction > span:first-child) { border-bottom: 1px solid currentColor; padding: 0 .3rem .3rem; }
   .prose :global(.fraction > span:last-child) { padding-top: .3rem; }

@@ -37,8 +37,8 @@
 | 3.1 | lint/typecheck/23单元/build/23e2e全部退出0 | .cache/3.1-e2e.log；3.1-home-1440/375/320/667.png；3.1-mobile-baseline.json | Done |
 | 3.2 | lint/typecheck/23单元/根与子路径build；各32e2e；WebKit9e2e；4–7节点两引擎8组合均通过 | .cache/3.2-*.log；mobile-probe-output.txt所指截图/测量 | Done |
 | 3.3 | lint/typecheck/23单元/build；根与子路径各35e2e；WebKit12专项通过 | .cache/3.3-*.log；短高度/旋转/IME事件/40结果/还焦滚动；真机未测 | Done |
-| 3.4 | 待执行 | 四模块阅读、分类/外链/代码公式、隔离复杂素材 | In Progress |
-| 3.5 | 待执行 | head、favicon、真实404、根/子路径 | Pending |
+| 3.4 | lint/typecheck/23单元/build；根与子路径各38e2e；WebKit15；设计两引擎各5；内容/空各1通过 | .cache/3.4-*.log；320px真实页面与长分类截图；200%字号压力探针 | Done |
+| 3.5 | 待执行 | head、favicon、真实404、根/子路径 | In Progress |
 | 3.6 | 待执行 | 干净构建、工作流审阅、发布候选与回退步骤 | Pending |
 | 3.7 | 待执行 | 真实仓库/Actions/线上URL，旧demo历史保留 | Pending |
 | 3.8 | 待执行 | OPPO基础验收、真实内容更新部署、维护流程 | Pending |

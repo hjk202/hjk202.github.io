@@ -17,8 +17,9 @@ const { module } = Astro.props;
 </Base>
 <style>
   .module-page { position: relative; isolation: isolate; display: flow-root; min-height: 100svh; background: radial-gradient(ellipse at 50% 0%, var(--environment-light), transparent 65%), var(--background); }
-  header { display: flex; justify-content: space-between; align-items: center; padding: 26px clamp(24px, 5vw, 72px); }
-  header div { display: flex; gap: 16px; align-items: center; font-size: .75rem; letter-spacing: .1em; text-transform: uppercase; }
-  header a { text-decoration: none; font-weight: 600; }
+  header { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: max(26px, env(safe-area-inset-top)) max(clamp(24px, 5vw, 72px), env(safe-area-inset-right)) 26px max(clamp(24px, 5vw, 72px), env(safe-area-inset-left)); }
+  header div { display: flex; min-width: 0; gap: 16px; align-items: center; font-size: .75rem; letter-spacing: .1em; text-transform: uppercase; }
+  header a { display: inline-flex; align-items: center; flex-shrink: 0; min-width: 44px; min-height: 44px; text-decoration: none; font-weight: 600; }
   header div > span { color: var(--muted); }
+  header div > span:last-child { min-width: 0; overflow-wrap: anywhere; }
 </style>

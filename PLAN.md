@@ -13,10 +13,10 @@
 | 项目 | 状态 |
 | --- | --- |
 | 当前任务 | Phase 3 批量授权实施，逐项验证；完成后暂停验收 |
-| 当前指定实施 milestone | 3.4 In Progress；3.1–3.3 Done，其余逐项开始，不同时实施 |
+| 当前指定实施 milestone | 3.5 In Progress；3.1–3.4 Done，其余逐项开始，不同时实施 |
 | 当前授权范围 | 用户授权实施 Phase 3；先保存 Git v0，再允许覆盖现有 hjk202.github.io demo；保留远程历史，不强制推送 |
 | 项目实施 | Phase 1、2 与 D1–D8 技术完成，用户认可当前基线；Phase 3 逐项进行，真机验收集中上线后 |
-| 下一候选 milestone | 3.4 通过后执行 3.5；本轮已有批量授权，仍逐项完成验证 |
+| 下一候选 milestone | 3.5 通过后执行 3.6；本轮已有批量授权，仍逐项完成验证 |
 
 创建这两份文档不代表 milestone 1.1 已开始或已完成。所有实施 milestone 初始为 `Pending`。
 
@@ -1228,7 +1228,7 @@ ModuleShell.astro 仅增加通用 module-page 包裹层和来自元数据的 dat
 ## Phase 3 Detailed Plan
 
 **规划日期**：2026-10-13。  
-**阶段状态**：In Progress；3.1–3.3 Done，当前执行3.4。  
+**阶段状态**：In Progress；3.1–3.4 Done，当前执行3.5。  
 **本轮授权**：2026-10-13用户授权实施Phase 3，先用Git保存当前版本为v0，允许覆盖 https://hjk202.github.io/ 的已有demo。逐项执行和验证，不扩展未来Phase。  
 **新增约定**：用户要求移动端保持简单、能看能用，并明确同意把OPPO Find X7 Ultra默认浏览器的真机验收集中在上线后3.8；3.3/3.4先完成自动化与模拟验收，未实测手机不得标为已通过。Git v0已保存于ad0e0af，本项前提前初始化Git是用户明确授权的例外。  
 **需求依据**：NEED.md 第43节手机端、第44–46节材质与动画、第47节技术栈，以及第55–56节获准修订；视觉基线为 DESIGN.md 与 D1–D8 的已完成结果。用户已认可当前效果，本阶段不重新设计网站。
@@ -1274,8 +1274,8 @@ Phase 3 把已经成立的个人空间变成手机上可用、可公开访问、
 | 3.1 | 发布基线、支持矩阵与验收清单 | Done | Phase 1、2、D1–D8；用户批量授权 |
 | 3.2 | 移动Home与Compass | Done | 3.1 |
 | 3.3 | 移动Spotlight与软键盘 | Done | 3.2 |
-| 3.4 | 四模块移动阅读与局部操作 | In Progress | 3.2、3.3 |
-| 3.5 | 页面元信息、favicon与404 | Pending | 3.4 |
+| 3.4 | 四模块移动阅读与局部操作 | Done | 3.2、3.3 |
+| 3.5 | 页面元信息、favicon与404 | In Progress | 3.4 |
 | 3.6 | 可重复静态构建与发布管线准备 | Pending | 3.5 |
 | 3.7 | 首次GitHub Pages公开发布 | Pending | 3.6；真实目标与发布授权明确 |
 | 3.8 | 真机、线上与内容更新闭环验收 | Pending | 3.7 |
@@ -1438,7 +1438,7 @@ src/shell/home/Spotlight.astro、spotlight.ts、src/shell/glass/glass.css；必�
 
 ### Milestone 3.4 — 四模块移动阅读与局部操作
 
-**Status**：In Progress  
+**Status**：Done  
 **Dependencies**：3.2、3.3 Done。
 
 #### Goal / Scope
@@ -1470,11 +1470,11 @@ src/modules/me、think、build、keep内的页面/样式；必要的Shell内容�
 
 #### Done Criteria
 
-- [ ] 四模块首页和现有详情在手机/平板可读，仍能辨别各自用途与设计特点。
-- [ ] 长文本/标题/URL、公式、图片和代码不造成整页溢出；合理保留块内滚动。
-- [ ] 分类、外链、返回、项目局部操作、Home与Spotlight可用，键盘/触摸/缩放均能访问。
-- [ ] 实际公开数量、搜索目标、原文与slug保持；空/单项/多项状态诚实。
-- [ ] 桌面截图与行为无回归，公共验证及模块smoke通过。
+- [x] 四模块首页和现有详情在手机/平板可读，仍能辨别各自用途与设计特点。
+- [x] 长文本/标题/URL、公式、图片和代码不造成整页溢出；合理保留块内滚动。
+- [x] 分类、外链、返回、项目局部操作、Home与Spotlight可用，键盘/触摸/放大字号均能访问；真机按用户约定留3.8。
+- [x] 实际公开数量、搜索目标、原文与slug保持；空/单项/多项状态诚实。
+- [x] 桌面截图与行为无回归，公共验证及模块smoke通过。
 
 #### Verification
 
@@ -1482,11 +1482,11 @@ src/modules/me、think、build、keep内的页面/样式；必要的Shell内容�
 
 #### 后续依赖 / Completion Record
 
-提供3.5页面语义与3.6发布候选的稳定基础。待执行。
+提供3.5页面语义与3.6发布候选的稳定基础。**Completion Record（2026-10-13）**：修复Think在320px时6px横向溢出，保留光学花瓣；公式保持完整并允许自身横向滚动。Shell Home目标44px/安全区域、搜索按钮不收缩、移动文本链接44px；Me局部方向/入口可换行，Keep长分类和标题可换行且可触摸，Build局部导航/展开目标可用。没有统一四模块模板或增加内部能力。npm run lint/typecheck（71 files，0诊断）/test（23项）/根与子路径build全部退出0；根/子路径各38e2e、WebKit15移动e2e通过，覆盖7个真实模块/详情、320/375/768及200%字号压力探针（不等同于真机或完整无障碍认证）。隔离长分类/随记/长项目代码与阶段、更新、问题两引擎各5e2e通过；内容公开/隐藏/空/删除构建通过，图片/长代码/相对链接1e2e、全空模块1e2e通过。一次性探针命令的输出参数拼接导致No tests found，修正命令后实际执行通过，未删断言。审阅Me/Think真实320px及Keep隔离长分类截图；日志.cache/3.4-*.log。Git核对确认原始四份素材、slug、package/lock与Core不变；真机留3.8。
 
 ### Milestone 3.5 — 页面元信息、favicon与404
 
-**Status**：Pending  
+**Status**：In Progress  
 **Dependencies**：3.4 Done。
 
 #### Goal / Scope
