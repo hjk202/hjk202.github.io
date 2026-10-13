@@ -1,0 +1,14 @@
+---
+import { projects } from './data';
+import { projectStatusLabels } from './projects';
+import './background.css';
+import { withBase } from '../../core/module/urls';
+---
+<div class="project-directory">
+  <header class="build-heading"><p class="eyebrow">BUILD / PROJECT ARCHIVE</p><h1>构建与记录。</h1><p>真正做过的项目，以及构建过程留下的理解。</p><span class="build-total">{projects.length} 个公开项目</span></header>
+  {projects.length ? <div class="project-entries">{projects.map((project, index) => <article class="project-entry">
+    <div class="project-number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</div>
+    <div class="project-entry-main"><div class="project-entry-meta"><span class="eyebrow">{project.slug.toUpperCase()}</span>{project.status && <span class="project-status">{projectStatusLabels[project.status]}</span>}{project.period && <span>{project.period}</span>}</div><h2><a href={withBase(`/build/${project.slug}/`, import.meta.env.BASE_URL)}>{project.title}</a></h2><p>{project.summary}</p>{!!project.keywords?.length && <ul class="project-tags" aria-label="技术关键词">{project.keywords.map((word) => <li>{word}</li>)}</ul>}<a class="text-link" href={withBase(`/build/${project.slug}/`, import.meta.env.BASE_URL)}>进入项目档案 <span aria-hidden="true">→</span></a></div>
+    <div class="project-object" aria-hidden="true"><svg viewBox="0 0 220 180" fill="none"><path d="m110 20 75 42-75 42-75-42 75-42Z"/><path d="m35 62 0 46 75 42 75-42V62M110 104v46"/><path d="m35 87 75 42 75-42M73 42l75 42M73 84l75-42"/></svg><span>STRUCTURE / PROCESS / RESULT</span></div>
+  </article>)}</div> : <p>暂无公开项目。</p>}
+</div>

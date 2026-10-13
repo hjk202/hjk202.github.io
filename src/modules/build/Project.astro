@@ -1,0 +1,28 @@
+---
+import { projects } from './data';
+import { projectStatusLabels, milestoneStatusLabels } from './projects';
+import './background.css';
+import { withBase } from '../../core/module/urls';
+interface Props { project: (typeof projects)[number] }
+const { project } = Astro.props;
+const updates = [...(project.updates ?? [])].sort((a, b) => b.date.localeCompare(a.date));
+const hasRecords = !!(project.milestones?.length || updates.length || project.issues?.length);
+---
+<article class="project">
+  <a class="text-link project-return" href={withBase('/build/', import.meta.env.BASE_URL)}>← 返回项目</a>
+  <header class="project-cover"><p class="eyebrow">{project.slug.toUpperCase()} / PROJECT ARCHIVE</p><h1>{project.title}</h1><div class="project-overview"><p class="summary">{project.summary}</p><div class="project-metadata">{project.period && <div><span>记录周期</span><p>{project.period}</p></div>}{project.status && <div><span>项目状态</span><p>{projectStatusLabels[project.status]}</p></div>}{!!project.keywords?.length && <div><span>技术关键词</span><ul class="project-tags">{project.keywords.map((word) => <li>{word}</li>)}</ul></div>}</div></div></header>
+  {hasRecords && <nav class="project-local-nav glass-control" aria-label="项目内容"><a href="#archive">项目概览</a>{!!project.milestones?.length && <a href="#milestones">阶段目标</a>}{updates.length > 0 && <a href="#updates">进展记录</a>}{!!project.issues?.length && <a href="#issues">问题与复盘</a>}</nav>}
+  <div id="archive" class="project-archive">
+    <p class="eyebrow">THE WORK / 技术档案</p>
+    {project.sections.map((section) => <section>
+      {section.title && <h2>{section.title}</h2>}
+      {section.paragraphs?.map((text) => <p>{text}</p>)}
+      {section.items && <ul class="project-achievements">{section.items.map((text) => <li>{text}</li>)}</ul>}
+      {section.code && <pre><code>{section.code}</code></pre>}
+    </section>)}
+  </div>
+  {!!project.milestones?.length && <section id="milestones" class="project-record-section"><div class="record-heading"><h2>阶段目标</h2><span>已完成 {project.milestones.filter((stage) => stage.status === 'done').length} / {project.milestones.length} 阶段</span></div><ol class="project-stages">{project.milestones.map((stage, index) => <li data-milestone><span class="stage-number">{String(index + 1).padStart(2, '0')}</span><div><h3>{stage.title}</h3>{stage.description && <p>{stage.description}</p>}</div><span class="stage-status">{milestoneStatusLabels[stage.status]}</span></li>)}</ol></section>}
+  {updates.length > 0 && <section id="updates" class="project-record-section"><h2>进展记录</h2>{updates.map((update, index) => <details class="project-update" open={index === 0}><summary><time datetime={update.date}>{update.date}</time><span>{update.title}</span></summary><div>{[["完成了什么", update.accomplishments], ["遇到的问题", update.challenges], ["下一步", update.nextSteps]].map(([label, items]) => Array.isArray(items) && items.length > 0 && <div><h3>{label}</h3><ul>{items.map((item) => <li>{item}</li>)}</ul></div>)}</div></details>)}</section>}
+  {!!project.issues?.length && <section id="issues" class="project-record-section"><h2>问题与复盘</h2>{project.issues.map((issue) => <article class="project-issue"><div class="record-heading"><h3>{issue.title}</h3><span>{issue.status === 'resolved' ? '已解决' : '待解决'}</span></div><p>{issue.description}</p>{issue.resolution && <p><strong>解决方式：</strong>{issue.resolution}</p>}</article>)}</section>}
+  {!!project.links?.length && <footer class="project-links">{project.links.map((link) => <a class="glass-control text-link" href={link.url}>{link.label} <span aria-hidden="true">↗</span></a>)}</footer>}
+</article>

@@ -1,0 +1,20 @@
+.profile { overflow-wrap: anywhere; }
+.profile-hero { display: grid; grid-template-columns: 1.2fr 1fr; align-items: center; gap: 64px; padding: 28px 0 80px; }
+.profile h1 { font-size: clamp(3rem, 6vw, 5rem); letter-spacing: .04em; margin: 24px 0 18px; font-weight: 500; }
+.profile-intro { font-size: .9rem; color: var(--muted); max-width: 31em; line-height: 1.9; }
+.profile .profile-motto { font: 400 clamp(1.4rem, 2.3vw, 1.9rem)/1.75 'Iowan Old Style', 'Songti SC', SimSun, Georgia, serif; margin: 38px 0 24px; letter-spacing: .02em; }
+.profile-directions { display: flex; gap: 16px; font: .6rem/1.5 system-ui; letter-spacing: .2em; color: var(--muted); }
+.profile-directions span { color: var(--accent); }
+.profile-object { text-align: center; }
+.personal-lens { position: relative; width: min(100%, 320px); aspect-ratio: 1; margin: auto; border-radius: 50%; border: 1px solid var(--glass-highlight); background: radial-gradient(ellipse at 27% 15%, var(--glass-highlight), transparent 66%), linear-gradient(140deg, var(--cool-reflection), transparent 48%, var(--warm-reflection)), var(--label-glass); box-shadow: inset 2px 2px 8px var(--glass-highlight), inset -2px -3px 5px var(--lens-edge), 0 20px 35px var(--lens-shadow); }
+.personal-lens i { position: absolute; inset: 8%; border: 1px solid var(--art-line); border-radius: 50%; transform: rotate(-32deg) scaleX(.44); }
+.personal-lens i:nth-child(2) { transform: rotate(32deg) scaleX(.44); }
+.personal-lens span { position: absolute; inset: 0; display: grid; place-items: center; font: 400 5rem/1 Georgia, serif; letter-spacing: -.08em; color: var(--accent); opacity: .65; }
+.profile-object > p { margin-top: 28px; font: .55rem/1.5 system-ui; letter-spacing: .16em; color: var(--muted); }
+.profile-story { display: grid; grid-template-columns: 1fr 2fr; gap: 64px; padding: 52px 0 36px; border-top: 1px solid var(--edge); }
+.profile-story h2 { font-size: 1.5rem; line-height: 1.7; }
+.profile-story p { line-height: 2; margin: 0 0 24px; }
+.profile-interests { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; padding: 40px 0; border-top: 1px solid var(--edge); }
+.profile-interests h2 { margin: 20px 0 8px; }.profile-interests p { color: var(--muted); font-size: .85rem; line-height: 1.8; }
+.profile-explore { display: flex; gap: 36px; padding-top: 16px; }
+@media (max-width: 760px) { .profile-hero { grid-template-columns: 1fr; gap: 40px; padding: 8px 0 48px; }.personal-lens { width: 240px; }.profile-story { grid-template-columns: 1fr; gap: 16px; padding-top: 36px; }.profile-interests { grid-template-columns: 1fr; gap: 16px; }.profile-object > p { margin: 20px 0 0; } }

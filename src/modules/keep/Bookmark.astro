@@ -1,0 +1,31 @@
+---
+import { bookmarks } from './data';
+import './background.css';
+import { withBase } from '../../core/module/urls';
+interface Props { bookmark: (typeof bookmarks)[number] }
+const { bookmark } = Astro.props;
+---
+<article class="bookmark">
+  <a class="text-link bookmark-return" data-bookmark-return href={withBase('/keep/', import.meta.env.BASE_URL)}>← 返回收藏夹</a>
+  <p class="eyebrow">{bookmark.category?.label ?? '未分类'}{bookmark.kind && ` / ${bookmark.kind}`}</p>
+  <p class="source">{new URL(bookmark.sourceUrl).hostname}</p>
+  <h1>{bookmark.title}</h1><p class="description">{bookmark.description}</p>
+  {bookmark.note.map((text) => <p>{text}</p>)}
+  <p class="source-link"><a class="glass-control text-link" href={bookmark.sourceUrl} target="_blank" rel="noopener noreferrer">打开来源 <span aria-hidden="true">↗</span><span class="sr-only">（新标签页）</span></a></p>
+</article>
+<script>
+  const back = document.querySelector<HTMLAnchorElement>('[data-bookmark-return]');
+  const category = new URL(location.href).searchParams.get('category');
+  if (back && category && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(category)) {
+    const url = new URL(back.href); url.searchParams.set('category', category); back.href = url.href;
+  }
+</script>
+<style>
+  .bookmark { overflow-wrap: anywhere; line-height: 1.95; }
+  .bookmark h1 { font-size: clamp(1.65rem, 4vw, 2.4rem); line-height: 1.45; text-wrap: balance; }
+  .source { font-size: .75rem; color: var(--muted); }
+  .description { color: var(--muted); padding-bottom: 1.5rem; border-bottom: 1px solid var(--edge); }
+  .bookmark p { margin-bottom: 1.7rem; }
+  .source-link { margin-top: 2.5rem; }
+  .source-link a { text-decoration-color: var(--accent); }
+</style>

@@ -1,0 +1,3 @@
+import type { ModulePage } from '../../core/module/types';
+import Demo from './Demo.astro';
+export default [{ path: '', component: Demo, props: {} }] satisfies ModulePage[];

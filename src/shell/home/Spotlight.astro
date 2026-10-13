@@ -1,0 +1,47 @@
+---
+import { moduleMetadata } from '../../core/module/registry.server';
+import { withBase } from '../../core/module/urls';
+---
+<dialog class="spotlight" aria-label="Search my space" data-spotlight data-index-url={withBase('/search-index.json', import.meta.env.BASE_URL)} data-base={import.meta.env.BASE_URL}>
+  <div class="spotlight-panel">
+    <div class="spotlight-input-row">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg>
+      <label class="sr-only" for="space-query">Search my space</label>
+      <input id="space-query" type="text" role="combobox" aria-autocomplete="list" aria-haspopup="listbox" aria-controls="space-results" aria-expanded="false" autocomplete="off" spellcheck="false" placeholder="Search my space..." />
+      <button type="button" class="spotlight-close" aria-label="Close search" data-search-close>Esc</button>
+    </div>
+    <div class="spotlight-body">
+      <p class="spotlight-caption" data-search-caption>Explore a direction</p>
+      <div id="space-results" class="spotlight-results shortcuts" role="listbox" aria-label="Modules and search results"></div>
+      <div class="spotlight-status"><p role="status" aria-live="polite" data-search-status></p><button type="button" data-search-retry hidden>Try again</button></div>
+    </div>
+    <div class="spotlight-footer" aria-hidden="true"><span>↑ ↓ to select</span><span>↵ to open</span></div>
+  </div>
+</dialog>
+<script type="application/json" data-spotlight-modules set:html={JSON.stringify(moduleMetadata).replaceAll('<', '\\u003c')} />
+<script>
+  import './spotlight';
+</script>
+<style is:global>
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
+  .spotlight { --panel-top: min(18vh, 150px); width: min(600px, calc(100vw - 40px)); padding: 0; margin: var(--panel-top) auto 0; border-radius: 20px; overflow: hidden; max-height: calc(100svh - var(--panel-top) - 20px); }
+  .spotlight-input-row { display: flex; align-items: center; gap: 16px; padding: 22px 24px; border-bottom: 1px solid var(--edge); }
+  .spotlight-input-row svg { flex-shrink: 0; }
+  .spotlight input { border: 0; outline: none; background: none; min-width: 0; width: 100%; color: inherit; font-size: 1.15rem; }
+  .spotlight-close { border: 1px solid var(--edge); background: transparent; border-radius: 6px; font-size: .65rem; padding: 3px 6px; cursor: pointer; }
+  .spotlight-body { padding: 20px 20px 12px; }
+  .spotlight-caption { margin: 0 6px 16px; text-transform: uppercase; letter-spacing: .15em; font-size: .6rem; }
+  .spotlight-results { max-height: min(360px, calc(100svh - var(--panel-top) - 250px)); overflow-y: auto; overscroll-behavior: contain; }
+  .spotlight-results.shortcuts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+  .spotlight [role="option"] { display: flex; flex-direction: column; padding: 14px; text-decoration: none; border-radius: 12px; cursor: pointer; }
+  .shortcuts [role="option"] { align-items: center; text-align: center; gap: 10px; padding: 18px 4px; }
+  .shortcut-icon { width: 28px; height: 28px; }
+  .result-title { font-size: .9rem; font-weight: 500; }
+  .result-module { font-size: .6rem; text-transform: uppercase; letter-spacing: .1em; }
+  .result-description { font-size: .75rem; line-height: 1.5; margin-top: 4px; }
+  .spotlight-status { padding: 0 6px; font-size: .75rem; }
+  .spotlight-status p:empty { display: none; }
+  .spotlight-status button { padding: 5px 10px; border: 1px solid var(--edge); border-radius: 6px; color: inherit; background: transparent; cursor: pointer; }
+  .spotlight-footer { display: flex; justify-content: flex-end; gap: 20px; padding: 12px 26px; border-top: 1px solid var(--edge); font-size: .6rem; }
+  @media (max-width: 480px) { .spotlight-results.shortcuts { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+</style>

@@ -1,0 +1,24 @@
+---
+import type { ModuleMetadata } from '../../core/module/types';
+import { withBase } from '../../core/module/urls';
+import Base from './Base.astro';
+import SearchButton from './SearchButton.astro';
+interface Props { module: ModuleMetadata }
+const { module } = Astro.props;
+---
+<Base title={`${module.name} — Personal Space`}>
+  <div class="module-page" data-module={module.id}>
+  <header class="module-header">
+    <div><a href={withBase('/', import.meta.env.BASE_URL)} aria-label="Home">HJK</a><span aria-hidden="true">/</span><span>{module.name}</span></div>
+    <SearchButton />
+  </header>
+  <main class="module-content"><slot /></main>
+  </div>
+</Base>
+<style>
+  .module-page { position: relative; isolation: isolate; display: flow-root; min-height: 100svh; background: radial-gradient(ellipse at 50% 0%, var(--environment-light), transparent 65%), var(--background); }
+  header { display: flex; justify-content: space-between; align-items: center; padding: 26px clamp(24px, 5vw, 72px); }
+  header div { display: flex; gap: 16px; align-items: center; font-size: .75rem; letter-spacing: .1em; text-transform: uppercase; }
+  header a { text-decoration: none; font-weight: 600; }
+  header div > span { color: var(--muted); }
+</style>

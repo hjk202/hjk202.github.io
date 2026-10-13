@@ -1,0 +1,12 @@
+---
+import { pages } from '../core/module/pages.server';
+import type { RoutedPage } from '../core/module/pages';
+import ModuleShell from '../shell/layout/ModuleShell.astro';
+export function getStaticPaths() {
+  return pages.map((page) => ({ params: { path: page.url.slice(1, -1) }, props: { page } }));
+}
+interface Props { page: RoutedPage }
+const { page } = Astro.props;
+const Page = page.component;
+---
+<ModuleShell module={page.module}><Page {...page.props} /></ModuleShell>

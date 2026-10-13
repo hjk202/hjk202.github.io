@@ -1,0 +1,7 @@
+import type { Module } from '../../core/module/types';
+export default {
+  id: 'observatory', name: 'Observatory', route: '/observatory/', order: 4,
+  icon: 'M4 12h16M12 4v16',
+  count: async () => 1,
+  search: async () => [{ title: 'Extension verification', description: 'Demo fifth module used only in isolated acceptance builds.', url: '/observatory/', module: 'observatory' }],
+} satisfies Module;

@@ -1,0 +1,130 @@
+---
+import type { PublicModule } from '../../core/search/types';
+import { withBase } from '../../core/module/urls';
+import { compassGeometry, compassStatistics, polygonPoints } from './geometry';
+interface Props { modules: PublicModule[] }
+const { modules } = Astro.props;
+const nodes = compassGeometry(compassStatistics(modules));
+const statisticFormat = new Intl.NumberFormat('en', { maximumFractionDigits: 2, useGrouping: false });
+const lensClip = nodes.length >= 3 ? `polygon(${nodes.map((node) => `${node.outer.x / 6}% ${node.outer.y / 6}%`).join(',')})` : 'none';
+---
+<div class="compass" data-compass>
+  {nodes.length >= 3 && <div class="compass-lens" style={{ clipPath: lensClip }} aria-hidden="true" />}
+  <svg viewBox="0 0 600 600" role="group" aria-label="Explore modules with Compass">
+    <defs>
+      <linearGradient id="radar-glass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--radar-start)"/><stop offset=".52" style="stop-color:var(--radar-middle)"/><stop offset="1" style="stop-color:var(--radar-end)"/></linearGradient>
+      <linearGradient id="radar-edge" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--glass-highlight)"/><stop offset=".4" style="stop-color:var(--radar-line)"/><stop offset=".7" style="stop-color:var(--glass-highlight)"/><stop offset="1" style="stop-color:var(--radar-line)"/></linearGradient>
+      <linearGradient id="compass-rim" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--glass-highlight)"/><stop offset=".45" style="stop-color:var(--lens-edge)"/><stop offset=".65" style="stop-color:var(--glass-highlight)"/><stop offset="1" style="stop-color:var(--lens-edge)"/></linearGradient>
+      <linearGradient id="compass-node-glass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--glass-highlight)"/><stop offset="1" style="stop-color:var(--node-glass)"/></linearGradient>
+    </defs>
+    {nodes.length >= 3 && <>
+      <polygon class="compass-depth" points={polygonPoints(nodes.map((node) => node.outer))} aria-hidden="true" />
+    </>}
+    {nodes.length >= 3 && <polygon class="compass-outline" points={polygonPoints(nodes.map((node) => node.outer))} />}
+    {nodes.length >= 3 && nodes.some((node) => node.count > 0) && <>
+      <polygon class="radar-depth" points={polygonPoints(nodes.map((node) => node.radar))} aria-hidden="true" />
+      <polygon class="compass-radar" points={polygonPoints(nodes.map((node) => node.radar))} />
+    </>}
+    {modules.map((module, index) => {
+      const node = nodes[index];
+      const average = module.compassStatistic === 'peer-average';
+      const displayCount = statisticFormat.format(node.count);
+      const readout = average ? `Avg · ${displayCount}` : `${module.count} ${module.count === 1 ? 'entry' : 'entries'}`;
+      const label = average ? `${module.name}, average count ${displayCount} across other modules` : `${module.name}, ${readout}`;
+      const labelWidth = Math.max(106, module.name.length * 6.8 + 58);
+      return <>
+        <circle class="radar-point" data-radar={module.id} cx={node.radar.x} cy={node.radar.y} r="2.5" aria-hidden="true" />
+        <a href={withBase(module.route, import.meta.env.BASE_URL)} aria-label={label} data-compass-link data-module={module.id} data-name={module.name} data-count={node.count} data-readout={readout}>
+          <rect fill="transparent" x={Math.min(node.outer.x - 24, node.label.x - 44)} y={Math.min(node.outer.y - 24, node.label.y - 14)} width={Math.max(node.outer.x + 24, node.label.x + 44) - Math.min(node.outer.x - 24, node.label.x - 44)} height={Math.max(node.outer.y + 24, node.label.y + 14) - Math.min(node.outer.y - 24, node.label.y - 14)} />
+          <circle class="compass-target" cx={node.outer.x} cy={node.outer.y} r="23" />
+          <circle class="compass-node-lens" cx={node.outer.x} cy={node.outer.y} r="9" />
+          <circle class="compass-node" cx={node.outer.x} cy={node.outer.y} r="4" />
+          <rect class="compass-label-lens" x={node.label.x - labelWidth / 2} y={node.label.y - 19} width={labelWidth} height="38" rx="19" />
+          <svg class="compass-label-icon" x={node.label.x - labelWidth / 2 + 16} y={node.label.y - 8} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d={module.icon}/></svg>
+          <text x={node.label.x + 10} y={node.label.y} dominant-baseline="middle" text-anchor="middle">{module.name}</text>
+        </a>
+      </>;
+    })}
+    <g class="compass-center" aria-hidden="true"><circle cx="300" cy="300" r="5"/><circle cx="300" cy="300" r="1"/></g>
+  </svg>
+  <div class="compass-readout" aria-live="polite" aria-atomic="true"><span data-compass-name></span><span data-compass-count></span></div>
+</div>
+<script>
+  const compass = document.querySelector<HTMLElement>('[data-compass]');
+  if (compass) {
+    const name = compass.querySelector<HTMLElement>('[data-compass-name]')!;
+    const count = compass.querySelector<HTMLElement>('[data-compass-count]')!;
+    let keyboardMode = false;
+    let needsPointerMove = false;
+    let hovered: SVGAElement | null = null;
+    const keyboardLink = () => keyboardMode && document.activeElement instanceof SVGAElement && compass.contains(document.activeElement) ? document.activeElement : null;
+    const show = (link: SVGAElement | null) => {
+      compass.querySelectorAll('[data-radar]').forEach((dot) => dot.classList.toggle('active', dot.getAttribute('data-radar') === link?.dataset.module));
+      name.textContent = link?.dataset.name ?? '';
+      count.textContent = link?.dataset.readout ?? '';
+    };
+    const clearPointer = () => {
+      hovered = null;
+      compass.querySelectorAll('[data-pointer-active]').forEach((link) => link.removeAttribute('data-pointer-active'));
+      show(keyboardLink());
+    };
+    const pointAt = (link: SVGAElement) => {
+      clearPointer();
+      hovered = link;
+      link.setAttribute('data-pointer-active', '');
+      show(link);
+    };
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Tab') { keyboardMode = true; clearPointer(); }
+    });
+    document.addEventListener('pointerdown', () => { keyboardMode = false; });
+    window.addEventListener('pagehide', () => { needsPointerMove = true; clearPointer(); });
+    window.addEventListener('pageshow', (event) => {
+      needsPointerMove = event.persisted || (performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined)?.type === 'back_forward';
+      clearPointer();
+    });
+    compass.querySelectorAll<SVGAElement>('[data-compass-link]').forEach((link) => {
+      link.addEventListener('pointerenter', (event) => { if (event.pointerType !== 'touch' && !needsPointerMove) pointAt(link); });
+      link.addEventListener('pointermove', (event) => {
+        if (event.pointerType !== 'touch' && (event.movementX || event.movementY)) { needsPointerMove = false; pointAt(link); }
+      });
+      link.addEventListener('focus', () => show(hovered ?? keyboardLink()));
+      link.addEventListener('pointerleave', clearPointer);
+      link.addEventListener('blur', () => show(hovered));
+      link.addEventListener('click', () => { needsPointerMove = true; clearPointer(); });
+    });
+  }
+</script>
+<style is:global>
+  .compass { position: relative; width: min(740px, 94vw, calc(100svh - 188px)); aspect-ratio: 1; isolation: isolate; }
+  .compass > svg { display: block; position: relative; width: 100%; height: 100%; overflow: visible; }
+  .compass::before { content: ''; position: absolute; inset: 22%; border-radius: 50%; background: var(--lens-shadow); filter: blur(22px); transform: translateY(18px) scale(.82); pointer-events: none; }
+  .compass-lens { position: absolute; inset: 0; background: linear-gradient(180deg, var(--lens-light), transparent 55%, var(--lens-shade)), var(--lens-glass); backdrop-filter: blur(4px) saturate(1.12); -webkit-backdrop-filter: blur(4px) saturate(1.12); pointer-events: none; animation: compass-expand 650ms cubic-bezier(.2,.65,.3,1) both; }
+  .compass-outline { fill: none; stroke: url(#compass-rim); stroke-width: 1.4; animation: compass-expand 650ms cubic-bezier(.2,.65,.3,1) both; transform-origin: 300px 300px; }
+  .compass-depth { fill: none; stroke: var(--lens-edge); stroke-width: 3; transform: translateY(3px); opacity: .35; }
+  .radar-depth { fill: var(--radar-shadow); transform: translateY(5px); filter: blur(4px); }
+  .compass-radar { fill: url(#radar-glass); stroke: url(#radar-edge); stroke-width: 1.5; filter: drop-shadow(0 8px 8px var(--radar-shadow)); animation: radar-grow 700ms cubic-bezier(.2,.65,.3,1) both; transform-origin: 300px 300px; }
+  .radar-point { fill: var(--radar-line); transition: r 200ms ease, fill 200ms ease; }
+  .radar-point.active { r: 5px; fill: var(--accent); }
+  .compass-node-lens { fill: url(#compass-node-glass); stroke: var(--glass-highlight); stroke-width: 1; filter: drop-shadow(0 2px 2px var(--lens-shadow)); }
+  .compass-node { fill: var(--accent); r: 2.7px; transition: r 200ms ease, fill 200ms ease; }
+  .compass-target { fill: transparent; stroke: transparent; }
+  .compass a { outline: none; }
+  .compass a[data-pointer-active] .compass-node, .compass a:focus-visible .compass-node { fill: var(--ink); r: 4px; }
+  .compass a:focus-visible .compass-target { stroke: var(--focus); }
+  .compass-label-lens { fill: transparent; stroke: transparent; stroke-width: .8; transition: fill 200ms ease, stroke 200ms ease; }
+  .compass-label-icon { color: var(--accent); }
+  .compass text { fill: var(--ink); font-size: 12px; letter-spacing: 1.8px; text-transform: uppercase; font-weight: 500; transition: fill 200ms ease; }
+  .compass a[data-pointer-active] .compass-label-lens, .compass a:focus-visible .compass-label-lens { fill: var(--label-hover); stroke: var(--glass-highlight); }
+  .compass a[data-pointer-active] text, .compass a:focus-visible text { fill: var(--ink); }
+  .compass-center { fill: none; stroke: var(--accent); stroke-width: .8; opacity: .7; }
+  .compass-readout { position: absolute; left: 50%; top: 54%; transform: translateX(-50%); text-align: center; pointer-events: none; font-size: .65rem; line-height: 1.7; color: var(--muted); }
+  .compass-readout span { display: block; }
+  [data-compass-name] { text-transform: uppercase; letter-spacing: .13em; }
+  @media (max-width: 480px) {
+    .compass text { font-size: 16px; letter-spacing: .5px; transform: translateX(-10px); }
+    .compass-label-icon { display: none; }
+  }
+  @keyframes compass-expand { from { opacity: 0; transform: scale(.92); } to { opacity: 1; transform: scale(1); } }
+  @keyframes radar-grow { from { opacity: 0; transform: scale(.02); } to { opacity: 1; transform: scale(1); } }
+</style>

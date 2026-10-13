@@ -1,0 +1,19 @@
+---
+slug: content-probe
+title: Content probe · 内容验证
+summary: 隔离文章，用于验证新增内容、中文搜索和资源地址。
+date: '2026-10-14'
+published: true
+---
+
+## Markdown bridge
+
+> A published fixture, never copied into the original site.
+
+[Me](../../me/)
+
+![Fixture image](./probe.svg)
+
+```text
+LongCodeLine_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxyz
+```

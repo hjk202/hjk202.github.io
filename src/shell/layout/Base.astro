@@ -1,0 +1,36 @@
+---
+import Spotlight from '../home/Spotlight.astro';
+import '../theme/theme.css';
+import '../glass/glass.css';
+interface Props { title: string }
+const { title } = Astro.props;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+  </head>
+  <body><slot /><Spotlight /></body>
+</html>
+<style is:global>
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 16px/1.65 system-ui, sans-serif; }
+  a { color: inherit; text-underline-offset: .25em; }
+  button, input { font: inherit; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 5px; }
+  .module-content { width: min(100%, var(--content-width, 1120px)); margin: 48px auto 0; padding: 0 40px 96px; }
+  .module-content :where(h1) { font-size: clamp(2rem, 4vw, 3.5rem); line-height: 1.25; font-weight: 500; letter-spacing: -.04em; }
+  .module-content :where(h2) { font-size: 1.25rem; font-weight: 500; }
+  .demo-label { font-size: .7rem; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+  .content-list { list-style: none; padding: 0; }
+  .content-list li { padding: 24px 0; border-bottom: 1px solid var(--edge); }
+  .content-list p { margin-bottom: 0; }
+  .search-open { overflow: hidden; }
+  .eyebrow { font: 500 .68rem/1.5 system-ui, sans-serif; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+  .text-link { display: inline-flex; align-items: center; gap: 16px; text-decoration: none; font-size: .85rem; }
+  .text-link:hover { text-decoration: underline; }
+  .quiet-rule { border: 0; border-top: 1px solid var(--edge); }
+  @media (max-width: 600px) { .module-content { margin-top: 28px; padding: 0 24px 64px; } }
+</style>
