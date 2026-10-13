@@ -64,6 +64,31 @@
 - 用户已同意3.8在Me增加https://github.com/hjk202公开链接作为真实更新；仅在3.8执行，不改原文或上传测试内容。
 - 第一版不要求OG海报，不购买域名、字体或服务，不实现Private、后端、新模块或复杂设备兼容。
 
+## 发布管线与目标
+
+正式目标为现有public仓库`hjk202/hjk202.github.io`的`main`，网址https://hjk202.github.io/，base为`/`。`SITE_URL`/`BASE_PATH`是配置输入，默认值在astro.config.mjs；模拟/personal-space/只在隔离产物中验证。旧demo远程历史须保留，不改变仓库可见性。
+
+单一工作流`.github/workflows/deploy.yml`：push/PR只检查；main上的手动workflow_dispatch才上传已检查dist并部署。步骤为固定Node/npm→npm ci→lint/typecheck/unit→root build→真实root e2e/WebKit移动→隔离契约→独立base build/e2e→产物清单→上传→部署。部署不再build，artifact只包含dist。官方Action提交已于2026-10-13核实并固定；语法与本地验证不等于真实Actions通过。
+
+Windows检查沿用npm.cmd，本地浏览器缓存可由PLAYWRIGHT_BROWSERS_PATH指定。CI使用ubuntu-24.04与默认自动测试服务，不设置E2E_EXTERNAL_SERVER，不吞服务退出问题。`node tests/verify-release.mjs`检查工作流边界和产物，写入.cache/release-manifest.json（源SHA/Node/各文件SHA256），不把该记录放入网站。
+
+### 发布操作（3.7）
+
+1. 核实真实GitHub登录与仓库/Pages权限；获取并标记旧demo版本，保留原始main历史。合并本地新历史时保留当前产品树，不强制推送。
+2. 确认Pages源为GitHub Actions、地址为根站点；依实际设置完成必要修改，不更改可见性或域名。
+3. 推送已通过检查的源版本和v0；main推送只运行检查。明确记录候选源SHA后手动运行工作流。
+4. 记录实际run链接、源SHA、artifact和部署URL，线上检查8个正常页面/404、索引/资产、Home/搜索/分类返回与深层刷新。
+
+### 内容更新（3.8与以后）
+
+编辑模块自己的真实文件→公共检查与相关浏览器验证→提交并推送main→手动运行工作流→核对线上页面和搜索。文本/公开链接编辑不改变数量；新增或删除条目才改变模块count和Me平均。每次记录源SHA和run链接，不把同源重跑当作内容更新。
+
+### 回退约定
+
+保留v0本地基线、旧demo源版本和每次已验收的Phase 3发布源版本。v0/旧demo构建方式可能不同，它们不是自动可用的当前Actions发布候选。
+
+优先以最近一个已验收的Phase 3源版本为恢复目标：在隔离目录复现其干净安装/构建和必要smoke；确认差异后用新的git revert提交撤销相关产品改动，检查后按正常main手动发布流程部署。先保护当前未提交工作，不用reset --hard、强制推送或在正常线上做无必要的回退演示。3.8至少复现首发版本并记录真实可用的回退目标。
+
 ## 发布与维护记录
 
-发布管线、真实目标、候选版本、部署日志、URL、回退与真实编辑操作将在3.6–3.8获准执行时补充；当前没有部署。
+当前仅准备本地文件，没有推送、修改Pages或部署。候选/干净环境证据在3.6验证完成后记录，真实Actions和线上结果在3.7/3.8补充。

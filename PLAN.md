@@ -1517,7 +1517,7 @@ src/shell/layout/Base.astro、ModuleShell.astro；src/pages/index.astro、404.as
 - [x] 正式页面title/description/lang与实际内容匹配；同模块的不同内容页可以区分。
 - [x] 模块提供元信息，共享层没有模块专属分支；第五模块仍有合理缺省。
 - [x] favicon资源在根/子路径可访问，404显示正确且返回真实404状态，Home/搜索可用。
-- [x] canonical模板通过无site根路径及真实site子路径测试；没有localhost或测试origin被当作生产地址。实际root site默认配置在3.6建立并复验。
+- [x] canonical模板通过根/子路径测试；没有localhost或测试origin被当作生产地址。
 - [x] 新资产不影响模块内容计数；元信息/404不包含测试素材或假事实。
 - [x] 公共验证、页面head/错误路径与必要浏览器smoke通过。
 
@@ -1527,7 +1527,7 @@ src/shell/layout/Base.astro、ModuleShell.astro；src/pages/index.astro、404.as
 
 #### 后续依赖 / Completion Record
 
-为3.6正式地址配置与3.7公开可访问性提供基础。**Completion Record（2026-10-13）**：ModulePage增加可选head.title/description与构建校验，各模块声明自己的公开摘要/标题，路由桥只转交，Base统一zh-CN/description/favicon和已知Astro.site下的无查询canonical；错误页noindex且不输出canonical。新增静态Compass favicon与404，测试服务加载实际404.html并返回404，错误页Home/搜索可用。隔离脚本同时复制public保证测试忠实。npm run lint/typecheck（73 files，0诊断）/test（24项）/build（9页）退出0；根/真实site子路径各40e2e、WebKit head/404 2e2e通过；第五模块typecheck/build/1e2e验证默认head与favicon。审阅320px错误页截图。默认本地配置未设site时不输出假canonical；CLI真实site=https://hjk202.github.io子路径模板已通过，3.6接入正式root默认值并复验。日志.cache/3.5-*.log。公开数量仍[1,1,1,1]，不增加OG图片/SEO库、不改原文或模块内部模型。
+为3.6正式地址配置与3.7公开可访问性提供基础。**Completion Record（2026-10-13）**：ModulePage增加可选head.title/description与构建校验，各模块声明自己的公开摘要/标题，路由桥只转交，Base统一zh-CN/description/favicon和已知Astro.site下的无查询canonical；错误页noindex且不输出canonical。新增静态Compass favicon与404，测试服务加载实际404.html并返回404，错误页Home/搜索可用。隔离脚本同时复制public保证测试忠实。npm run lint/typecheck（73 files，0诊断）/test（24项）/build（9页）退出0；根/真实site子路径各40e2e、WebKit head/404 2e2e通过；第五模块typecheck/build/1e2e验证默认head与favicon。审阅320px错误页截图。未设site时不输出假canonical；另用CLI真实site=https://hjk202.github.io在独立root产物补验head/404 2e2e，根/子路径canonical模板均通过；3.6接入正式默认值。日志.cache/3.5-*.log。公开数量仍[1,1,1,1]，不增加OG图片/SEO库、不改原文或模块内部模型。
 
 ### Milestone 3.6 — 可重复静态构建与发布管线准备
 

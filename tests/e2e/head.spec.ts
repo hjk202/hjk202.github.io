@@ -19,9 +19,8 @@ test('all public pages expose truthful distinct titles, summaries and root/base-
     expect(new URL(icon!, page.url()).href).toBe(iconURL);
     expect((await request.get(iconURL)).status()).toBe(200);
     const canonical = page.locator('link[rel="canonical"]');
-    if (process.env.E2E_SITE) {
-      await expect(canonical).toHaveAttribute('href', new URL(new URL(page.url()).pathname, process.env.E2E_SITE).href);
-    } else await expect(canonical).toHaveCount(0);
+    const site = process.env.E2E_SITE || process.env.SITE_URL || 'https://hjk202.github.io/';
+    await expect(canonical).toHaveAttribute('href', new URL(new URL(page.url()).pathname, site).href);
     await expect(page.locator('meta[name="robots"]')).toHaveCount(0);
     await expect(page.locator('meta[property="og:image"]')).toHaveCount(0);
   }

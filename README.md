@@ -108,6 +108,14 @@ Remove-Item Env:E2E_DIST, Env:E2E_EXTENSION
 
 手动验收可从 Compass 进入四模块，Hover 或 Tab 聚焦查看数量；点击放大镜或在非编辑状态按 Ctrl/Cmd + K 打开搜索。空查询是模块入口，输入英文或中文查找公开内容，上下键选择、Enter 打开、Esc 或遮罩关闭。可尝试“韩江恺”“底层”“NEMU”“工具”或“Missing Semester”。模块页的 HJK 返回首页。Keep 搜索进入本站详情，详情的“打开来源”访问课程网站。刷新、焦点恢复和控制台错误也需要检查。
 
+## 发布准备与版本保留
+
+当前正式目标是用户指定的 https://hjk202.github.io/，对应现有public仓库hjk202/hjk202.github.io，根路径部署。`astro.config.mjs`统一读取`SITE_URL`和`BASE_PATH`，默认使用该地址与`/`；本地预览也输出正式canonical。项目站点测试仍用`--base /personal-space/`，不能把测试前缀用于这个根站点。
+
+`.github/workflows/deploy.yml`在push/PR检查，在main手动`workflow_dispatch`时才发布。Node来自`.node-version`，npm固定10.9.8，依赖用npm ci。lint/typecheck/unit/build、Chromium根/子路径和WebKit移动检查通过后，上传原先已测试的dist；部署任务不重新构建。不添加长期令牌或把环境文件提交仓库。
+
+本地`v0`标签指向用户认可的Phase 3前版本（ad0e0af）。查看用`git show v0`，在隔离目录复现旧版本；不要用reset --hard或强制推送覆盖当前工作。发布流程、实际源版本/产物哈希、线上验收与回退说明见[发布清单](./docs/release-checklist.md)。正式推送、Pages配置及首发只在3.7执行。
+
 ## 当前文件结构
 
 ```text
