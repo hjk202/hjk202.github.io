@@ -4,11 +4,11 @@
 
 ## 当前状态与输入清单
 
-2026-10-13：用户提供的首批真实素材已全部接入；2.1–2.6 已通过技术验收。当前按已批准 DESIGN.md 修订视觉与模块组织，实施状态见 PLAN.md D1–D7。四模块均为一份公开内容；以下为当前已实现的维护约定。
+2026-10-13：首批真实素材、Phase 2及D1–D8已完成；Phase 3已公开发布并验证真实内容更新，3.8仍待最终手机反馈，状态见PLAN.md。四模块均为一份公开内容；以下为当前已实现的维护约定。
 
 | 模块 | 当前来源 | 首批真实资料 | 公开确认 | 拟用目标 | 对应 milestone |
 | --- | --- | --- | --- | --- | --- |
-| Me | 用户原文及3.8批准的链接；src/modules/me/data.ts | 韩江恺的简介与三段正文；GitHub公开链接 | 已确认 | /me/ | 2.2 Done；3.8更新验证中 |
+| Me | 用户原文及3.8批准的链接；src/modules/me/data.ts | 韩江恺的简介与三段正文；GitHub公开链接 | 已确认 | /me/ | 2.2 Done；3.8链接更新与二次部署已验证 |
 | Think | 用户本轮原文；src/modules/think/content/understanding-from-the-bottom.md | 我为什么越来越喜欢从底层理解一个东西；2026-10-13；摘要及完整正文 | 已确认 | /think/understanding-from-the-bottom/ | 2.3 Done |
 | Build | 用户本轮原文；src/modules/build/data.ts | NEMU：从指令执行到分页与异常的 x86 模拟器；2025.09—2026.02；没有仓库链接 | 已确认 | /build/nemu/ | 2.4 Done |
 | Keep | 用户本轮原文；src/modules/keep/data.ts | The Missing Semester of Your CS Education；https://missing.csail.mit.edu/；原文说明 | 已确认 | /keep/missing-semester/ | 2.5 Done |

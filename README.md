@@ -137,7 +137,7 @@ eslint.config.mjs       JavaScript / TypeScript / Astro lint
 docs/architecture.md    架构边界
 ```
 
-Think 使用模块内 Markdown，其他模块使用各自 TypeScript 数据与最小校验。首批公开内容为韩江恺的介绍、一篇学习思考文章、NEMU 项目与 Missing Semester 收藏；默认四模块数量均为 1，三个内容详情页和四个模块首页共形成 8 个正常 HTML 页面（含首页），另有404错误页，共9页；错误页不计入内容。此前六份 Demo 已移除。移动模拟回归与首发线上检查已通过，OPPO真机及链接更新闭环在3.8验收；最终状态见PLAN.md。没有Private。
+Think 使用模块内 Markdown，其他模块使用各自 TypeScript 数据与最小校验。首批公开内容为韩江恺的介绍、一篇学习思考文章、NEMU 项目与 Missing Semester 收藏；默认四模块数量均为 1，三个内容详情页和四个模块首页共形成 8 个正常 HTML 页面（含首页），另有404错误页，共9页；错误页不计入内容。此前六份 Demo 已移除。移动模拟、三次真实发布/线上巡检和Me链接更新闭环均通过，OPPO反馈的触摸闪块与标签间距已修复上线；3.8待最终手机确认，状态见PLAN.md。当前线上产品源9e7d878，文档完成记录的后续提交不自动重新发布。没有Private。
 
 新增模块只增加 src/modules/<id>/：module.ts 默认导出最小 Module 契约，pages.ts 默认导出页面描述数组（空 path 为模块首页），其余数据与页面由模块管理。目录名与 id 一致，route 为无 base 的逻辑地址，order 唯一，enabled 默认 true。共享层通过固定 glob 自动发现，不维护中心模块列表；统计和搜索目标必须对应实际公开内容与已生成页面。详细边界见 docs/architecture.md。
 
