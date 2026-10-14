@@ -1,0 +1,3 @@
+.private-profile { max-width: 780px; margin: 3rem auto 0; padding-top: 2rem; border-top: 1px solid var(--edge); overflow-wrap: anywhere; line-height: 1.95; }
+.private-profile h2 { font-family: 'Iowan Old Style', Georgia, serif; font-size: 1.5rem; font-weight: 400; }
+.private-profile-links { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 24px; }

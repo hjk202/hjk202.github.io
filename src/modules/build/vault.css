@@ -1,0 +1,8 @@
+.private-projects, .private-project-supplement { margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--edge); }
+.private-project { overflow-wrap: anywhere; line-height: 1.95; }
+.private-project > .text-link { margin-bottom: 24px; }
+.private-project h1 { font-size: clamp(1.65rem,4vw,2.4rem); line-height: 1.5; }
+.private-project .summary { color: var(--muted); padding-bottom: 24px; border-bottom: 1px solid var(--edge); }
+.private-project pre, .private-project-supplement pre { overflow-x: auto; max-width: 100%; padding: 20px; border: 1px solid var(--edge); border-radius: 10px; font-size: .85rem; line-height: 1.6; }
+.private-projects .project-entry { grid-template-columns: 36px minmax(0,1fr); }
+.private-projects h3 { font-size: 1.35rem; line-height: 1.5; }

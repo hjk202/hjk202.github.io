@@ -1,5 +1,9 @@
 # 架构基线
 
+## Phase 4当前实施合同
+
+2026-10-14用户授权按PLAN.md顺序完成4.1–4.8。私人访问的加密/模块接口/内存会话/静态导航边界以[vault-design.md](./vault-design.md)为合同；使用方式见[vault-guide.md](./vault-guide.md)。下文Phase 1–2记录中的旧“Private Phase 5”和Photography/Travel为历史编号；当前Private为Phase 4，旅行/摄影合为一个延后模块。公开count/search/pages管线继续保持，不向公共源码/搜索投影加入私人明文。
+
 本文记录 NEED.md 与 PLAN.md 已确认的架构边界。产品要求以 NEED.md 为准，实施范围和状态以 PLAN.md 为准，工作方式遵守 AGENTS.md。本文不能授权新功能或替代实施计划。
 
 ## 当前实现

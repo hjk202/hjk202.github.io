@@ -3,6 +3,7 @@ import type { ModuleMetadata, ModulePage } from '../../core/module/types';
 import { withBase } from '../../core/module/urls';
 import Base from './Base.astro';
 import SearchButton from './SearchButton.astro';
+import LockButton from '../vault/LockButton.astro';
 interface Props { module: ModuleMetadata; head?: ModulePage['head'] }
 const { module, head } = Astro.props;
 ---
@@ -10,7 +11,7 @@ const { module, head } = Astro.props;
   <div class="module-page" data-module={module.id}>
   <header class="module-header">
     <div><a href={withBase('/', import.meta.env.BASE_URL)} aria-label="Home">HJK</a><span aria-hidden="true">/</span><span>{module.name}</span></div>
-    <SearchButton />
+    <div class="header-actions"><LockButton /><SearchButton /></div>
   </header>
   <main class="module-content"><slot /></main>
   </div>

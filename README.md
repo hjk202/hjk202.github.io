@@ -1,6 +1,6 @@
 # Personal Space
 
-基于 Astro、TypeScript 和 Markdown/MDX 的个人数字空间。提供 Compass 首页、共享 Spotlight，以及 Me、Think、Build、Keep 四个独立公开模块。Phase 2 已接入用户提供的真实内容；实施与验收状态见 PLAN.md。
+基于 Astro、TypeScript 和 Markdown/MDX 的个人数字空间。提供 Compass 首页、共享 Spotlight，以及 Me、Think、Build、Keep 四个独立模块。公开内容保持静态生成；Phase 4 在既有模块内接入本地加密、内存解锁和重新锁定，当前最终验收进行中，状态见 PLAN.md。
 
 ## 文档与执行范围
 
@@ -10,9 +10,11 @@
 - [AGENTS.md](./AGENTS.md)：Codex 工作约束。
 - [docs/architecture.md](./docs/architecture.md)：架构边界和工程说明。
 - [docs/content-guide.md](./docs/content-guide.md)：字段、公开条件、内容增删与维护示例。
+- [docs/vault-design.md](./docs/vault-design.md)：私人协议、模块接口和保护边界。
+- [docs/vault-guide.md](./docs/vault-guide.md)：作者本地维护、口令输入、备份恢复与日常使用。
 - [docs/release-checklist.md](./docs/release-checklist.md)：Phase 3支持矩阵、验证证据与发布/真机验收操作。
 
-按用户授权逐个实施和验收 milestone；每项通过后更新 PLAN.md。当前用户已授权Phase 3，逐项验证，完成阶段后暂停验收；手机真机检查集中到上线后。
+按用户授权逐个实施和验收 milestone；每项通过后更新 PLAN.md。当前用户已授权 Phase 4，4.1–4.7 已完成，4.8 验证与发布/手机验收中；完成阶段后停止，Phase 5/6 未授权。
 
 ## 环境
 
@@ -142,3 +144,13 @@ Think 使用模块内 Markdown，其他模块使用各自 TypeScript 数据与�
 新增模块只增加 src/modules/<id>/：module.ts 默认导出最小 Module 契约，pages.ts 默认导出页面描述数组（空 path 为模块首页），其余数据与页面由模块管理。目录名与 id 一致，route 为无 base 的逻辑地址，order 唯一，enabled 默认 true。共享层通过固定 glob 自动发现，不维护中心模块列表；统计和搜索目标必须对应实际公开内容与已生成页面。详细边界见 docs/architecture.md。
 
 node_modules/、.astro/、dist/、.cache/、test-results/ 和 playwright-report/ 是依赖或生成目录，已加入 .gitignore。不要手改构建产物；内容与代码变更后重新检查并构建。
+
+## 私人空间
+
+Home 中心长按约 1.5 秒（键盘 Enter/空格）打开解锁界面；短按不操作。没有加密包时显示未配置说明，没有默认口令。解锁后四模块保持各自布局，Spotlight 搜索可访问的公开/私人投影，Compass 使用实际数量；Me 仍取其他模块的平均值。
+
+口令只用于当前标签页内存解密。站内浏览保留会话；主动锁定、后台、离开、刷新、新标签或前台十分钟无操作重新锁定，清除私人正文、搜索和图片 Blob。私人详情使用无语义 id 片段，刷新后通过同一个 Unlock 恢复目标；浏览器标题和公开索引保留公开信息。
+
+正式材料与口令由作者在本地维护，不需要现在提供。源 JSON 必须在仓库外，使用 `npm.cmd run vault:pack -- --source <外部文件>` 交互加密，之后只提交 `public/vault/bundle.json`；具体字段及命令见私人维护指南。GitHub Actions 不接收明文或口令，不执行打包。私人阅读采用安全 Markdown 子集，不执行 HTML/MDX，不自动加载远程图片。
+
+阶段验收临时载荷必须明确标记为非敏感测试，在验收结束后清除；不能作为作者正式内容或默认密码保留。最终是否配置 Vault、源 SHA、部署及手机结果以发布清单和 PLAN.md 为准。

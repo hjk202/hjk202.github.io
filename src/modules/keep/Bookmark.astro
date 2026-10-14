@@ -14,11 +14,16 @@ const { bookmark } = Astro.props;
   <p class="source-link"><a class="glass-control text-link" href={bookmark.sourceUrl} target="_blank" rel="noopener noreferrer">打开来源 <span aria-hidden="true">↗</span><span class="sr-only">（新标签页）</span></a></p>
 </article>
 <script>
+  import { onPage } from '../../shell/layout/lifecycle';
+  onPage(() => {
+  const abort = new AbortController();
   const back = document.querySelector<HTMLAnchorElement>('[data-bookmark-return]');
   const category = new URL(location.href).searchParams.get('category');
   if (back && category && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(category)) {
     const url = new URL(back.href); url.searchParams.set('category', category); back.href = url.href;
   }
+  return () => abort.abort();
+  });
 </script>
 <style>
   .bookmark { overflow-wrap: anywhere; line-height: 1.95; }

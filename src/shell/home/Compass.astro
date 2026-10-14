@@ -50,15 +50,21 @@ const lensClip = nodes.length >= 3 ? `polygon(${nodes.map((node) => `${node.oute
     })}
     <g class="compass-center" aria-hidden="true"><circle cx="300" cy="300" r="5"/><circle cx="300" cy="300" r="1"/></g>
   </svg>
+  <button type="button" class="vault-entrance" data-vault-entrance aria-label="私人空间，长按或按 Enter 解锁" title="私人空间"><span class="sr-only">私人空间</span></button>
   <div class="compass-readout" aria-live="polite" aria-atomic="true"><span data-compass-name></span><span data-compass-count></span></div>
 </div>
 <script>
+  import { vaultProjection } from '../vault/runtime';
+  import { refreshCompass } from './statistics';
+  import { onPage } from '../layout/lifecycle';
+  onPage(() => {
+  const abort = new AbortController();
   const compass = document.querySelector<HTMLElement>('[data-compass]');
   if (compass) {
     const name = compass.querySelector<HTMLElement>('[data-compass-name]')!;
     const count = compass.querySelector<HTMLElement>('[data-compass-count]')!;
     let keyboardMode = false;
-    let needsPointerMove = false;
+    let needsPointerMove = true;
     let hovered: SVGAElement | null = null;
     const keyboardLink = () => keyboardMode && document.activeElement instanceof SVGAElement && compass.contains(document.activeElement) ? document.activeElement : null;
     const show = (link: SVGAElement | null) => {
@@ -66,6 +72,9 @@ const lensClip = nodes.length >= 3 ? `polygon(${nodes.map((node) => `${node.oute
       name.textContent = link?.dataset.name ?? '';
       count.textContent = link?.dataset.readout ?? '';
     };
+    const refresh = () => { refreshCompass(compass, vaultProjection().modules); show(hovered ?? keyboardLink()); };
+    document.addEventListener('vault:change', refresh, { signal: abort.signal });
+    refresh();
     const clearPointer = () => {
       hovered = null;
       compass.querySelectorAll('[data-pointer-active]').forEach((link) => link.removeAttribute('data-pointer-active'));
@@ -79,24 +88,26 @@ const lensClip = nodes.length >= 3 ? `polygon(${nodes.map((node) => `${node.oute
     };
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Tab') { keyboardMode = true; clearPointer(); }
-    });
-    document.addEventListener('pointerdown', () => { keyboardMode = false; });
-    window.addEventListener('pagehide', () => { needsPointerMove = true; clearPointer(); });
+    }, { signal: abort.signal });
+    document.addEventListener('pointerdown', () => { keyboardMode = false; }, { signal: abort.signal });
+    window.addEventListener('pagehide', () => { needsPointerMove = true; clearPointer(); }, { signal: abort.signal });
     window.addEventListener('pageshow', (event) => {
       needsPointerMove = event.persisted || (performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined)?.type === 'back_forward';
       clearPointer();
-    });
+    }, { signal: abort.signal });
     compass.querySelectorAll<SVGAElement>('[data-compass-link]').forEach((link) => {
-      link.addEventListener('pointerenter', (event) => { if (event.pointerType !== 'touch' && !needsPointerMove) pointAt(link); });
+      link.addEventListener('pointerenter', (event) => { if (event.pointerType !== 'touch' && !needsPointerMove) pointAt(link); }, { signal: abort.signal });
       link.addEventListener('pointermove', (event) => {
         if (event.pointerType !== 'touch' && (event.movementX || event.movementY)) { needsPointerMove = false; pointAt(link); }
-      });
-      link.addEventListener('focus', () => show(hovered ?? keyboardLink()));
-      link.addEventListener('pointerleave', clearPointer);
-      link.addEventListener('blur', () => show(hovered));
-      link.addEventListener('click', () => { needsPointerMove = true; clearPointer(); });
+      }, { signal: abort.signal });
+      link.addEventListener('focus', () => show(hovered ?? keyboardLink()), { signal: abort.signal });
+      link.addEventListener('pointerleave', clearPointer, { signal: abort.signal });
+      link.addEventListener('blur', () => show(hovered), { signal: abort.signal });
+      link.addEventListener('click', () => { needsPointerMove = true; clearPointer(); }, { signal: abort.signal });
     });
   }
+  return () => abort.abort();
+  });
 </script>
 <style is:global>
   .compass { position: relative; width: min(740px, 94vw, max(320px, calc(100svh - 188px))); aspect-ratio: 1; isolation: isolate; }
@@ -124,6 +135,12 @@ const lensClip = nodes.length >= 3 ? `polygon(${nodes.map((node) => `${node.oute
   .compass-center { fill: none; stroke: var(--accent); stroke-width: .8; opacity: .7; }
   .compass-readout { position: absolute; left: 50%; top: 54%; transform: translateX(-50%); text-align: center; pointer-events: none; font-size: .65rem; line-height: 1.7; color: var(--muted); }
   .compass-readout span { display: block; }
+  .vault-entrance { position: absolute; left: 50%; top: 50%; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 50%; transform: translate(-50%, -50%); background: transparent; color: var(--accent); cursor: pointer; touch-action: none; }
+  :root[data-vault-unlocked] .vault-entrance::after { content: ''; position: absolute; inset: 17px; border: 1px solid var(--accent); border-radius: 50%; background: var(--selection); }
+  .compass[data-vault-holding] .compass-radar { animation: none; transform: scale(.75); transform-origin: 300px 300px; transition: transform 1.5s ease; }
+  .compass[data-vault-holding] [data-compass-link] { opacity: .65; transition: opacity 1.5s ease; }
+  /* Unlocked navigation swaps this SVG in place; avoid retaining animated compositing layers. */
+  :root[data-vault-unlocked] .compass, :root[data-vault-unlocked] .compass * { animation: none !important; transition: none !important; }
   [data-compass-name] { text-transform: uppercase; letter-spacing: .13em; }
   @media (max-width: 640px), (max-height: 500px), (pointer: coarse) and (max-height: 760px) {
     .compass text, .compass-label-icon, .compass-label-lens, .compass-link-hit { display: none; }

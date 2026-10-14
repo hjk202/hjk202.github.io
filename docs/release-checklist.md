@@ -104,3 +104,25 @@ Windows检查沿用npm.cmd，本地浏览器缓存可由PLAYWRIGHT_BROWSERS_PATH
 2026-10-13首发已完成：认证账号hjk202，保留public/main与域名、从legacy切为workflow；正常推送保留旧demo历史，远程v0与demo-before-phase3已确认。源d3ccc76a6b6e292aef5e24ed036d41ae6561545c；[运行38496826924](https://github.com/hjk202/hjk202.github.io/actions/runs/38496826924)check/deploy均success，github-pages产物11864278192，digest sha256:5078a7da8e8b02d956d202213513607cb326960f58bf25c2be9cc59afc6f8435。线上15文件哈希与受验产物相同，8正常页面、索引/资源、正式head、搜索/返回及真实404通过，无页面异常。首发回退源为phase3-first-release；3.8将复现并执行获准的Me链接更新。以下段落保留3.6/发布前的历史记录，不代表当前阻塞。
 
 3.6已通过本地与干净候选检查：产品候选2991080，15文件清单在.cache/release-manifest.json与release-candidate/.cache/release-manifest.json，完全一致。3.7取回旧046d0ba并作为9c974dc的祖先保留；两份本地备份标签已建立。当前缺少已认证GitHub账户，设备登录等待用户完成；不要把这一阻塞误读成重新请求发布许可。尚未推送、修改Pages或部署；真实Actions与线上结果留3.7/3.8。必要的文档完成记录会形成后续提交，但不改变已验证的产品/构建输入；线上工作流仍重新检查它实际部署的提交和同一dist。
+
+## Phase 4 私人空间发布验收（2026-10-14，进行中）
+
+4.1–4.7 已完成，4.8 未提前标 Done。当前基线仍为已验收的 9e7d878；v0、demo-before-phase3、phase3-first-release 保留。最终源/产物/运行/手机结果在本节后续记录，缺少记录不能视为已发布。
+
+新增验证仍使用原有手动 main 发布管线：公共门槛、根/base 浏览器、WebKit 移动及私人交互、隔离第五私人适配/真实会话、已有 extension/content/design/mobile 验证、verify-release 与 verify-vault-release。check 上传自己测试过的 dist，deploy 不重建；Actions 不接收作者明文、口令或密钥，不运行 vault:pack/rekey。
+
+verify-vault-release 检查产物没有源码/地图/测试后门或已知样本文字，只有固定 v1 密文包可选发布；同时检查浏览器安全边界、Git 候选路径和 CI 输入。扫描只是补充，不能代替真实密码互通、模块验证、外部源路径约束、存储/网络检查和人工审阅 Git 差异。
+
+维护验证使用非敏感样本及仓库外临时源：实际新建/修改/删除、加密、换口令、密文备份恢复与失败保护。公开 search-index.json 应保持四模块各 1 / 四条公开结果，私人索引仅在内存。最终没有作者真实私人材料时可保持 Vault 未配置，没有默认口令。
+
+若上线临时非敏感手机验收包，必须标明“安全验收样本”，告知它不是作者记录，验收完成后从 public 删除包并重新测试/发布；历史样本本身不含秘密，真实口令不写入文档或 CI。OPPO Find X7 Ultra 默认浏览器集中检查长按、口令键盘、私人模块/返回/搜索、主动锁定、后台和刷新；其他真机平台未测不冒充通过。
+
+执行证据与待验收项会随实际结果更新。本阶段结束后停止，不实施 Phase 5/6。
+
+### 4.8 本地候选记录
+
+2026-10-14：公共门槛通过（122files0诊断、38unit、9页构建）；临时密文候选根/base各61浏览器、WebKit私人20与移动15通过。extension/content/design/mobile/第五私人模块隔离构建及浏览器探针通过；私人源与资产只在非敏感fixtures/外部临时文件，Git与dist只接固定密文包。CLI已实际交互pack/verify/backup/rekey/restore，口令无回显；更新/删除/错误恢复保留当前包由38unit复验。前述WebKit崩溃及初始重复page-load导致的输入/入口竞态已修复并保留失败证据。
+
+新隔离checkout复现当前恢复目标9e7d878：npm ci、build、verify-release和2项head/404浏览器通过，仍为9页/15文件。它是有既有公开功能的安全恢复目标，会撤回Phase 4功能；单独恢复密文按vault-guide操作。正常线上没有进行回退演示。
+
+证据在.cache/4.8-verified-*-checks.log、4.8-webkit-mobile-checks.log、4.8-contract-*-checks.log及4.8-rollback-*。当前只包含“安全验收样本”的临时密文，发布与OPPO尚未完成；结束后必须删除测试载荷并重新发布，最终无真实内容时未配置Vault。当前不标阶段Done。

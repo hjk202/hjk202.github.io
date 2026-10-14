@@ -3,6 +3,26 @@ import type { Page } from '@playwright/test';
 const input = (page: Page) => page.getByRole('combobox', { name: 'Search my space' });
 const open = async (page: Page) => { await page.getByRole('button', { name: 'Search my space', exact: true }).click(); await expect(input(page)).toBeFocused(); };
 
+test('opening and reopening do not select Build beneath an animated panel or retain old shortcut highlights', async ({ page }) => {
+  await page.goto('./'); await open(page);
+  await expect(page.locator('[data-spotlight]')).toHaveCSS('transform','matrix(1, 0, 0, 1, 0, 0)');
+  await expect(page.locator('[role="option"][aria-selected="true"]')).toHaveCount(0);
+  await input(page).press('Enter');await expect(page.locator('[data-spotlight]')).toBeVisible();await expect(page).toHaveURL(/\/$/);
+  await input(page).press('ArrowDown');await expect(page.getByRole('option').first()).toHaveAttribute('aria-selected','true');
+  const build=page.getByRole('option',{name:'Build',exact:true});
+  const box=await build.boundingBox();await page.mouse.move(box!.x+box!.width/2,box!.y+box!.height/2);
+  await expect(build).toHaveAttribute('aria-selected','true');
+  await input(page).press('Escape');await expect(page.locator('[data-spotlight]')).not.toBeVisible();await open(page);
+  await expect(page.locator('[data-spotlight]')).toHaveCSS('transform','matrix(1, 0, 0, 1, 0, 0)');
+  await expect(page.locator('[role="option"][aria-selected="true"]')).toHaveCount(0);
+  await page.mouse.move(box!.x+box!.width/2,box!.y+box!.height/2);
+  // Geometry-generated events at identical pointer coordinates are not a new hover choice.
+  await build.dispatchEvent('pointermove',{clientX:box!.x+box!.width/2,clientY:box!.y+box!.height/2,movementX:10,movementY:10,pointerType:'mouse'});
+  await input(page).press('ArrowUp');await expect(page.getByRole('option').first()).toHaveAttribute('aria-selected','true');
+  await input(page).press('Escape');await expect(page.locator('[data-spotlight]')).not.toBeVisible();await page.emulateMedia({reducedMotion:'reduce'});await open(page);
+  await expect(page.locator('[role="option"][aria-selected="true"]')).toHaveCount(0);await page.mouse.move(box!.x+box!.width/2,box!.y+box!.height/2);await expect(build).toHaveAttribute('aria-selected','true');
+});
+
 test('dismiss animates panel and backdrop before ending modality and restoring focus', async ({ page }, info) => {
   await page.goto('./');
   const dialog = page.getByRole('dialog');
@@ -143,6 +163,13 @@ test('IME composition does not navigate; editing does not steal the shortcut', a
   await page.getByRole('textbox', { name: 'Test editor' }).focus();
   await page.keyboard.press('Control+k');
   await expect(page.getByRole('dialog')).not.toBeVisible();
+});
+
+test('queued native close events do not steal focus from the next interaction', async ({ page }) => {
+  await page.goto('./think/'); await open(page);
+  await input(page).press('Escape'); await expect(page.getByRole('dialog')).not.toBeVisible();
+  const home=page.getByRole('link',{name:'Home',exact:true});await home.focus();
+  await page.locator('[data-spotlight]').dispatchEvent('close');await expect(home).toBeFocused();
 });
 
 test('long result lists scroll while selected results remain visible', async ({ page }) => {

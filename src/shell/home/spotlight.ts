@@ -1,8 +1,14 @@
+import { onPage, goTo } from '../layout/lifecycle';
 import { moduleShortcuts, search } from '../../core/search/search';
 import type { ModuleMetadata } from '../../core/module/types';
 import type { SearchIndex, SearchResult } from '../../core/search/types';
+import { vault, vaultProjection } from '../vault/runtime';
+import { targetHref } from '../../core/vault/targets';
 import { withBase } from '../../core/module/urls';
 
+onPage(() => {
+const abort = new AbortController();
+let alive = true;
 const dialog = document.querySelector<HTMLDialogElement>('[data-spotlight]');
 if (dialog) {
   const input = dialog.querySelector<HTMLInputElement>('#space-query')!;
@@ -12,6 +18,7 @@ if (dialog) {
   const closeButton = dialog.querySelector<HTMLButtonElement>('[data-search-close]')!;
   const retry = dialog.querySelector<HTMLButtonElement>('[data-search-retry]')!;
   const metadata: ModuleMetadata[] = JSON.parse(document.querySelector('[data-spotlight-modules]')!.textContent!);
+  const publicModules: SearchIndex['modules'] = JSON.parse(document.querySelector('[data-vault-public]')!.textContent!).modules;
   const moduleMap = new Map(metadata.map((module) => [module.id, module]));
   let index: SearchIndex | null = null;
   let request: Promise<void> | null = null;
@@ -23,27 +30,35 @@ if (dialog) {
   let trigger: Element | null = null;
   let pointerStartedOutside = false;
   let closeTimer: number | undefined;
+  let restored = true;
+  let selectionVisible = false;
+  let pointerPosition: { x: number; y: number } | undefined;
+  let pointerMoved = false;
+  document.addEventListener('pointermove', event => {
+    pointerMoved = !!pointerPosition && (event.clientX !== pointerPosition.x || event.clientY !== pointerPosition.y);
+    pointerPosition = {x:event.clientX,y:event.clientY};
+  }, {capture:true,signal:abort.signal});
 
   function select(next: number, scroll = false) {
-    selected = Math.max(0, Math.min(next, results.length - 1));
+    selected = next < 0 ? -1 : Math.max(0, Math.min(next, results.length - 1));
     list.querySelectorAll<HTMLElement>('[role="option"]').forEach((option, position) => {
-      option.setAttribute('aria-selected', String(position === selected));
+      option.setAttribute('aria-selected', String(position === selected && (selectionVisible || !!input.value.trim())));
       if (position === selected && scroll) option.scrollIntoView({ block: 'nearest' });
     });
-    if (results.length) input.setAttribute('aria-activedescendant', `space-option-${selected}`);
+    if (selected >= 0 && results.length && (selectionVisible || input.value.trim())) input.setAttribute('aria-activedescendant', `space-option-${selected}`);
     else input.removeAttribute('aria-activedescendant');
   }
 
   function render(reset = true) {
     const query = input.value.trim();
-    const fallback: SearchIndex = { modules: metadata.map((module) => ({ ...module, count: 0 })), results: [] };
-    results = query ? search(query, index ?? fallback) : moduleShortcuts(metadata);
+    const fallback: SearchIndex = { modules: publicModules, results: [] };
+    results = query ? search(query, vaultProjection(index ?? fallback)) : moduleShortcuts(metadata);
     list.replaceChildren();
     list.classList.toggle('shortcuts', !query);
     caption.textContent = query ? 'Search results' : 'Explore a direction';
     for (const [position, result] of results.entries()) {
       const option = document.createElement('a');
-      option.href = withBase(result.url, dialog!.dataset.base);
+      option.href = targetHref(result.url, dialog!.dataset.base);
       option.id = `space-option-${position}`;
       option.setAttribute('role', 'option');
       option.tabIndex = -1;
@@ -77,12 +92,13 @@ if (dialog) {
         option.append(description);
       }
       option.addEventListener('pointermove', (event) => {
-        if (event.movementX || event.movementY) select(position);
-      });
-      option.addEventListener('mousedown', (event) => event.preventDefault());
+        // The expanding panel can dispatch pointer events under a stationary cursor.
+        if (event.pointerType !== 'touch' && pointerMoved && ['none','matrix(1, 0, 0, 1, 0, 0)'].includes(getComputedStyle(dialog!).transform) && !dialog!.hasAttribute('data-closing')) { selectionVisible = true; select(position); }
+      }, { signal: abort.signal });
+      option.addEventListener('mousedown', (event) => event.preventDefault(), { signal: abort.signal });
       list.append(option);
     }
-    select(reset ? 0 : selected);
+    select(reset ? (query ? 0 : -1) : selected);
     status.textContent = failed ? 'Search could not load. Module shortcuts are still available.' : loading ? 'Loading search…' : query ? `${results.length ? `${results.length} result${results.length === 1 ? '' : 's'}` : 'No results. Try another thought.'}` : '';
     retry.hidden = !failed;
     list.setAttribute('aria-busy', String(loading));
@@ -95,7 +111,7 @@ if (dialog) {
     render(false);
     request = (async () => {
       try {
-        const response = await fetch(dialog!.dataset.indexUrl!, { credentials: 'same-origin' });
+        const response = await fetch(dialog!.dataset.indexUrl!, { credentials: 'same-origin', signal: abort.signal });
         if (!response.ok) throw new Error('Index request failed');
         const data = await response.json();
         if (!data || !Array.isArray(data.modules) || !Array.isArray(data.results)) throw new Error('Invalid search index');
@@ -104,13 +120,13 @@ if (dialog) {
           if (!module || typeof entry.title !== 'string' || typeof entry.description !== 'string' || typeof entry.url !== 'string' || !entry.url.startsWith(module.route)) throw new Error('Invalid search result');
           withBase(entry.url);
         }
-        index = { modules: metadata.map((module) => ({ ...module, count: 0 })), results: data.results };
+        index = { modules: publicModules, results: data.results };
       } catch {
         failed = true;
       } finally {
         loading = false;
         request = null;
-        render(input.value.trim().length > 0);
+        if (alive) render(input.value.trim().length > 0);
       }
     })();
     return request;
@@ -145,8 +161,9 @@ if (dialog) {
   }
   dialog.addEventListener('animationend', (event) => {
     if (event.target === dialog && event.animationName === 'spotlight-collapse') finishClose();
-  });
+  }, { signal: abort.signal });
   function open(source: Element | null) {
+    if (document.querySelector<HTMLDialogElement>('[data-vault-dialog]')?.open) return;
     if (dialog!.open) {
       if (dialog!.hasAttribute('data-closing')) {
         const current = getComputedStyle(dialog!);
@@ -166,7 +183,10 @@ if (dialog) {
     dialog!.style.removeProperty('--open-opacity');
     dialog!.style.removeProperty('--open-backdrop-opacity');
     trigger = source;
+    restored = false;
     input.value = '';
+    selected = -1;
+    selectionVisible = false;
     composing = false;
     render();
     dialog!.style.animation = 'none';
@@ -178,39 +198,46 @@ if (dialog) {
     input.focus({ preventScroll: true });
     void load();
   }
-  document.querySelectorAll('[data-search-trigger]').forEach((button) => button.addEventListener('click', () => open(button)));
+  document.querySelectorAll('[data-search-trigger]').forEach((button) => button.addEventListener('click', () => open(button), { signal: abort.signal }));
+  document.addEventListener('vault:change', () => {
+    if (!vault.isUnlocked) { input.value = ''; composing = false; selected = 0; selectionVisible = false; results = []; list.replaceChildren(); }
+    render();
+  }, { signal: abort.signal });
+  document.addEventListener('vault:request-open', () => close(), { signal: abort.signal });
   document.addEventListener('keydown', (event) => {
     if (!(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== 'k' || event.isComposing) return;
     const target = event.target;
     if (!dialog!.open && target instanceof Element && target.closest('input, textarea, select, [contenteditable]:not([contenteditable="false"])')) return;
     event.preventDefault();
     open(document.activeElement);
-  });
-  input.addEventListener('input', () => render());
-  input.addEventListener('compositionstart', () => { composing = true; });
-  input.addEventListener('compositionend', () => { composing = false; render(); });
+  }, { signal: abort.signal });
+  input.addEventListener('input', () => { selectionVisible = false; render(); }, { signal: abort.signal });
+  input.addEventListener('compositionstart', () => { composing = true; }, { signal: abort.signal });
+  input.addEventListener('compositionend', () => { composing = false; render(); }, { signal: abort.signal });
   input.addEventListener('keydown', (event) => {
     if (dialog!.hasAttribute('data-closing')) return;
     if (composing || event.isComposing || event.key === 'Process') return;
     if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
       event.preventDefault();
-      select(selected + (event.key === 'ArrowDown' ? 1 : -1), true);
+      selectionVisible = true;
+      select(selected < 0 ? 0 : selected + (event.key === 'ArrowDown' ? 1 : -1), true);
     } else if (event.key === 'Enter') {
       event.preventDefault();
-      if (results[selected]) window.location.assign(withBase(results[selected].url, dialog!.dataset.base));
+      if (results[selected]) goTo(targetHref(results[selected].url, dialog!.dataset.base));
     }
-  });
+  }, { signal: abort.signal });
   dialog.addEventListener('keydown', (event) => {
     if (event.key !== 'Tab') return;
     const focusable = [input, closeButton, ...(!retry.hidden ? [retry] : [])];
     const position = focusable.indexOf(document.activeElement as HTMLInputElement);
     if (event.shiftKey && position <= 0) { event.preventDefault(); focusable.at(-1)!.focus(); }
     if (!event.shiftKey && position === focusable.length - 1) { event.preventDefault(); input.focus(); }
-  });
-  dialog.addEventListener('cancel', (event) => { event.preventDefault(); close(); });
+  }, { signal: abort.signal });
+  dialog.addEventListener('cancel', (event) => { event.preventDefault(); close(); }, { signal: abort.signal });
   function restoreAfterClose() {
     // Native close events are queued; an old event must not reset a newly opened dialog.
-    if (dialog!.open) return;
+    if (dialog!.open || restored) return;
+    restored = true;
     window.clearTimeout(closeTimer);
     closeTimer = undefined;
     dialog!.removeAttribute('data-closing');
@@ -219,13 +246,17 @@ if (dialog) {
     document.documentElement.classList.remove('search-open');
     if (trigger instanceof HTMLElement || trigger instanceof SVGElement) trigger.focus({ preventScroll: true });
   }
-  dialog.addEventListener('close', restoreAfterClose);
+  dialog.addEventListener('close', restoreAfterClose, { signal: abort.signal });
   const outside = (event: PointerEvent | MouseEvent) => {
     const bounds = dialog!.getBoundingClientRect();
     return event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom;
   };
-  dialog.addEventListener('pointerdown', (event) => { pointerStartedOutside = outside(event); });
-  dialog.addEventListener('click', (event) => { if (pointerStartedOutside && outside(event)) close(); });
-  closeButton.addEventListener('click', close);
-  retry.addEventListener('click', () => { void load(); input.focus(); });
+  dialog.addEventListener('pointerdown', (event) => { pointerStartedOutside = outside(event); }, { signal: abort.signal });
+  dialog.addEventListener('click', (event) => { if (pointerStartedOutside && outside(event)) close(); }, { signal: abort.signal });
+  closeButton.addEventListener('click', close, { signal: abort.signal });
+  retry.addEventListener('click', () => { void load(); input.focus(); }, { signal: abort.signal });
+  abort.signal.addEventListener('abort', () => { window.clearTimeout(closeTimer); trigger = null; });
 }
+
+return () => { alive = false; abort.abort(); if (dialog) { dialog.close(); const input = dialog.querySelector<HTMLInputElement>('#space-query'); if(input) input.value=''; dialog.querySelector('#space-results')?.replaceChildren(); } document.documentElement.classList.remove('search-open'); };
+});

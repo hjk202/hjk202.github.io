@@ -16,7 +16,13 @@
     "test:e2e": "playwright test",
     "test:extension": "node tests/verify-extension.mjs",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "prebuild": "node --experimental-strip-types scripts/vault/check-public.mjs",
+    "vault:pack": "node --experimental-strip-types scripts/vault/cli.mjs pack",
+    "vault:verify": "node --experimental-strip-types scripts/vault/cli.mjs verify",
+    "vault:rekey": "node --experimental-strip-types scripts/vault/cli.mjs rekey",
+    "vault:backup": "node --experimental-strip-types scripts/vault/cli.mjs backup",
+    "vault:restore": "node --experimental-strip-types scripts/vault/cli.mjs restore"
   },
   "dependencies": {
     "@astrojs/mdx": "8.0.3",

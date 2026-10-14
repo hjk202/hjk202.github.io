@@ -1,0 +1,11 @@
+.private-bookmarks { margin-top: 3rem; }
+.private-category-filter { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0; }
+.private-category-filter button { color: var(--muted); background: transparent; border: 1px solid var(--edge); border-radius: 18px; min-height: 44px; padding: 8px 16px; cursor: pointer; }
+.private-category-filter button[aria-pressed=true] { background: var(--selection); color: var(--ink); }
+.private-bookmarks .bookmark-group[hidden] { display: none; }
+.private-bookmarks h4 { font-size: 1.15rem; line-height: 1.5; }
+.private-bookmark { overflow-wrap: anywhere; line-height: 1.95; }
+.private-bookmark > .text-link { margin-bottom: 28px; }
+.private-bookmark h1 { font-size: clamp(1.65rem,4vw,2.4rem); line-height: 1.5; }
+.private-bookmark .source { color: var(--muted); font-size: .75rem; }
+.private-bookmark .description { color: var(--muted); padding-bottom: 24px; border-bottom: 1px solid var(--edge); }

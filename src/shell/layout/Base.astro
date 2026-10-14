@@ -3,13 +3,17 @@ import Spotlight from '../home/Spotlight.astro';
 import '../theme/theme.css';
 import '../glass/glass.css';
 import { withBase } from '../../core/module/urls';
+import { ClientRouter } from 'astro:transitions';
+import { searchIndex } from '../../core/search/index.server';
+import Unlock from '../vault/Unlock.astro';
 interface Props { title: string; description?: string; noindex?: boolean }
 const { title, description = 'Personal Space：从Compass探索模块，用Spotlight查找公开内容。', noindex = false } = Astro.props;
 const canonical = Astro.site && !noindex ? new URL(Astro.url.pathname, Astro.site).href : undefined;
 ---
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-base={import.meta.env.BASE_URL} transition:animate="none">
   <head>
+    <ClientRouter fallback="swap" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
     <title>{title}</title>
@@ -18,9 +22,12 @@ const canonical = Astro.site && !noindex ? new URL(Astro.url.pathname, Astro.sit
     {canonical && <link rel="canonical" href={canonical} />}
     {noindex && <meta name="robots" content="noindex" />}
   </head>
-  <body><slot /><Spotlight /></body>
+  <body><slot /><Spotlight /><Unlock /><script type="application/json" data-vault-public set:html={JSON.stringify(searchIndex).replaceAll('<', '\\u003c')} /></body>
 </html>
+<script>import '../vault/runtime';</script>
 <style is:global>
+  :root { view-transition-name: none !important; }
+  [data-vault-hidden] { display: none !important; }
   * { box-sizing: border-box; }
   body { margin: 0; font: 16px/1.65 system-ui, sans-serif; }
   a { color: inherit; text-underline-offset: .25em; }
