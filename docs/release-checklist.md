@@ -126,3 +126,13 @@ verify-vault-release 检查产物没有源码/地图/测试后门或已知样本
 新隔离checkout复现当前恢复目标9e7d878：npm ci、build、verify-release和2项head/404浏览器通过，仍为9页/15文件。它是有既有公开功能的安全恢复目标，会撤回Phase 4功能；单独恢复密文按vault-guide操作。正常线上没有进行回退演示。
 
 证据在.cache/4.8-verified-*-checks.log、4.8-webkit-mobile-checks.log、4.8-contract-*-checks.log及4.8-rollback-*。当前只包含“安全验收样本”的临时密文，发布与OPPO尚未完成；结束后必须删除测试载荷并重新发布，最终无真实内容时未配置Vault。当前不标阶段Done。
+
+### 临时非敏感手机验收版
+
+2026-10-14，d15b4aa 已发布：[手动运行38603980776](https://github.com/hjk202/hjk202.github.io/actions/runs/38603980776) check/deploy均success，Pages产物11914909008，digest sha256:ec4c384dc51deb2c64f11564f6b90d536c23cd97428d5d3546c0c5a85483babf。同SHA重复push运行38603978599取消，手动运行实际执行了全部检查。
+
+25线上文件哈希与受验产物一致；8公开页面、真实404、4公开搜索目标、Me GitHub/透明触摸高亮/手机标签间距，以及实际密文私人文章搜索、Keep分类、Me补充和主动锁定通过。公开搜索快照与Phase 3首发一致。证据.cache/4.8-temporary-live.json、4.8-temporary-live-verified.log及4.8-temporary-manifest.json。
+
+当前OPPO基础反馈与最终样本清理发布仍待完成；这是临时样本环境，不能当作阶段最终完成。最后的离页取消解密修复由确定性延迟负例验证，将随最终清理版发布，不把旧源运行当作新源验证。
+
+离页取消解密修复已在本地通过公共门槛、根62与WebKit私人21；无bundle的隔离最终产物62浏览器与边界扫描通过。源修复未部署，线上仍为d15b4aa。等待OPPO真实结果后删除生产源样本，提交/验证最终新源并按同管线发布；必要反馈尚未收到，不标4.8或阶段Done。

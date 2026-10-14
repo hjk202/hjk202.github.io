@@ -44,6 +44,18 @@ test('request and protocol failures have a retry; unsupported secure API stays l
   await page.keyboard.press('Escape');await expect(panel(page)).not.toBeVisible();
   await page.addInitScript(()=>Object.defineProperty(window,'crypto',{value:undefined,configurable:true}));await open(page);await expect(panel(page).getByRole('status')).toContainText('当前浏览器无法打开私人空间');await expect(page.locator('html')).not.toHaveAttribute('data-vault-unlocked');
 });
+test('leaving during a pending decrypt cancels the core session as well as the dialog',async({page})=>{
+  await configured(page);await open(page);
+  await page.evaluate(()=>{
+    const native=crypto.subtle.decrypt.bind(crypto.subtle),probe=window as unknown as {releaseDecrypt?:()=>void;decryptCompleted?:boolean};
+    crypto.subtle.decrypt=async(...args)=>{await new Promise<void>(resolve=>{probe.releaseDecrypt=resolve;});const result=await native(...args);probe.decryptCompleted=true;return result;};
+  });
+  await page.getByLabel('私人空间口令',{exact:true}).fill(password);await page.getByRole('button',{name:'解锁',exact:true}).click();
+  await expect.poll(()=>page.evaluate(()=>typeof (window as unknown as {releaseDecrypt?:unknown}).releaseDecrypt)).toBe('function');
+  await page.evaluate(()=>{document.dispatchEvent(new Event('astro:before-swap'));(window as unknown as {releaseDecrypt:()=>void}).releaseDecrypt();});
+  await expect.poll(()=>page.evaluate(()=>(window as unknown as {decryptCompleted?:boolean}).decryptCompleted)).toBe(true);
+  await expect(page.locator('html')).not.toHaveAttribute('data-vault-unlocked');await expect(panel(page)).not.toBeVisible();
+});
 for(const theme of ['light','dark'] as const)test(`Unlock ${theme}: narrow/short viewport stays readable and usable`,async({page},info)=>{
   await configured(page);await page.setViewportSize({width:320,height:568});await page.emulateMedia({colorScheme:theme});await open(page);await expect(page.getByLabel('私人空间口令',{exact:true})).toBeVisible();
   await page.setViewportSize({width:320,height:320});await expect(page.getByRole('button',{name:'关闭私人空间'})).toBeVisible();await expect(page.getByRole('button',{name:'解锁',exact:true})).toBeVisible();

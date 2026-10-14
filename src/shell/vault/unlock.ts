@@ -70,5 +70,5 @@ onPage(()=>{
   dialog.addEventListener('pointerdown',event=>{outsideStarted=outside(event);},options);dialog.addEventListener('click',event=>{if(outsideStarted&&outside(event))close();},options);
   document.addEventListener('visibilitychange',()=>{if(document.hidden)close(true);},options);
   document.addEventListener('vault:open',event=>open((event as CustomEvent<{source:Element}>).detail.source),options);
-  return()=>{generation++;request?.abort();abort.abort();unsubscribe();cancelHold();clearTimeout(closingTimer);input.value='';dialog.close();document.documentElement.classList.remove('vault-open');};
+  return()=>{generation++;request?.abort();if(vault.state==='unlocking')vault.lock();abort.abort();unsubscribe();cancelHold();clearTimeout(closingTimer);input.value='';dialog.close();document.documentElement.classList.remove('vault-open');};
 });

@@ -13,9 +13,9 @@
 | 项目 | 状态 |
 | --- | --- |
 | 当前任务 | 用户授权顺序完成Phase 4 / 4.1–4.8；每项独立验证，阶段结束后停止 |
-| 当前指定实施 milestone | 4.8 In Progress；Phase 4逐项执行，Phase 5/6未授权 |
+| 当前指定实施 milestone | 4.8 In Progress：待OPPO反馈，随后清理临时样本并发布最终版；Phase 5/6未授权 |
 | 当前授权范围 | 按已批准Phase 4实施，包括4.8既有Pages发布与验收；仅此阶段，不扩展Phase 5/6 |
-| 项目实施 | Phase 1、2、3与D1–D8完成；当前公开产品源9e7d878 |
+| 项目实施 | Phase 1、2、3与D1–D8完成；当前线上为临时非敏感验收版d15b4aa；最终无样本版本待4.8 |
 | 下一候选 milestone | 当前完成获准4.8安全/维护/发布/手机验收；结束后停止，Phase 5/6未授权 |
 
 创建这两份文档不代表 milestone 1.1 已开始或已完成。所有实施 milestone 初始为 `Pending`。
@@ -2227,3 +2227,15 @@ Phase 4全部必需项Done后停止。可选Phase 5仍须用户选择/指定；�
 实际文档检查通过：8个Phase 4 milestone及6个后续候选/延后单元均具备所列必需字段，新增项全部Pending；与HEAD逐段比较确认Phase 1/2、D1–D8及Phase 3详细计划/完成记录内容未变；Git修改范围仅NEED.md与PLAN.md，git diff --check退出0。一次性检查脚本在内存运行，没有新增测试或配置文件。
 
 本轮没有运行lint/typecheck/test/build/e2e或页面smoke，因为只修改规划，不改变运行时；不得把Phase 3历史通过记录当Private通过。本轮未创建源码/测试/配置/模块/素材或秘密文件，未提交/推送/部署。交付后停止，等待用户查验。
+
+### Phase 4 / 4.8 临时发布记录（2026-10-14）
+
+源 d15b4aa7b3cabf3ecef3ba9ec54552ff9bd08555 已通过真实手动运行 [38603980776](https://github.com/hjk202/hjk202.github.io/actions/runs/38603980776) 的全部 check/deploy；同SHA重复push运行38603978599取消，由手动运行完整执行所有门槛。Pages产物11914909008，digest sha256:ec4c384dc51deb2c64f11564f6b90d536c23cd97428d5d3546c0c5a85483babf。
+
+线上25文件与受验清单哈希相同，8公开路径、4公开结果、真实404/资产/Me GitHub/手机标签间距通过；实际网络密文解锁后私人文章搜索/进入、Keep分类、Me补充与主动锁定通过。证据.cache/4.8-temporary-live.json及4.8-temporary-live-verified.log。临时包不是正式作者材料，OPPO基础检查已发起，尚待反馈；最终清理发布未完成，Phase 4/4.8保持In Progress。
+
+最后一次取消边界审阅补充：页面离开时也必须锁定进行中的Core解密，不能只销毁dialog。新增确定性延迟解密负例；根公共门槛与62浏览器已通过，最终随样本清理版本发布。未实施Phase 5/6。
+
+4.8最新验证补充：离页取消解密修复已通过全部公共门槛（122files0诊断、38unit、build）、根62浏览器及WebKit私人21；不含bundle的隔离最终预览也通过62浏览器与产物边界扫描。证据.cache/4.8-cancel-verified-checks.log、4.8-cancel-webkit-checks.log、4.8-unconfigured-preview-checks.log。当前修复仅本地保存，线上仍为已核验d15b4aa临时验收版；不将本地新源码冒充线上版本。
+
+当前等待的是PLAN.md 4.8明确要求的OPPO基础实际反馈，不是重新申请发布许可；已发出一次验收问题，未收到回应前不假定通过，不删除待验收包。手机结果、源样本删除与最终新源CI/线上验证仍是剩余必需工作，4.8/Phase 4不标Done，Phase 5/6不开始。
