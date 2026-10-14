@@ -12,11 +12,11 @@
 
 | 项目 | 状态 |
 | --- | --- |
-| 当前任务 | Phase 3 已实施并发布；3.8全部自动化/线上/更新/回退验证通过，等待OPPO最终复查反馈 |
-| 当前指定实施 milestone | 3.8 Blocked（待修复后真机反馈）；3.1–3.7 Done |
+| 当前任务 | Phase 3 Done；自动化、线上、内容更新、回退及OPPO最终复查全部完成，已停止 |
+| 当前指定实施 milestone | 无；3.1–3.8全部Done |
 | 当前授权范围 | 用户授权实施 Phase 3；先保存 Git v0，再允许覆盖现有 hjk202.github.io demo；保留远程历史，不强制推送 |
-| 项目实施 | Phase 1、2 与 D1–D8 完成；Phase 3 技术实现与发布完成，阶段Done仍需3.8最后真机确认 |
-| 下一候选 milestone | 等待3.8真机反馈；通过后只更新验收状态并停止，不自动执行Phase 4/5 |
+| 项目实施 | Phase 1、2、3与D1–D8完成；当前公开产品源9e7d878 |
+| 下一候选 milestone | 无当前执行授权；停止交用户检查，Phase 4/5须新的明确指令 |
 
 创建这两份文档不代表 milestone 1.1 已开始或已完成。所有实施 milestone 初始为 `Pending`。
 
@@ -183,7 +183,7 @@ D:\hjk202\
 | --- | --- | --- | --- |
 | Phase 1 | 架构、首页、Spotlight 与扩展基础 | Done（用户继续 Phase 2，接受当前基线） | 无 |
 | Phase 2 | 四个公开模块的最小实用版本 | Done（真实内容与 D1–D8 修订完成，用户认可当前基线） | Phase 1 |
-| Phase 3 | 完整移动端与公开发布 | In Progress（逐项执行；上线后真机验收） | Phase 1、2、D1–D8 |
+| Phase 3 | 完整移动端与公开发布 | Done（公开发布与OPPO最终复查通过） | Phase 1、2、D1–D8 |
 | Phase 4 | 按实际需要扩展模块 | Pending，可选 | Phase 1 的接口、Phase 3 的发布流程 |
 | Phase 5 | Private Layer | Pending，须先完成安全设计 | Phase 1–3；不依赖 Phase 4 |
 
@@ -1228,7 +1228,7 @@ ModuleShell.astro 仅增加通用 module-page 包裹层和来自元数据的 dat
 ## Phase 3 Detailed Plan
 
 **规划日期**：2026-10-13。  
-**阶段状态**：In Progress；3.1–3.7 Done，3.8 Blocked（最终OPPO复查结果待用户反馈）。
+**阶段状态**：Done；3.1–3.8全部完成，OPPO最终复查通过，已停止。
 
 **本轮授权**：2026-10-13用户授权实施Phase 3，先用Git保存当前版本为v0，允许覆盖 https://hjk202.github.io/ 的已有demo。逐项执行和验证，不扩展未来Phase。  
 **新增约定**：用户要求移动端保持简单、能看能用，并明确同意把OPPO Find X7 Ultra默认浏览器的真机验收集中在上线后3.8；3.3/3.4先完成自动化与模拟验收，未实测手机不得标为已通过。Git v0已保存于ad0e0af，本项前提前初始化Git是用户明确授权的例外。  
@@ -1279,7 +1279,7 @@ Phase 3 把已经成立的个人空间变成手机上可用、可公开访问、
 | 3.5 | 页面元信息、favicon与404 | Done | 3.4 |
 | 3.6 | 可重复静态构建与发布管线准备 | Done | 3.5 |
 | 3.7 | 首次GitHub Pages公开发布 | Done | 3.6；真实Actions与线上验证通过 |
-| 3.8 | 真机、线上与内容更新闭环验收 | Blocked（待最终真机反馈） | 3.7 |
+| 3.8 | 真机、线上与内容更新闭环验收 | Done | 3.7 |
 
 默认按上表顺序执行，一次一个milestone。本轮用户已明确授权批量执行Phase 3；仍逐项验证和更新状态，失败先修复，不能越过门槛。
 
@@ -1627,7 +1627,7 @@ Pages可用性需按真实账户和仓库条件核验；不默认改变仓库可
 
 ### Milestone 3.8 — 真机、线上与内容更新闭环验收
 
-**Status**：Blocked（最终OPPO复查结果待用户反馈）
+**Status**：Done
 
 **Dependencies**：3.7 Done；一台可用真机与一项用户认可的真实内容编辑可获得。
 
@@ -1655,12 +1655,12 @@ tests/e2e、必要隔离验证脚本；README、docs/content-guide.md、docs/rel
 
 #### Done Criteria
 
-- [ ] 必需真机路径已实际完成；型号/系统/浏览器与未实测项有记录，键盘与旋转可用。
+- [x] 必需真机路径已实际完成；型号/系统/浏览器与未实测项有记录，键盘与旋转可用。
 - [x] 线上全部正式入口/内容/索引/资源/404正常，无未解决的必要验证失败。
 - [x] 至少一次真实内容编辑与二次部署验证通过；列表/目标/count/search/Me平均值按实际修改同步。
 - [x] 回退版本与步骤可复现；维护说明对应真实流程，用户可独立操作。
-- [ ] 全部公共门槛与相关专项回归通过，Phase 3汇总与各项状态一致。
-- [ ] 完成后停止交用户验收，未来Phase保持Pending。
+- [x] 全部公共门槛与相关专项回归通过，Phase 3汇总与各项状态一致。
+- [x] 完成后停止交用户验收，未来Phase保持Pending。
 
 #### Verification
 
@@ -1670,9 +1670,11 @@ tests/e2e、必要隔离验证脚本；README、docs/content-guide.md、docs/rel
 
 Phase 4可在新的明确需求和真实素材出现后扩展；Private仍需Phase 5专项设计。**Progress（2026-10-13）**：用户批准的Me GitHub链接已加入原有链接区，新标签访问，不新增资料或搜索目标；OPPO反馈按钮短暂蓝色触摸闪块，其他基础操作正常。仅在全局a/button取消浏览器默认tap-highlight，保留现有玻璃按压和focus-visible，不禁用输入缩放/长按菜单/选择。npm ci（0vulnerabilities）、lint/typecheck（74files0诊断）/24unit/root与base build均退出0；根/base各40e2e、WebKit移动15、第五模块check/build与1浏览器、内容公开资源1/空集合1/设计分类与平均值5浏览器均通过；审阅Me手机截图。首发d3ccc76已在.cache/phase3-first-release独立clone、npm ci/build/verify-release，15文件哈希与首发受验候选相同，4项全页面/脚本/head/404搜索smoke通过，不回退正常线上。触摸专项最初错误假定桌面WebKit暴露移动专用属性，诊断后按CSS.supports记录不适用，既有测试断言未改；Chromium实际计算从rgba(0,0,0,.18)变为透明，两个引擎的触摸导航/搜索和键盘2px焦点通过，OPPO修复后结果仍需二次上线确认。默认浏览器与系统版本用户未提供，不猜测；iOS真机未实测。第二次真实部署及线上复验尚未完成，本项继续In Progress。日志.cache/3.8-*.log、3.8-tap.json，失败诊断保留3.8-tap-diagnostic.log。
 
+**Milestone 3.8 Completion Record（2026-10-13）**：用户在OPPO Find X7 Ultra默认浏览器打开最终https://hjk202.github.io/?v=9e7d878后明确反馈“两处问题都已解决，操作正常”。此前已确认四模块进入/返回、中文搜索软键盘、关闭后操作和横竖屏阅读正常；至此触摸蓝色闪块与Build/Keep标签重合的修复均获真机确认，最后阻塞解除，3.8及Phase 3标Done。实际修改为获准的Me GitHub公开链接、保留键盘焦点的触摸高亮修复、对称移动标签框及有效视觉碰撞回归；真实更新与二次部署、第三次修复发布及独立首发回退复现均通过。最终产品源9e7d878、[发布38501761237](https://github.com/hjk202/hjk202.github.io/actions/runs/38501761237)check/deploy成功；本地与云端npm run lint/typecheck（74files0诊断）/test（24项）/build（9页）均退出0，根/base各40e2e、WebKit移动15、4–7两引擎8组合和必要第五模块/内容/设计隔离验证通过；线上15文件哈希一致、8正常页面/搜索/资源/实际404与标签分离通过，数量仍[1,1,1,1]/Me平均1。详细命令、产物及失败修复证据保留在下列历史记录与发布清单。本轮仅补齐四份维护文档，核对状态/完成项/交叉引用及git diff --check；不重跑已通过且代码未变的工程验证，不重新部署。系统/浏览器版本用户未提供，iOS真机未实测，不声称全设备兼容。NEED/AGENTS、源码与配置保持；Phase 4/5仍Pending，完成后停止。
+
 ### Open Questions / Risks 与默认假设
 
-**最终线上记录与剩余验收（2026-10-13）**：标签修复源9e7d8788cabff5df4e638e8df956eee6ffbf3e58；[第三次发布38501761237](https://github.com/hjk202/hjk202.github.io/actions/runs/38501761237)与push检查38501734407均success，github-pages产物11866203369，digest sha256:3fbc7ca06a557517a78147372f38d1c6a90adb50e3be25eba22b2da9082e8b66。云端npm ci/lint/typecheck/24unit/root build/40Chromium/15WebKit移动、extension/content/design/4–7两引擎碰撞、base build/40e2e、产物检查和deploy全部通过。最终真实URL的15文件SHA256与本地受验产物相同，8正常页面/深层刷新/Home/全部搜索目标/返回状态/实际404/元信息/资源通过，无页面异常或非预期失败资产；375px四标签文字与玻璃分离且不越界，Me GitHub链接与透明tap-highlight验证通过。搜索快照与首发逐字节相同，四模块各1、4目标、Me平均1。证据.cache/3.8-final-cloud-jobs.json、3.8-final-live.json、3.8-final-live-home.png及日志；所有本机测试服务已关闭。用户此前确认OPPO基础导航/键盘/旋转正常；随后两项反馈均已修复和上线，但最终手机确认尚未收到，故3.8 Blocked、Phase 3未标Done，不把自动化当真机通过。待用户确认https://hjk202.github.io/?v=9e7d878两处问题均解决后，仅补齐状态/完成记录并停止。以下Progress段落保留各轮历史，当前状态以上述记录为准。
+**最终线上记录与剩余验收（2026-10-13，历史停点）**：标签修复源9e7d8788cabff5df4e638e8df956eee6ffbf3e58；[第三次发布38501761237](https://github.com/hjk202/hjk202.github.io/actions/runs/38501761237)与push检查38501734407均success，github-pages产物11866203369，digest sha256:3fbc7ca06a557517a78147372f38d1c6a90adb50e3be25eba22b2da9082e8b66。云端npm ci/lint/typecheck/24unit/root build/40Chromium/15WebKit移动、extension/content/design/4–7两引擎碰撞、base build/40e2e、产物检查和deploy全部通过。最终真实URL的15文件SHA256与本地受验产物相同，8正常页面/深层刷新/Home/全部搜索目标/返回状态/实际404/元信息/资源通过，无页面异常或非预期失败资产；375px四标签文字与玻璃分离且不越界，Me GitHub链接与透明tap-highlight验证通过。搜索快照与首发逐字节相同，四模块各1、4目标、Me平均1。证据.cache/3.8-final-cloud-jobs.json、3.8-final-live.json、3.8-final-live-home.png及日志；所有本机测试服务已关闭。用户此前确认OPPO基础导航/键盘/旋转正常；随后两项反馈均已修复和上线，但最终手机确认尚未收到，故3.8 Blocked、Phase 3未标Done，不把自动化当真机通过。待用户确认https://hjk202.github.io/?v=9e7d878两处问题均解决后，仅补齐状态/完成记录并停止。以下Progress段落保留各轮历史，当前状态以3.8 Completion Record为准。
 
 **3.8真机问题复验进度（2026-10-13）**：二次部署后用户报告手机Build/Keep标签与玻璃重合，本项仍In Progress，线上总体验验收保持未完成。375px实测文字向内侵入约5–10px，根因为200user-unit标签框被x方向clamp回中心。仅调整Compass移动foreignObject：保持248半径的对称中心，按距viewBox两侧的可用宽度收窄标签框；窄框较长名称复用既有紧凑样式。实际四模块字号/大小写、174外圈、雷达映射及统计不变；移动框最小约52px宽/44px高。新增文字与玻璃分离/不越界断言，旧390px产物明确失败；4–7探针增加基于字体矩形与实际凸多边形的碰撞检查，首次发现六模块Workshop两行碰撞后修正并复跑，未弱化断言。最终lint/typecheck（74files0诊断）/24unit/root/base build、根/base各40e2e、WebKit移动15、4–7两引擎8组合全部退出0；审阅375px及6/7模块截图，375px两侧约18–23px间距，320px约16–20px。verify-mobile加入发布门槛，触发/权限不变；日志.cache/3.8-spacing-*.log，测量/截图见mobile-probe-output.txt，初始失败保留。第三次发布和最终OPPO复查尚未完成。
 
@@ -1685,7 +1687,7 @@ Phase 4可在新的明确需求和真实素材出现后扩展；Private仍需Pha
 | site/base | 正式https://hjk202.github.io/与/，根/模拟子路径/真实线上均已通过 | 实际canonical/site/base一致；未配置新域名 |
 | 源码可见性 | 沿用用户授权覆盖的既有public仓库 | 没有新建仓库或改变可见性；没有提交依赖/缓存/凭据 |
 | 自定义域名 | 没有已确认域名，不作为首次发布前提 | 先用指定Pages URL；DNS/CNAME仅在明确要求后配置 |
-| 真机条件 | 用户已确认OPPO基础导航/软键盘/横竖屏正常，报告的触摸高亮与标签重合均已修复上线 | 系统/浏览器版本未提供，iOS未实测；修复后的最终手机结果仍待反馈 |
+| 真机条件 | OPPO基础导航/软键盘/横竖屏及最终两项修复均经用户确认正常 | 系统/浏览器版本未提供，iOS未实测；不扩大为全设备兼容声明 |
 | 字体与文风 | 现有系统字体和用户原文；中文为主、英文混排 | 只修语言标记与跨平台字号/换行，不买字体或做i18n |
 | 页面元信息 | 3.5已接入独立标题/摘要/zh-CN/favicon/canonical及真实404 | 三轮线上逐页验证通过；没有扩展搜索/内容模型 |
 | OG分享图 | 不把NEED的品牌示例自动变成必做功能 | 第一版不阻塞于OG；如用户批准静态默认图，再明确最小范围 |
