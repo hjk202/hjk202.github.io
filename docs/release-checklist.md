@@ -40,8 +40,8 @@
 | 3.4 | lint/typecheck/23单元/build；根与子路径各38e2e；WebKit15；设计两引擎各5；内容/空各1通过 | .cache/3.4-*.log；320px真实页面与长分类截图；200%字号压力探针 | Done |
 | 3.5 | lint/typecheck/24单元/9页build；根与真实site子路径各40e2e；WebKit head2；第五模块检查+1e2e通过 | .cache/3.5-*.log；真实404/默认与内容head/favicon；root正式site待3.6配置 | Done |
 | 3.6 | 干净npm ci/lint/typecheck/24unit/build；根/base各40e2e；干净40/15；隔离契约与资产哈希通过 | 候选2991080；15文件manifest一致；.cache/3.6-*.log与performance.json | Done |
-| 3.7 | 发布前lint/typecheck/24unit/9页build/40e2e通过；线上未执行 | 本地9c974dc保留旧046d0ba历史；v0/demo-before-phase3已保存，待账号登录 | Blocked |
-| 3.8 | 待执行 | OPPO基础验收、真实内容更新部署、维护流程 | Pending |
+| 3.7 | 本地公共门槛与40e2e、真实云端全链路与线上smoke通过 | d3ccc76；run38496826924成功；15线上文件哈希相同、8页面/真实404/搜索/返回通过 | Done |
+| 3.8 | 正在执行 | OPPO基础验收、真实内容更新部署、维护流程 | In Progress |
 
 ## 真机基础验收（上线后）
 
@@ -90,5 +90,7 @@ Windows检查沿用npm.cmd，本地浏览器缓存可由PLAYWRIGHT_BROWSERS_PATH
 优先以最近一个已验收的Phase 3源版本为恢复目标：在隔离目录复现其干净安装/构建和必要smoke；确认差异后用新的git revert提交撤销相关产品改动，检查后按正常main手动发布流程部署。先保护当前未提交工作，不用reset --hard、强制推送或在正常线上做无必要的回退演示。3.8至少复现首发版本并记录真实可用的回退目标。
 
 ## 发布与维护记录
+
+2026-10-13首发已完成：认证账号hjk202，保留public/main与域名、从legacy切为workflow；正常推送保留旧demo历史，远程v0与demo-before-phase3已确认。源d3ccc76a6b6e292aef5e24ed036d41ae6561545c；[运行38496826924](https://github.com/hjk202/hjk202.github.io/actions/runs/38496826924)check/deploy均success，github-pages产物11864278192，digest sha256:5078a7da8e8b02d956d202213513607cb326960f58bf25c2be9cc59afc6f8435。线上15文件哈希与受验产物相同，8正常页面、索引/资源、正式head、搜索/返回及真实404通过，无页面异常。首发回退源为phase3-first-release；3.8将复现并执行获准的Me链接更新。以下段落保留3.6/发布前的历史记录，不代表当前阻塞。
 
 3.6已通过本地与干净候选检查：产品候选2991080，15文件清单在.cache/release-manifest.json与release-candidate/.cache/release-manifest.json，完全一致。3.7取回旧046d0ba并作为9c974dc的祖先保留；两份本地备份标签已建立。当前缺少已认证GitHub账户，设备登录等待用户完成；不要把这一阻塞误读成重新请求发布许可。尚未推送、修改Pages或部署；真实Actions与线上结果留3.7/3.8。必要的文档完成记录会形成后续提交，但不改变已验证的产品/构建输入；线上工作流仍重新检查它实际部署的提交和同一dist。

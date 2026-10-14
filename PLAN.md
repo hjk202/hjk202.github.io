@@ -12,11 +12,11 @@
 
 | 项目 | 状态 |
 | --- | --- |
-| 当前任务 | Phase 3 批量授权实施；3.7已确认GitHub身份与Pages权限，正在首次发布 |
-| 当前指定实施 milestone | 3.7 In Progress；3.1–3.6 Done，3.8 Pending |
+| 当前任务 | Phase 3 批量授权实施；首发与线上验证通过，正在3.8真实更新及真机验收 |
+| 当前指定实施 milestone | 3.8 In Progress；3.1–3.7 Done |
 | 当前授权范围 | 用户授权实施 Phase 3；先保存 Git v0，再允许覆盖现有 hjk202.github.io demo；保留远程历史，不强制推送 |
 | 项目实施 | Phase 1、2 与 D1–D8 技术完成，用户认可当前基线；Phase 3 逐项进行，真机验收集中上线后 |
-| 下一候选 milestone | 3.7云端与线上验证通过后执行3.8，既有发布授权不重复请求 |
+| 下一候选 milestone | 完成3.8后停止，交用户验收；不自动执行Phase 4/5 |
 
 创建这两份文档不代表 milestone 1.1 已开始或已完成。所有实施 milestone 初始为 `Pending`。
 
@@ -1228,7 +1228,7 @@ ModuleShell.astro 仅增加通用 module-page 包裹层和来自元数据的 dat
 ## Phase 3 Detailed Plan
 
 **规划日期**：2026-10-13。  
-**阶段状态**：In Progress；3.1–3.6 Done，3.7 In Progress，3.8 Pending。  
+**阶段状态**：In Progress；3.1–3.7 Done，3.8 In Progress。  
 **本轮授权**：2026-10-13用户授权实施Phase 3，先用Git保存当前版本为v0，允许覆盖 https://hjk202.github.io/ 的已有demo。逐项执行和验证，不扩展未来Phase。  
 **新增约定**：用户要求移动端保持简单、能看能用，并明确同意把OPPO Find X7 Ultra默认浏览器的真机验收集中在上线后3.8；3.3/3.4先完成自动化与模拟验收，未实测手机不得标为已通过。Git v0已保存于ad0e0af，本项前提前初始化Git是用户明确授权的例外。  
 **需求依据**：NEED.md 第43节手机端、第44–46节材质与动画、第47节技术栈，以及第55–56节获准修订；视觉基线为 DESIGN.md 与 D1–D8 的已完成结果。用户已认可当前效果，本阶段不重新设计网站。
@@ -1277,8 +1277,8 @@ Phase 3 把已经成立的个人空间变成手机上可用、可公开访问、
 | 3.4 | 四模块移动阅读与局部操作 | Done | 3.2、3.3 |
 | 3.5 | 页面元信息、favicon与404 | Done | 3.4 |
 | 3.6 | 可重复静态构建与发布管线准备 | Done | 3.5 |
-| 3.7 | 首次GitHub Pages公开发布 | In Progress | 3.6；hjk202身份/admin权限与legacy Pages源已实际确认 |
-| 3.8 | 真机、线上与内容更新闭环验收 | Pending | 3.7 |
+| 3.7 | 首次GitHub Pages公开发布 | Done | 3.6；真实Actions与线上验证通过 |
+| 3.8 | 真机、线上与内容更新闭环验收 | In Progress | 3.7 |
 
 默认按上表顺序执行，一次一个milestone。本轮用户已明确授权批量执行Phase 3；仍逐项验证和更新状态，失败先修复，不能越过门槛。
 
@@ -1579,7 +1579,7 @@ npm ci与公共工程检查；根路径和npm run build -- --base /personal-spac
 
 ### Milestone 3.7 — 首次GitHub Pages公开发布
 
-**Status**：In Progress  
+**Status**：Done  
 **Dependencies**：3.6 Done；目标账号/仓库/可见性/分支/地址与实际发布授权明确。
 
 #### Goal / Scope
@@ -1608,11 +1608,11 @@ Pages可用性需按真实账户和仓库条件核验；不默认改变仓库可
 
 #### Done Criteria
 
-- [ ] 对应源版本的工作流在真实仓库成功完成，发布URL和产物明确。
-- [ ] 线上正常路径HTTP200，未知路径真实404；直达/刷新/Home/资源/索引可用。
-- [ ] 搜索、平均值显示、分类返回、外链与动画还焦在实际地址下正常。
-- [ ] 正式canonical/site/base一致，没有测试域名、重复前缀或旧资源。
-- [ ] 记录实际命令、部署日志、线上smoke与回退目标，公共检查通过；必要信息或授权缺失没有被伪称解决。
+- [x] 对应源版本的工作流在真实仓库成功完成，发布URL和产物明确。
+- [x] 线上正常路径HTTP200，未知路径真实404；直达/刷新/Home/资源/索引可用。
+- [x] 搜索、平均值显示、分类返回、外链与动画还焦在实际地址下正常。
+- [x] 正式canonical/site/base一致，没有测试域名、重复前缀或旧资源。
+- [x] 记录实际命令、部署日志、线上smoke与回退目标，公共检查通过；必要信息或授权缺失没有被伪称解决。
 
 #### Verification
 
@@ -1622,9 +1622,11 @@ Pages可用性需按真实账户和仓库条件核验；不默认改变仓库可
 
 为3.8提供真实访问地址；没有线上完成证据时Phase 3不能记Done。**Progress / Blocker（2026-10-13）**：发布前npm run lint/typecheck（74files0诊断）/test（24项）/build（9页）与40e2e全部退出0，verify-release通过，首发准备提交9c974dc保留origin/main为祖先，产品树与已验收候选一致。已添加准确origin并fetch旧demo（046d0ba，只有index.html），本地标签demo-before-phase3保留其原始提交；v0仍为ad0e0af。以ours合并保留双方历史，没有强制推送。GCM当前没有已认证账户，已通过现有代理启动GitHub设备登录并向用户提供登录入口；等待人工完成账号认证。这是缺少凭据，不是缺少发布授权。尚未推送、修改Pages、触发Actions或覆盖旧站；未将本地成功当作线上Done。认证后核实Pages源/权限，再按既有授权发布。3.8未开始，已批准的Me GitHub链接尚未提前添加。
 
+**Completion Record（2026-10-13）**：上述认证阻塞已解除，实际账号hjk202具备admin/push权限，仓库public/main与原始域名保持；Pages从legacy切为workflow。正常atomic push保留046d0ba祖先并上传v0与demo-before-phase3，无强推。首发源d3ccc76a6b6e292aef5e24ed036d41ae6561545c；[真实发布运行38496826924](https://github.com/hjk202/hjk202.github.io/actions/runs/38496826924)的check/deploy均success，push检查38496811151也success。已测试github-pages产物11864278192，digest sha256:5078a7da8e8b02d956d202213513607cb326960f58bf25c2be9cc59afc6f8435。云端执行npm ci、lint/typecheck/24unit/root build、40Chromium/15WebKit移动、隔离extension/content/design、base build/40e2e和verify-release全部通过。发布前本地公共门槛与40e2e已通过，文档提交未改变产品树。真实https://hjk202.github.io/下15文件SHA256与本地受验产物逐一相等；8正常页面200、深层刷新/Home、四模块Compass返回无残留、四中文/英文搜索目标、Esc收起还焦、Keep来源链接、正式canonical/favicon/索引及嵌套未知路径真实404与搜索跳转均通过，无页面异常或非预期失败资源。375px巡检无整页横向溢出，审阅线上Home截图；证据.cache/3.7-live.json、3.7-live-home.png、3.7-cloud-jobs.json。首发源将以phase3-first-release标签保留供3.8隔离复现；OPPO真实键盘仍留3.8验收，不宣称已实测。
+
 ### Milestone 3.8 — 真机、线上与内容更新闭环验收
 
-**Status**：Pending  
+**Status**：In Progress  
 **Dependencies**：3.7 Done；一台可用真机与一项用户认可的真实内容编辑可获得。
 
 #### Goal / Scope
