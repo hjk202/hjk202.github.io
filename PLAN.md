@@ -1666,7 +1666,7 @@ tests/e2e、必要隔离验证脚本；README、docs/content-guide.md、docs/rel
 
 #### 后续依赖 / Completion Record
 
-Phase 4可在新的明确需求和真实素材出现后扩展；Private仍需Phase 5专项设计。待执行。
+Phase 4可在新的明确需求和真实素材出现后扩展；Private仍需Phase 5专项设计。**Progress（2026-10-13）**：用户批准的Me GitHub链接已加入原有链接区，新标签访问，不新增资料或搜索目标；OPPO反馈按钮短暂蓝色触摸闪块，其他基础操作正常。仅在全局a/button取消浏览器默认tap-highlight，保留现有玻璃按压和focus-visible，不禁用输入缩放/长按菜单/选择。npm ci（0vulnerabilities）、lint/typecheck（74files0诊断）/24unit/root与base build均退出0；根/base各40e2e、WebKit移动15、第五模块check/build与1浏览器、内容公开资源1/空集合1/设计分类与平均值5浏览器均通过；审阅Me手机截图。首发d3ccc76已在.cache/phase3-first-release独立clone、npm ci/build/verify-release，15文件哈希与首发受验候选相同，4项全页面/脚本/head/404搜索smoke通过，不回退正常线上。触摸专项最初错误假定桌面WebKit暴露移动专用属性，诊断后按CSS.supports记录不适用，既有测试断言未改；Chromium实际计算从rgba(0,0,0,.18)变为透明，两个引擎的触摸导航/搜索和键盘2px焦点通过，OPPO修复后结果仍需二次上线确认。默认浏览器与系统版本用户未提供，不猜测；iOS真机未实测。第二次真实部署及线上复验尚未完成，本项继续In Progress。日志.cache/3.8-*.log、3.8-tap.json，失败诊断保留3.8-tap-diagnostic.log。
 
 ### Open Questions / Risks 与默认假设
 

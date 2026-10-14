@@ -9,4 +9,5 @@ export const profile = publicProfile({
     '因此，我做过从 CPU 模拟器、操作系统和 TCP 协议栈，到 Attention、GQA 和个人网站的一系列项目。很多时候，学习对我来说并不是从“学会”到“结束”，而是从一个问题继续长出下一个问题。',
     '这里记录我正在思考的事情、真正做过的项目，以及那些我觉得值得留下来的东西。',
   ],
+  links: [{ label: 'GitHub', url: 'https://github.com/hjk202' }],
 });

@@ -66,6 +66,7 @@
   }
 }
 body { color: var(--ink); background: var(--background); -webkit-font-smoothing: antialiased; }
+a, button { -webkit-tap-highlight-color: transparent; }
 :focus-visible { outline: 2px solid var(--focus); outline-offset: 5px; }
 .demo-label, .home-footer p { color: var(--muted); }
 .content-list li { border-color: var(--edge); }

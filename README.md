@@ -114,7 +114,9 @@ Remove-Item Env:E2E_DIST, Env:E2E_EXTENSION
 
 `.github/workflows/deploy.yml`在push/PR检查，在main手动`workflow_dispatch`时才发布。Node来自`.node-version`，npm固定10.9.8，依赖用npm ci。lint/typecheck/unit/build、Chromium根/子路径和WebKit移动检查通过后，上传原先已测试的dist；部署任务不重新构建。不添加长期令牌或把环境文件提交仓库。
 
-本地`v0`标签指向用户认可的Phase 3前版本（ad0e0af）。查看用`git show v0`，在隔离目录复现旧版本；不要用reset --hard或强制推送覆盖当前工作。发布流程、实际源版本/产物哈希、线上验收与回退说明见[发布清单](./docs/release-checklist.md)。正式推送、Pages配置及首发只在3.7执行。
+远程`v0`标签指向用户认可的Phase 3前版本（ad0e0af）；`demo-before-phase3`保留旧demo，`phase3-first-release`保留已验收首发d3ccc76。查看用`git show <tag>`，在隔离目录复现旧版本；不要用reset --hard或强制推送覆盖当前工作。发布流程、实际源版本/产物哈希、线上验收与回退说明见[发布清单](./docs/release-checklist.md)。3.7首发已成功，Pages源为GitHub Actions，域名与仓库可见性保持原样。
+
+更新网站：修改模块自己的真实内容→运行上述检查和相关页面smoke→提交并推送main→打开仓库Actions中的 **Verify and publish Personal Space** → **Run workflow**，选择main。push检查成功本身不会更新网站；手动运行的check与deploy均成功才是发布完成。核对run的源SHA，然后刷新https://hjk202.github.io/及修改的详情/搜索目标；不要手改dist。Me公开链接编辑不新增内容，四模块计数和Me平均值保持不变。
 
 ## 当前文件结构
 
@@ -135,7 +137,7 @@ eslint.config.mjs       JavaScript / TypeScript / Astro lint
 docs/architecture.md    架构边界
 ```
 
-Think 使用模块内 Markdown，其他模块使用各自 TypeScript 数据与最小校验。首批公开内容为韩江恺的介绍、一篇学习思考文章、NEMU 项目与 Missing Semester 收藏；默认四模块数量均为 1，三个内容详情页和四个模块首页共形成 8 个正常 HTML 页面（含首页），另有404错误页，共9页；错误页不计入内容。此前六份 Demo 已移除。移动模拟回归已补齐，真机检查与线上发布仍待完成；没有Private。
+Think 使用模块内 Markdown，其他模块使用各自 TypeScript 数据与最小校验。首批公开内容为韩江恺的介绍、一篇学习思考文章、NEMU 项目与 Missing Semester 收藏；默认四模块数量均为 1，三个内容详情页和四个模块首页共形成 8 个正常 HTML 页面（含首页），另有404错误页，共9页；错误页不计入内容。此前六份 Demo 已移除。移动模拟回归与首发线上检查已通过，OPPO真机及链接更新闭环在3.8验收；最终状态见PLAN.md。没有Private。
 
 新增模块只增加 src/modules/<id>/：module.ts 默认导出最小 Module 契约，pages.ts 默认导出页面描述数组（空 path 为模块首页），其余数据与页面由模块管理。目录名与 id 一致，route 为无 base 的逻辑地址，order 唯一，enabled 默认 true。共享层通过固定 glob 自动发现，不维护中心模块列表；统计和搜索目标必须对应实际公开内容与已生成页面。详细边界见 docs/architecture.md。
 

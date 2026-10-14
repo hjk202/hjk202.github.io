@@ -8,12 +8,12 @@
 
 | 模块 | 当前来源 | 首批真实资料 | 公开确认 | 拟用目标 | 对应 milestone |
 | --- | --- | --- | --- | --- | --- |
-| Me | 用户本轮原文；src/modules/me/data.ts | 韩江恺的简介与三段正文；没有额外链接 | 已确认 | /me/ | 2.2 Done |
+| Me | 用户原文及3.8批准的链接；src/modules/me/data.ts | 韩江恺的简介与三段正文；GitHub公开链接 | 已确认 | /me/ | 2.2 Done；3.8更新验证中 |
 | Think | 用户本轮原文；src/modules/think/content/understanding-from-the-bottom.md | 我为什么越来越喜欢从底层理解一个东西；2026-10-13；摘要及完整正文 | 已确认 | /think/understanding-from-the-bottom/ | 2.3 Done |
 | Build | 用户本轮原文；src/modules/build/data.ts | NEMU：从指令执行到分页与异常的 x86 模拟器；2025.09—2026.02；没有仓库链接 | 已确认 | /build/nemu/ | 2.4 Done |
 | Keep | 用户本轮原文；src/modules/keep/data.ts | The Missing Semester of Your CS Education；https://missing.csail.mit.edu/；原文说明 | 已确认 | /keep/missing-semester/ | 2.5 Done |
 
-首批内容没有缺失项；Me 和 Build 未提供额外链接，对应可选链接不展示。后续新内容仍需来自用户确认的公开资料，不自动填充事实。
+首批内容没有缺失项；Me 在3.8增加用户确认的GitHub链接，Build仍未提供仓库链接，不展示可选链接。后续新内容仍需来自用户确认的公开资料，不自动填充事实。
 
 ## 通用边界
 
@@ -129,6 +129,8 @@ published: true
 ### 修改其他模块与空状态
 
 Me 修改 publicProfile({...}) 内的 name、description、paragraphs；取消公开改 published 为 false，无资料传 null。Build 在 publicProjects([...]) 中增删项目，Keep 在 publicBookmarks([...]) 中增删收藏；保持稳定 slug，明确 published。传空数组即为无公开条目，不改 module.ts 或 pages.ts。
+
+Me公开链接用可选links数组，字段为label与http/https URL；按同一资料展示，不新增条目或搜索目标。当前GitHub链接为https://github.com/hjk202，新标签访问保留个人主页。此类链接编辑的预期仍是四模块各1、4个搜索目标、Me平均值1。内容检查后提交并推送main，在GitHub Actions手动运行Verify and publish Personal Space；检查和部署成功后刷新正式URL并核对实际版本，详细流程见README和发布清单。
 
 修改后运行 npm run lint、npm run typecheck、npm run test、npm run build、npm run test:e2e，再生产预览检查。隔离发布验证用 node tests/verify-content.mjs；子路径和浏览器 probe 命令见 README。更新内容后重新 build，避免旧 dist 页面残留。
 

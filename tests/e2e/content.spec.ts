@@ -31,6 +31,17 @@ test('Me real profile is reachable from Compass and Spotlight', async ({ page },
   await expect(page.locator('main')).toContainText('南京大学计算机科学与技术专业本科生');
   await expect(page.locator('.demo-label')).toHaveCount(0);
   await reviewBackground(page, info, 'me');
+  const github = page.getByRole('link', { name: /^GitHub/ });
+  await expect(github).toHaveAttribute('href', 'https://github.com/hjk202');
+  await expect(github).toHaveAttribute('target', '_blank');
+  await expect(github).toHaveAttribute('rel', 'noopener noreferrer');
+  await page.context().route('https://github.com/hjk202', (route) => route.fulfill({ contentType: 'text/html', body: '<h1>Public GitHub destination probe</h1>' }));
+  const opened = page.waitForEvent('popup');
+  await github.click();
+  const destination = await opened;
+  await expect(destination).toHaveURL('https://github.com/hjk202');
+  await expect(page).toHaveURL(/me\/$/);
+  await destination.close();
   await page.reload();
   await page.getByRole('link', { name: 'Home', exact: true }).click();
   await page.getByRole('button', { name: 'Search my space', exact: true }).click();
