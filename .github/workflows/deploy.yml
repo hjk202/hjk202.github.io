@@ -55,6 +55,7 @@ jobs:
           npm run test:extension
           node tests/verify-content.mjs
           node tests/verify-design.mjs
+          node tests/verify-mobile.mjs
       - name: Verify a project base without rebuilding dist
         run: |
           npm run build -- --base /personal-space/ --outDir .cache/base-dist

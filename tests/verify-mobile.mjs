@@ -15,6 +15,18 @@ const snapshot = (directory) => Object.fromEntries(readdirSync(directory, { with
   return entry.isDirectory() ? Object.entries(snapshot(path)) : [[path, createHash('sha256').update(readFileSync(path)).digest('hex')]];
 }));
 const before = snapshot('src');
+const intersectsPolygon = (box, polygon) => {
+  const corners = [{ x: box.left, y: box.top }, { x: box.right, y: box.top }, { x: box.right, y: box.bottom }, { x: box.left, y: box.bottom }];
+  const axes = [{ x: 1, y: 0 }, { x: 0, y: 1 }, ...polygon.map((point, index) => {
+    const next = polygon[(index + 1) % polygon.length];
+    return { x: next.y - point.y, y: point.x - next.x };
+  })];
+  return !axes.some((axis) => {
+    const project = (point) => point.x * axis.x + point.y * axis.y;
+    const shape = polygon.map(project), label = corners.map(project);
+    return Math.max(...shape) <= Math.min(...label) || Math.max(...label) <= Math.min(...shape);
+  });
+};
 const isolatedRoot = resolve('.cache', `mobile-${Date.now()}`);
 const astro = resolve('node_modules/astro', JSON.parse(readFileSync('node_modules/astro/package.json', 'utf8')).bin.astro);
 const records = [];
@@ -49,6 +61,10 @@ for (const count of [4, 5, 6, 7]) {
       try {
         const page = await browser.newPage({ viewport: { width: 320, height: 568 }, hasTouch: true, reducedMotion: 'reduce' });
         await page.goto('http://127.0.0.1:4413/personal-space/');
+        const polygon = await page.locator('.compass-outline').evaluate((outline) => Array.from({ length: outline.points.numberOfItems }, (_, index) => {
+          const point = outline.points.getItem(index).matrixTransform(outline.getScreenCTM());
+          return { x: point.x, y: point.y };
+        }));
         const metrics = await page.locator('[data-compass-link]').evaluateAll((links) => links.map((link) => {
           const document = link.ownerDocument;
           const box = (element) => { const r = element.getBoundingClientRect(); return { left: r.left, top: r.top, right: r.right, bottom: r.bottom, width: r.width, height: r.height }; };
@@ -61,7 +77,9 @@ for (const count of [4, 5, 6, 7]) {
         for (const item of metrics) {
           assert.ok(item.node.width >= 44 && item.node.height >= 44, `${name}: ${item.id} node too small`);
           assert.ok(item.label.height >= 44, `${name}: ${item.id} label too small`);
+          assert.ok(item.label.width >= 44, `${name}: ${item.id} label too narrow`);
           assert.ok(item.text.left >= 0 && item.text.right <= 320 && item.text.top >= item.label.top && item.text.bottom <= item.label.bottom, `${name}: ${item.id} text clipped: ${JSON.stringify(item)}`);
+          assert.ok(!intersectsPolygon(item.text, polygon), `${name}: ${item.id} text overlaps the glass polygon`);
         }
         for (let a = 0; a < metrics.length; a++) for (let b = a + 1; b < metrics.length; b++) {
           for (const firstBox of [metrics[a].node, metrics[a].label]) for (const secondBox of [metrics[b].node, metrics[b].label]) {

@@ -32,6 +32,8 @@ const lensClip = nodes.length >= 3 ? `polygon(${nodes.map((node) => `${node.oute
       const readout = average ? `Avg · ${displayCount}` : `${module.count} ${module.count === 1 ? 'entry' : 'entries'}`;
       const label = average ? `${module.name}, average count ${displayCount} across other modules` : `${module.name}, ${readout}`;
       const labelWidth = Math.max(106, module.name.length * 6.8 + 58);
+      const touchLabelWidth = Math.min(200, 2 * Math.min(node.touchLabel.x, 600 - node.touchLabel.x));
+      const compactLabel = module.name.length > 8 || (touchLabelWidth < 180 && module.name.length > 5);
       return <>
         <circle class="radar-point" data-radar={module.id} cx={node.radar.x} cy={node.radar.y} r="2.5" aria-hidden="true" />
         <a href={withBase(module.route, import.meta.env.BASE_URL)} aria-label={label} data-compass-link data-module={module.id} data-name={module.name} data-count={node.count} data-readout={readout}>
@@ -42,7 +44,7 @@ const lensClip = nodes.length >= 3 ? `polygon(${nodes.map((node) => `${node.oute
           <rect class="compass-label-lens" x={node.label.x - labelWidth / 2} y={node.label.y - 19} width={labelWidth} height="38" rx="19" />
           <svg class="compass-label-icon" x={node.label.x - labelWidth / 2 + 16} y={node.label.y - 8} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d={module.icon}/></svg>
           <text x={node.label.x + 10} y={node.label.y} dominant-baseline="middle" text-anchor="middle">{module.name}</text>
-          <foreignObject class="compass-touch-label" x={Math.min(400, Math.max(0, node.touchLabel.x - 100))} y={node.touchLabel.y - 44} width="200" height="88" aria-hidden="true"><div class:list={{ 'compass-long-label': module.name.length > 8 }}>{module.name}</div></foreignObject>
+          <foreignObject class="compass-touch-label" x={node.touchLabel.x - touchLabelWidth / 2} y={node.touchLabel.y - 44} width={touchLabelWidth} height="88" aria-hidden="true"><div class:list={{ 'compass-long-label': compactLabel }}>{module.name}</div></foreignObject>
         </a>
       </>;
     })}

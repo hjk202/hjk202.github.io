@@ -1655,8 +1655,8 @@ tests/e2e、必要隔离验证脚本；README、docs/content-guide.md、docs/rel
 
 - [ ] 必需真机路径已实际完成；型号/系统/浏览器与未实测项有记录，键盘与旋转可用。
 - [ ] 线上全部正式入口/内容/索引/资源/404正常，无未解决的必要验证失败。
-- [ ] 至少一次真实内容编辑与二次部署验证通过；列表/目标/count/search/Me平均值按实际修改同步。
-- [ ] 回退版本与步骤可复现；维护说明对应真实流程，用户可独立操作。
+- [x] 至少一次真实内容编辑与二次部署验证通过；列表/目标/count/search/Me平均值按实际修改同步。
+- [x] 回退版本与步骤可复现；维护说明对应真实流程，用户可独立操作。
 - [ ] 全部公共门槛与相关专项回归通过，Phase 3汇总与各项状态一致。
 - [ ] 完成后停止交用户验收，未来Phase保持Pending。
 
@@ -1669,6 +1669,10 @@ tests/e2e、必要隔离验证脚本；README、docs/content-guide.md、docs/rel
 Phase 4可在新的明确需求和真实素材出现后扩展；Private仍需Phase 5专项设计。**Progress（2026-10-13）**：用户批准的Me GitHub链接已加入原有链接区，新标签访问，不新增资料或搜索目标；OPPO反馈按钮短暂蓝色触摸闪块，其他基础操作正常。仅在全局a/button取消浏览器默认tap-highlight，保留现有玻璃按压和focus-visible，不禁用输入缩放/长按菜单/选择。npm ci（0vulnerabilities）、lint/typecheck（74files0诊断）/24unit/root与base build均退出0；根/base各40e2e、WebKit移动15、第五模块check/build与1浏览器、内容公开资源1/空集合1/设计分类与平均值5浏览器均通过；审阅Me手机截图。首发d3ccc76已在.cache/phase3-first-release独立clone、npm ci/build/verify-release，15文件哈希与首发受验候选相同，4项全页面/脚本/head/404搜索smoke通过，不回退正常线上。触摸专项最初错误假定桌面WebKit暴露移动专用属性，诊断后按CSS.supports记录不适用，既有测试断言未改；Chromium实际计算从rgba(0,0,0,.18)变为透明，两个引擎的触摸导航/搜索和键盘2px焦点通过，OPPO修复后结果仍需二次上线确认。默认浏览器与系统版本用户未提供，不猜测；iOS真机未实测。第二次真实部署及线上复验尚未完成，本项继续In Progress。日志.cache/3.8-*.log、3.8-tap.json，失败诊断保留3.8-tap-diagnostic.log。
 
 ### Open Questions / Risks 与默认假设
+
+**3.8真机问题复验进度（2026-10-13）**：二次部署后用户报告手机Build/Keep标签与玻璃重合，本项仍In Progress，线上总体验验收保持未完成。375px实测文字向内侵入约5–10px，根因为200user-unit标签框被x方向clamp回中心。仅调整Compass移动foreignObject：保持248半径的对称中心，按距viewBox两侧的可用宽度收窄标签框；窄框较长名称复用既有紧凑样式。实际四模块字号/大小写、174外圈、雷达映射及统计不变；移动框最小约52px宽/44px高。新增文字与玻璃分离/不越界断言，旧390px产物明确失败；4–7探针增加基于字体矩形与实际凸多边形的碰撞检查，首次发现六模块Workshop两行碰撞后修正并复跑，未弱化断言。最终lint/typecheck（74files0诊断）/24unit/root/base build、根/base各40e2e、WebKit移动15、4–7两引擎8组合全部退出0；审阅375px及6/7模块截图，375px两侧约18–23px间距，320px约16–20px。verify-mobile加入发布门槛，触发/权限不变；日志.cache/3.8-spacing-*.log，测量/截图见mobile-probe-output.txt，初始失败保留。第三次发布和最终OPPO复查尚未完成。
+
+**3.8线上验收补充（2026-10-13）**：真实更新源810fb2c9856aaa38602d8f0ce6fb28b894201a80，[二次发布38499117547](https://github.com/hjk202/hjk202.github.io/actions/runs/38499117547)check/deploy均success，push检查38499086480也success；github-pages产物11865227580，digest sha256:19aa6492e737c9c31b2606fe5001eb18bb33509493c1a1b59c054848be190b56。云端完整公共/根40/WebKit15/隔离契约/base40门槛通过；真实URL再次通过15文件哈希/8正常页面/404/全部搜索目标与返回/375px无横溢出，Me链接与透明tap-highlight已在真实页面计算验证。搜索快照与首发逐字节相同，四模块各1、4个内容目标、Me平均1。证据.cache/3.8-cloud-jobs.json、3.8-live.json及日志。此记录只证明线上与自动化通过，仍待用户确认OPPO修复后的点击反馈。
 
 | 事项 | 当前事实/默认选择 | 影响与处理时点 |
 | --- | --- | --- |

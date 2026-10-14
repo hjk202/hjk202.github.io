@@ -9,13 +9,23 @@ for (const viewport of [{ width: 320, height: 568 }, { width: 360, height: 640 }
     await page.emulateMedia({ reducedMotion: 'reduce' });
     const metrics = await page.locator('[data-compass-link]').evaluateAll((links) => links.map((link) => {
       const target = link.querySelector('.compass-target')!.getBoundingClientRect();
-      const text = link.querySelector('.compass-touch-label div')!.getBoundingClientRect();
-      return { target: { width: target.width, height: target.height }, text: { width: text.width, height: text.height } };
+      const label = link.querySelector('.compass-touch-label div')!;
+      const text = label.getBoundingClientRect();
+      const range = link.ownerDocument.createRange(); range.selectNodeContents(label);
+      const words = range.getBoundingClientRect();
+      const glass = link.ownerDocument.querySelector('.compass-outline')!.getBoundingClientRect();
+      const separated = words.right + 4 <= glass.left || words.left - 4 >= glass.right || words.bottom + 4 <= glass.top || words.top - 4 >= glass.bottom;
+      return { target: { width: target.width, height: target.height }, text: { width: text.width, height: text.height }, separated, wordsInViewport: words.left >= 0 && words.right <= innerWidth };
     }));
     for (const metric of metrics) {
       expect(metric.target.width).toBeGreaterThanOrEqual(44);
       expect(metric.target.height).toBeGreaterThanOrEqual(44);
-      if (viewport.width <= 640 || viewport.height <= 760) expect(metric.text.height).toBeGreaterThanOrEqual(44);
+      if (viewport.width <= 640 || viewport.height <= 760) {
+        expect(metric.text.width).toBeGreaterThanOrEqual(44);
+        expect(metric.text.height).toBeGreaterThanOrEqual(44);
+        expect(metric.separated).toBe(true);
+        expect(metric.wordsInViewport).toBe(true);
+      }
     }
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await page.screenshot({ path: info.outputPath('home.png'), animations: 'disabled' });

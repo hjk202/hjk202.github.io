@@ -70,6 +70,8 @@
 
 单一工作流`.github/workflows/deploy.yml`：push/PR只检查；main上的手动workflow_dispatch才上传已检查dist并部署。步骤为固定Node/npm→npm ci→lint/typecheck/unit→root build→真实root e2e/WebKit移动→隔离契约→独立base build/e2e→产物清单→上传→部署。部署不再build，artifact只包含dist。官方Action提交已于2026-10-13核实并固定；语法与本地验证不等于真实Actions通过。
 
+3.8手机标签修复后，隔离契约步骤额外运行既有verify-mobile.mjs，验证4–7模块在两引擎下的长名称、44px命中、文字/玻璃碰撞与真实跳转；当前触发范围与发布权限保持。
+
 Windows检查沿用npm.cmd，本地浏览器缓存可由PLAYWRIGHT_BROWSERS_PATH指定。CI使用ubuntu-24.04与默认自动测试服务，不设置E2E_EXTERNAL_SERVER，不吞服务退出问题。`node tests/verify-release.mjs`检查工作流边界和产物，写入.cache/release-manifest.json（源SHA/Node/各文件SHA256），不把该记录放入网站。
 
 ### 发布操作（3.7）
@@ -92,6 +94,8 @@ Windows检查沿用npm.cmd，本地浏览器缓存可由PLAYWRIGHT_BROWSERS_PATH
 3.8已验证首发标签phase3-first-release（d3ccc76）可恢复：在新目录clone该标签，执行npm ci、npm run build、node tests/verify-release.mjs；15文件与首发候选哈希相同，4项页面/公开脚本/head/真实404搜索smoke通过。实际恢复时先检查git status，确定需要撤销的产品提交，用git revert生成可审阅的新提交；核对执行状态文档、运行公共检查和相关smoke后正常push main并手动发布。单独检出旧标签再点击main发布不会恢复旧版本；部署源必须是经过验证的新main提交。v0/旧demo也已远程保留，但不是当前发布管线的直接回退候选。
 
 ## 发布与维护记录
+
+3.8的二次发布38499117547已成功部署810fb2c（用户批准的Me GitHub链接与触摸闪块修复），15线上文件与受验产物相同，搜索快照与首发相同、四模块各1/4目标/Me平均1。随后用户报告手机横向标签重合；本地已修复并通过公共/根与base各40/WebKit15/4–7两引擎8组合。文字中心保持对称，375px两侧文字与玻璃顶点间距约18–23px。第三次发布与最终OPPO确认仍待完成，不能以二次线上成功提前结束3.8。
 
 2026-10-13首发已完成：认证账号hjk202，保留public/main与域名、从legacy切为workflow；正常推送保留旧demo历史，远程v0与demo-before-phase3已确认。源d3ccc76a6b6e292aef5e24ed036d41ae6561545c；[运行38496826924](https://github.com/hjk202/hjk202.github.io/actions/runs/38496826924)check/deploy均success，github-pages产物11864278192，digest sha256:5078a7da8e8b02d956d202213513607cb326960f58bf25c2be9cc59afc6f8435。线上15文件哈希与受验产物相同，8正常页面、索引/资源、正式head、搜索/返回及真实404通过，无页面异常。首发回退源为phase3-first-release；3.8将复现并执行获准的Me链接更新。以下段落保留3.6/发布前的历史记录，不代表当前阻塞。
 
