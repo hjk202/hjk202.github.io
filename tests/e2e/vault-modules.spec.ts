@@ -5,6 +5,7 @@ async function setup(page:import('@playwright/test').Page,value:unknown=allVault
   const envelope=await encryptVault(value,vaultPassword);await page.route('**/vault/bundle.json',route=>route.fulfill({json:envelope}));await page.goto('./');await page.locator('[data-vault-entrance]').press('Enter');await page.getByLabel('私人空间口令',{exact:true}).fill(vaultPassword);await page.getByRole('button',{name:'解锁',exact:true}).click();
 }
 test('Keep private categories/detail/source and Me personal supplement stay module-owned and clear on lock',async({page},info)=>{
+  const errors:string[]=[];page.on('pageerror',error=>errors.push(error.message));
   await setup(page);await expect(page.locator('html')).toHaveAttribute('data-vault-unlocked','');await expect(page.locator('[data-vault-dialog]')).not.toBeVisible();
   await page.getByRole('link',{name:'Keep, 2 entries',exact:true}).click();await expect(page.locator('.private-bookmarks')).toContainText('私人工具');await page.getByRole('button',{name:'私人工具',exact:true}).click();expect(new URL(page.url()).search).toBe('');
   await page.getByRole('link',{name:'安全验收样本：私人收藏',exact:true}).click();await expect(page.locator('h1:visible')).toHaveText('安全验收样本：私人收藏');const source=page.getByRole('link',{name:'打开来源',exact:false});await expect(source).toHaveAttribute('href','https://example.com/resource');await expect(source).toHaveAttribute('target','_blank');await expect(source).toHaveAttribute('rel','noopener noreferrer');
@@ -12,6 +13,7 @@ test('Keep private categories/detail/source and Me personal supplement stay modu
   await page.getByRole('link',{name:/^Me, average/}).click();await expect(page.locator('h1:visible')).toHaveText('韩江恺');await expect(page.locator('.private-profile')).toContainText('CANARY_P4_ME_ONLY');
   await page.setViewportSize({width:375,height:812});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:info.outputPath('private-me-mobile.png'),fullPage:true});
   await page.getByRole('button',{name:'锁定私人空间'}).click();await expect(page.locator('.vault-view')).toHaveCount(0);expect(await page.locator('body').innerText()).not.toContain('CANARY_P4_ME_ONLY');await expect(page.locator('h1:visible')).toHaveText('韩江恺');
+  expect(errors).toEqual([]);
 });
 test('Build private project records and public NEMU supplement have distinct progress and safe return paths',async({page},info)=>{
   await setup(page);await expect(page.locator('html')).toHaveAttribute('data-vault-unlocked','');await expect(page.locator('[data-vault-dialog]')).not.toBeVisible();await page.getByRole('link',{name:'Build, 2 entries',exact:true}).click();

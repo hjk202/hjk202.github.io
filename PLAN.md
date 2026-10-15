@@ -13,9 +13,9 @@
 | 项目 | 状态 |
 | --- | --- |
 | 当前任务 | 用户授权顺序完成Phase 4 / 4.1–4.8；每项独立验证，阶段结束后停止 |
-| 当前指定实施 milestone | 4.8 In Progress：处理入口过于显眼的验收反馈，复核四模块与加密；修复复验后再验收、清理样本和最终发布；Phase 5/6未授权 |
+| 当前指定实施 milestone | 4.8 In Progress：安静入口2ddc5c4已上线；补修私人转场取消异常后复验发布，再交用户检查；Phase 5/6未授权 |
 | 当前授权范围 | 按已批准Phase 4实施，包括4.8既有Pages发布与验收；仅此阶段，不扩展Phase 5/6 |
-| 项目实施 | Phase 1、2、3与D1–D8完成；当前线上为临时非敏感验收版d15b4aa；最终无样本版本待4.8 |
+| 项目实施 | Phase 1、2、3与D1–D8完成；当前线上为临时非敏感验收修复版2ddc5c4；最终无样本版本待4.8 |
 | 下一候选 milestone | 当前完成获准4.8安全/维护/发布/手机验收；结束后停止，Phase 5/6未授权 |
 
 创建这两份文档不代表 milestone 1.1 已开始或已完成。所有实施 milestone 初始为 `Pending`。
@@ -2249,4 +2249,10 @@ Phase 4全部必需项Done后停止。可选Phase 5仍须用户选择/指定；�
 
 本轮实际验证：npm run lint/typecheck（122files，0错误/警告/提示）/test（38项）/build退出0；根与/personal-space/完整浏览器各62项通过，WebKit相关21项通过，涵盖四模块私人呈现/目标/搜索/锁定、入口无动画/手势取消及Build误选回归。Vault发布边界扫描通过；审阅浅色桌面和深色320短屏截图，玻璃口令框可读，短屏可滚动。证据.cache/4.8-quiet-entry-checks.log、4.8-quiet-base-checks.log、4.8-quiet-webkit-checks.log及对应results。未改变密码学协议，也未将测试当独立安全审计。
 
-修复候选待既有Pages发布及线上核验。临时非敏感样本继续用于验收，尚未清理；4.8和Phase 4保持In Progress，不开始Phase 5/6。
+源2ddc5c4be27e7f30845824486a1221cd0c63a864已通过[完整检查与Pages发布38686191719](https://github.com/hjk202/hjk202.github.io/actions/runs/38686191719)。同SHA的重复push运行38686189583取消，手动流程完整执行所有门槛；受验产物11950886756，digest sha256:bcb1e05eaf6e563299b1c00f04ff1862d467c16e39d17dd9f416d902e28071b1。此前165e488的离页取消解密修复也包含在本次发布。
+
+线上25文件哈希与受验清单一致，8个公开路径、真实404/搜索/Me链接/手机标签间距及实际解锁交互通过。首次线上追加读取索引超时日志保留；重试后的最终审阅发现私人跳转有7次原生skipTransition产生的未处理AbortError。旧线上脚本只在私人流程之前断言异常列表，因此其passed字段不能作为私人流程无异常的证明；原始证据保留.cache/4.8-quiet-before-ready-live.json。已补私人流程末尾异常断言和真实跨模块回归，旧产物确定性复现失败（.cache/4.8-ready-before-checks.log）；当前最小修复只处理主动跳过转场的ready AbortError，其他异常仍抛出，复验/再发布待完成。
+
+用户可通过https://hjk202.github.io/?v=2ddc5c4复验。当前停在手机/内容组织验收；临时非敏感样本继续用于验收，尚未清理。四模块共用一次全局解锁和加密包，不是分模块权限域；密码学标准组合的安全边界见docs/vault-design.md。README旧公开版描述已标明为Phase 3历史记录。4.8和Phase 4保持In Progress，不开始Phase 5/6；文档记录的后续提交不改变本次已部署产品源。
+
+转场补修本地复验：lint/typecheck（122files0诊断）/38unit/build、根/base各62浏览器及WebKit相关21全部退出0；新增真实私人跨模块pageerror空列表断言通过，旧产物失败日志保留，不过滤浏览器异常。产物边界扫描通过。证据.cache/4.8-ready-fixed-checks.log、4.8-ready-base-checks.log、4.8-ready-webkit-checks.log和4.8-ready-before-checks.log。待新源CI/实际线上全程异常复核后再交用户验收，不将2ddc5c4的部署记录用作新修复的发布证明。

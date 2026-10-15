@@ -4,7 +4,13 @@ import { navigate } from 'astro:transitions/client';
 const nativeStart = document.startViewTransition;
 if (nativeStart) document.startViewTransition = function (...args: Parameters<typeof nativeStart>) {
   const transition = nativeStart.apply(this,args);
-  if (document.documentElement.hasAttribute('data-vault-unlocked')) transition.skipTransition();
+  if (document.documentElement.hasAttribute('data-vault-unlocked')) {
+    // Skipping rejects ready even though the DOM update still succeeds.
+    void transition.ready.catch((error: unknown) => {
+      if (!(error instanceof DOMException && error.name === 'AbortError')) throw error;
+    });
+    transition.skipTransition();
+  }
   return transition;
 };
 export function onPage(initialize:()=>void|(()=>void)) {
