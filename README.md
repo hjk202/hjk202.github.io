@@ -1,156 +1,47 @@
-# Personal Space
+# Personal Space · 项目进度
 
-基于 Astro、TypeScript 和 Markdown/MDX 的个人数字空间。提供 Compass 首页、共享 Spotlight，以及 Me、Think、Build、Keep 四个独立模块。公开内容保持静态生成；Phase 4 在既有模块内接入本地加密、内存解锁和重新锁定，当前最终验收进行中，状态见 PLAN.md。
+韩江恺的个人数字空间。以一枚玻璃 Compass 探索不同领域，用 Spotlight 快速查找；每个模块拥有自己的排版和内部秩序。
 
-## 文档与执行范围
+**网站：[hjk202.github.io](https://hjk202.github.io/)** · 最近核验的线上版本：`1f3ce49`（2026-10-15）。
 
-- [NEED.md](./NEED.md)：产品需求与目标架构来源。
-- [PLAN.md](./PLAN.md)：Phase、milestone、验收和实施状态的 source of truth。
-- [DESIGN.md](./DESIGN.md)：已批准的统一材质、各模块布局与交互设计；实施状态仍见 PLAN.md。
-- [AGENTS.md](./AGENTS.md)：Codex 工作约束。
-- [docs/architecture.md](./docs/architecture.md)：架构边界和工程说明。
-- [docs/content-guide.md](./docs/content-guide.md)：字段、公开条件、内容增删与维护示例。
-- [docs/vault-design.md](./docs/vault-design.md)：私人协议、模块接口和保护边界。
-- [docs/vault-guide.md](./docs/vault-guide.md)：作者本地维护、口令输入、备份恢复与日常使用。
-- [docs/release-checklist.md](./docs/release-checklist.md)：Phase 3支持矩阵、验证证据与发布/真机验收操作。
+## 现在有什么
 
-按用户授权逐个实施和验收 milestone；每项通过后更新 PLAN.md。当前用户已授权 Phase 4，4.1–4.7 已完成，4.8 验证与发布/手机验收中；完成阶段后停止，Phase 5/6 未授权。
-
-## 环境
-
-使用 Node.js 22 LTS；初始基线在 Node 22.23.2、npm 10.9.8 上验证，后续 Phase 1 检查使用 Node 24.19.0、npm 10.9.8。基线版本记录在 .node-version，其他允许的范围见 package.json 的 engines。
-
-依赖使用精确版本及 package-lock.json 固定。TypeScript 使用 6.0.3，因为当前 @astrojs/check 和 typescript-eslint 尚不支持 TypeScript 7；不要单独升级到不兼容版本。
-
-## 安装与启动
-
-在项目根目录执行：
-
-```sh
-npm ci
-npm run dev -- --host 127.0.0.1 --port 4321
-```
-
-打开 http://127.0.0.1:4321/。按 Ctrl+C 停止服务。
-
-Windows PowerShell 中可使用 npm.cmd 代替 npm，npx.cmd 代替 npx。
-
-## 检查与生产预览
-
-```sh
-npm run lint
-npm run typecheck
-npm run test
-npm run build
-npm run preview -- --host 127.0.0.1 --port 4322
-```
-
-打开 http://127.0.0.1:4322/。构建产物位于 dist/；preview 需要先成功执行 build。
-
-| 命令 | 用途 |
+| 空间 | 用途与风格 |
 | --- | --- |
-| npm run dev | 启动开发服务 |
-| npm run lint | 检查 JavaScript、TypeScript 和 Astro；警告也会使检查失败，不自动改写文件 |
-| npm run typecheck | 使用 astro check 检查 TypeScript 和 Astro |
-| npm run test | Node 单元测试：注册、路由、搜索、统计与 Compass 几何 |
-| npm run build | 生成静态站点；此命令不代替独立的类型检查 |
-| npm run preview | 本地预览生产产物，不是线上部署 |
+| Me | 有个人气质的主页，介绍自己、兴趣与公开链接 |
+| Think | 温暖、写意的文章和随记空间 |
+| Build | 严谨的项目档案，可记录阶段、成果、更新与问题 |
+| Keep | 按类别整理的网站收藏夹，说明与来源入口分开 |
+| 私人模式 | 在以上四个模块中展示各自私人内容；深墨色烟玻璃环境，私人在前、公开仍完整可读 |
 
-浏览器回归使用独立 Chromium，并自动启动仅绑定本机的生产产物测试服务；先构建：
+全站保持一致的液态玻璃材质，但四个模块不套用同一种排版。首页只做入口，手机以清楚可读、操作可用为目标。
 
-```sh
-npx playwright install chromium
-npm run build
-npm run test:e2e
-npm run test:extension
-node tests/verify-content.mjs
-node tests/verify-design.mjs
-```
+## 主线进度
 
-test:e2e 检查 Spotlight、焦点、网络重试、输入法、明暗主题、减少动态效果、模糊降级、导航与公开产物。默认使用 4410 端口，不复用已有服务。test:extension 在 .cache 中复制工程并仅新增一个测试模块，检查类型和构建、五边形、数量、搜索与路由；正式 src/modules 仍为四模块。失败时查看 test-results/ 中的截图和 trace，不跳过失败用例。
+| 阶段 | 结果 | 状态 |
+| --- | --- | --- |
+| Phase 1 | 架构、首页、Compass、Spotlight、模块扩展基础 | 已完成 |
+| Phase 2 | 四模块真实公开内容、独立布局及统一玻璃风格 | 已完成 |
+| Phase 3 | 基础移动适配、GitHub Pages 发布与手机验收 | 已完成 |
+| Phase 4 | 私人加密、解锁/锁定、四模块、搜索、内室风格 | 已按你的指示结束（Closed）；验收遗留项保留 |
+| Phase 5 | 阅读辅助、收藏检索、RSS 等可选功能 | 尚未选择，不自动开发 |
+| Phase 6 | 一个合并的旅行/摄影模块、后续内容充实 | 延后，按需要推进 |
 
-verify-content.mjs 在隔离副本中验证新增 Markdown、取消公开、空集合和删除后的列表/详情/数量/搜索，检查原始 src 哈希不变。产物仍在 .cache；可使用以下环境选择对应浏览器探针：
+目前公开内容各一份：个人介绍、“从底层理解”的文章、NEMU 项目、Missing Semester 收藏。以后逐步补充内容，不要求现在填满。
 
-```powershell
-$env:E2E_DIST = Get-Content .cache/content-output.txt
-$env:E2E_BASE_PATH = '/personal-space/'
-$env:E2E_CONTENT_PROBE = '1'
-npm.cmd run test:e2e
-Remove-Item Env:E2E_DIST, Env:E2E_BASE_PATH, Env:E2E_CONTENT_PROBE
+## Phase 4 收尾
 
-$env:E2E_DIST = Get-Content .cache/content-empty-output.txt
-$env:E2E_BASE_PATH = '/personal-space/'
-$env:E2E_EMPTY_PROBE = '1'
-npm.cmd run test:e2e
-Remove-Item Env:E2E_DIST, Env:E2E_BASE_PATH, Env:E2E_EMPTY_PROBE
-```
+2026-10-15，按你的要求保存文档并结束 Phase 4。最近一次本地、云端与线上自动验证已通过；手机复验、样本清理和无样本最终发布尚未完成，作为遗留项保留，不标成已通过，也不自动继续。
 
-verify-design.mjs 在隔离副本生成多分类收藏、文章/随记和含阶段/更新/问题的项目，仅用于测试，不修改真实资料。设置 E2E_DIST 为 .cache/design-probe-output.txt 的内容、E2E_BASE_PATH=/personal-space/、E2E_DESIGN_PROBE=1 后运行 test:e2e，检查对应浏览器用例；运行后清除这些进程环境变量。
+后续如需复验，可用 OPPO Find X7 Ultra 默认浏览器打开[当前线上版本](https://hjk202.github.io/?v=1f3ce49)，检查点击闪块、口令键盘、四模块/搜索/返回和锁定。详细遗留清单见 PLAN 的 4.8。
 
-若受限 Windows 环境的自动测试服务退出超时，可在一个终端运行 `node tests/serve.mjs`（相同 E2E_PORT/E2E_DIST/E2E_BASE_PATH），另一个终端设置 E2E_EXTERNAL_SERVER=1 再运行 `npm run test:e2e`。这仅由外部管理服务器生命周期，全部测试断言保留；结束时 Ctrl+C 关闭服务并清除变量。正常环境使用默认自动服务器。
+线上仍保留明确标识的**非敏感验收样本**，不是真实私人资料；验收口令为 `phase4-nonsensitive-acceptance`，公开该口令只用于测试。真实私人资料需要另用未公开的随机长口令在本地加密。
 
-子路径验证（PowerShell 示例）：
+本次仅本地 Git 保存，不重新部署。当前停止，没有开始 Phase 5；后续任务须另行指定。
 
-```powershell
-npm.cmd run build -- --base /personal-space/ --outDir .cache/base-dist
-$env:E2E_DIST = '.cache/base-dist'
-$env:E2E_BASE_PATH = '/personal-space/'
-npm.cmd run test:e2e
-Remove-Item Env:E2E_DIST, Env:E2E_BASE_PATH
-```
+## 文档入口
 
-隔离扩展构建的浏览器验证（先执行 test:extension）：
+- 给 AI 的执行守则：[AGENTS.md](./AGENTS.md)。
+- 给 AI 的完整需求、架构、风格、分阶段计划及维护操作：[PLAN.md](./PLAN.md)。
 
-```powershell
-$env:E2E_DIST = Get-Content .cache/extension-output.txt
-$env:E2E_EXTENSION = '1'
-npm.cmd run test:e2e
-Remove-Item Env:E2E_DIST, Env:E2E_EXTENSION
-```
-
-手动验收可从 Compass 进入四模块，Hover 或 Tab 聚焦查看数量；点击放大镜或在非编辑状态按 Ctrl/Cmd + K 打开搜索。空查询是模块入口，输入英文或中文查找公开内容，上下键选择、Enter 打开、Esc 或遮罩关闭。可尝试“韩江恺”“底层”“NEMU”“工具”或“Missing Semester”。模块页的 HJK 返回首页。Keep 搜索进入本站详情，详情的“打开来源”访问课程网站。刷新、焦点恢复和控制台错误也需要检查。
-
-## 发布准备与版本保留
-
-当前正式目标是用户指定的 https://hjk202.github.io/，对应现有public仓库hjk202/hjk202.github.io，根路径部署。`astro.config.mjs`统一读取`SITE_URL`和`BASE_PATH`，默认使用该地址与`/`；本地预览也输出正式canonical。项目站点测试仍用`--base /personal-space/`，不能把测试前缀用于这个根站点。
-
-`.github/workflows/deploy.yml`在push/PR检查，在main手动`workflow_dispatch`时才发布。Node来自`.node-version`，npm固定10.9.8，依赖用npm ci。lint/typecheck/unit/build、Chromium根/子路径和WebKit移动检查通过后，上传原先已测试的dist；部署任务不重新构建。不添加长期令牌或把环境文件提交仓库。
-
-远程`v0`标签指向用户认可的Phase 3前版本（ad0e0af）；`demo-before-phase3`保留旧demo，`phase3-first-release`保留已验收首发d3ccc76。查看用`git show <tag>`，在隔离目录复现旧版本；不要用reset --hard或强制推送覆盖当前工作。发布流程、实际源版本/产物哈希、线上验收与回退说明见[发布清单](./docs/release-checklist.md)。3.7首发已成功，Pages源为GitHub Actions，域名与仓库可见性保持原样。
-
-更新网站：修改模块自己的真实内容→运行上述检查和相关页面smoke→提交并推送main→打开仓库Actions中的 **Verify and publish Personal Space** → **Run workflow**，选择main。push检查成功本身不会更新网站；手动运行的check与deploy均成功才是发布完成。核对run的源SHA，然后刷新https://hjk202.github.io/及修改的详情/搜索目标；不要手改dist。Me公开链接编辑不新增内容，四模块计数和Me平均值保持不变。
-
-## 当前文件结构
-
-```text
-src/pages/index.astro    Compass 首页
-src/pages/[...path].astro 通用模块路由桥
-src/pages/search-index.json.ts 公开搜索快照
-src/pages/404.astro      真实错误页与Home/Spotlight返回
-public/favicon.svg      静态Compass符号
-src/core/module/         契约、构建 Registry、页面校验、地址处理
-src/core/search/         构建投影与浏览器纯匹配
-src/shell/               Shell、Compass、Spotlight、主题与玻璃样式
-src/modules/            think / build / me / keep，各自的数据与页面
-tests/                  单元、浏览器与隔离扩展验收
-astro.config.mjs        静态输出和 MDX 集成
-tsconfig.json           Astro strict 配置
-eslint.config.mjs       JavaScript / TypeScript / Astro lint
-docs/architecture.md    架构边界
-```
-
-Think 使用模块内 Markdown，其他模块使用各自 TypeScript 数据与最小校验。首批公开内容为韩江恺的介绍、一篇学习思考文章、NEMU 项目与 Missing Semester 收藏；默认四模块数量均为 1，三个内容详情页和四个模块首页共形成 8 个正常 HTML 页面（含首页），另有404错误页，共9页；错误页不计入内容。此前六份 Demo 已移除。移动模拟、三次真实发布/线上巡检和Me链接更新闭环均通过，OPPO反馈的触摸闪块与标签间距已修复上线；用户确认两处问题均已解决、操作正常，3.8及Phase 3 Done。9e7d878为已验收的Phase 3公开版本，保留为恢复基线；当前Phase 4私人功能、线上源与验收状态以PLAN.md及发布清单最新记录为准。文档完成记录的后续提交不自动重新发布。
-
-新增模块只增加 src/modules/<id>/：module.ts 默认导出最小 Module 契约，pages.ts 默认导出页面描述数组（空 path 为模块首页），其余数据与页面由模块管理。目录名与 id 一致，route 为无 base 的逻辑地址，order 唯一，enabled 默认 true。共享层通过固定 glob 自动发现，不维护中心模块列表；统计和搜索目标必须对应实际公开内容与已生成页面。详细边界见 docs/architecture.md。
-
-node_modules/、.astro/、dist/、.cache/、test-results/ 和 playwright-report/ 是依赖或生成目录，已加入 .gitignore。不要手改构建产物；内容与代码变更后重新检查并构建。
-
-## 私人空间
-
-Home 中心长按约 1.5 秒（键盘 Enter/空格）打开解锁界面；短按不操作。长按时首页保持原状，无悬停提示或入口开关动画，保留玻璃口令框。没有加密包时显示未配置说明，没有默认口令。解锁后四模块保持各自布局并显示各自的私人内容，Spotlight 搜索可访问的公开/私人投影，Compass 使用实际数量；Me 仍取其他模块的平均值。加密参数及威胁边界见[Vault设计与安全判断](docs/vault-design.md#安全判断与入口隐蔽性2026-10-15复核)。
-
-口令只用于当前标签页内存解密。站内浏览保留会话；主动锁定、后台、离开、刷新、新标签或前台十分钟无操作重新锁定，清除私人正文、搜索和图片 Blob。私人详情使用无语义 id 片段，刷新后通过同一个 Unlock 恢复目标；浏览器标题和公开索引保留公开信息。
-
-正式材料与口令由作者在本地维护，不需要现在提供。源 JSON 必须在仓库外，使用 `npm.cmd run vault:pack -- --source <外部文件>` 交互加密，之后只提交 `public/vault/bundle.json`；具体字段及命令见私人维护指南。GitHub Actions 不接收明文或口令，不执行打包。私人阅读采用安全 Markdown 子集，不执行 HTML/MDX，不自动加载远程图片。
-
-阶段验收临时载荷必须明确标记为非敏感测试，在验收结束后清除；不能作为作者正式内容或默认密码保留。最终是否配置 Vault、源 SHA、部署及手机结果以发布清单和 PLAN.md 为准。
+本页只报告重点进度。技术细节与验收证据统一维护在 PLAN；本次文档整理不改变网站功能，也未重新部署。
