@@ -9,6 +9,44 @@ async function configured(page:import('@playwright/test').Page) {
 async function open(page:import('@playwright/test').Page) {
   await page.goto('./');await page.locator('[data-vault-entrance]').focus();await page.keyboard.press('Enter');await expect(panel(page)).toBeVisible();
 }
+test('passphrase input rejects unsupported and oversized values before derivation without silently altering them',async({page})=>{
+  await configured(page);await open(page);
+  const input=page.getByLabel('私人空间口令',{exact:true});
+  await expect(input).toHaveAttribute('autocapitalize','off');
+  await expect(input).toHaveAttribute('autocorrect','off');
+  await page.evaluate(()=>{
+    const probe=window as unknown as {vaultDerivations:number};probe.vaultDerivations=0;
+    const derive=crypto.subtle.deriveKey.bind(crypto.subtle);
+    crypto.subtle.deriveKey=(...args)=>{probe.vaultDerivations++;return derive(...args);};
+  });
+  for(const value of ['safe\ttext','hidden\u200btext','a'.repeat(1025),'界'.repeat(342)]){
+    await input.fill(value);await page.getByRole('button',{name:'解锁',exact:true}).click();
+    await expect(input).toHaveValue(value);await expect(input).toHaveAttribute('aria-invalid','true');
+    await expect(page.locator('html')).not.toHaveAttribute('data-vault-unlocked');
+    expect(await page.evaluate(()=>(window as unknown as {vaultDerivations:number}).vaultDerivations)).toBe(0);
+  }
+  await input.fill('unchanged');
+  for(const pasted of ['line\r\nbreak','\u200b','a'.repeat(1025)]){
+    expect(await input.evaluate((node,text)=>{
+      const clipboardData=new DataTransfer();clipboardData.setData('text/plain',text);
+      return node.dispatchEvent(new ClipboardEvent('paste',{clipboardData,bubbles:true,cancelable:true}));
+    },pasted)).toBe(false);
+    await expect(input).toHaveValue('unchanged');
+  }
+  await input.fill(password);await expect(input).not.toHaveAttribute('aria-invalid');await input.press('Enter');
+  await expect(page.locator('html')).toHaveAttribute('data-vault-unlocked','');
+});
+
+test('literal markup and punctuation in a valid passphrase are data, never executable HTML or a changed password',async({page})=>{
+  const literal='  <script>window.vaultInjected=true</script>!字面  ';
+  const envelope=await encryptVault({version:1,modules:{},assets:{}},literal);
+  await page.route('**/vault/bundle.json',route=>route.fulfill({json:envelope}));await open(page);
+  const input=page.getByLabel('私人空间口令',{exact:true});await input.fill(literal);await expect(input).toHaveValue(literal);await input.press('Enter');
+  await expect(page.locator('html')).toHaveAttribute('data-vault-unlocked','');
+  expect(await page.evaluate(()=>(window as unknown as {vaultInjected?:boolean}).vaultInjected)).toBeUndefined();
+  expect(await page.locator('body').textContent()).not.toContain(literal);
+  await expect(input).toHaveValue('');
+});
 test('center stays visually quiet during long press; cancelled gestures and keyboard open unconfigured Vault correctly',async({page})=>{
   // This negative case remains meaningful when the author publishes a real encrypted bundle.
   await page.route('**/vault/bundle.json',route=>route.fulfill({status:404,body:'Not configured'}));

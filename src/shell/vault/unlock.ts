@@ -1,6 +1,7 @@
 import { vault } from './runtime';
 import { onPage } from '../layout/lifecycle';
 import { MAX_ENVELOPE, readEnvelope, type Envelope } from '../../core/vault/crypto';
+import { passphraseIssue } from '../../core/vault/passphrase';
 import { withBase } from '../../core/module/urls';
 async function boundedText(response: Response) {
   if(Number(response.headers.get('content-length'))>MAX_ENVELOPE||!response.body)throw new Error('Invalid response');
@@ -20,7 +21,7 @@ onPage(()=>{
   const cancelHold=()=>{clearTimeout(holdTimer);holdTimer=undefined;};
   function restoreFocus() { if(dialog.open||restored)return;restored=true;document.documentElement.classList.remove('vault-open');if(trigger instanceof HTMLElement||trigger instanceof SVGElement)trigger.focus({preventScroll:true}); }
   function close() {
-    generation++;request?.abort();input.value='';cancelHold();if(vault.state==='unlocking')vault.lock();
+    generation++;request?.abort();input.value='';input.removeAttribute('aria-invalid');cancelHold();if(vault.state==='unlocking')vault.lock();
     if(!dialog.open)return;
     dialog.close();restoreFocus();
   }
@@ -33,7 +34,7 @@ onPage(()=>{
       if(response.status===404){status.textContent='尚未配置私人内容。';return;}
       if(!response.ok)throw new Error('Request failed');
       const source=await boundedText(response);if(token!==generation||!dialog.open)return;
-      envelope=readEnvelope(source);form.hidden=false;submit.disabled=false;input.disabled=false;status.textContent='输入口令，进入私人空间。';input.focus({preventScroll:true});
+      envelope=readEnvelope(source);form.hidden=false;submit.disabled=false;input.disabled=false;input.removeAttribute('aria-invalid');status.textContent='输入口令，进入私人空间。';input.focus({preventScroll:true});
     }catch{if(token===generation&&dialog.open){status.textContent='暂时无法打开私人空间，请重试。';retry.hidden=false;}}
   }
   function open(source:Element|null) {
@@ -44,9 +45,17 @@ onPage(()=>{
   }
   async function unlock() {
     if(!envelope||submit.disabled||!input.value)return;
+    if (showInputIssue()) return;
     const token=++generation,password=input.value;input.value='';submit.disabled=true;input.disabled=true;status.textContent='正在解锁…';
     try {const success=await vault.unlock(envelope,password);if(token!==generation||!dialog.open)return;if(success){close();document.dispatchEvent(new CustomEvent('vault:ready'));}}
     catch{if(token===generation&&dialog.open){status.textContent='口令或内容校验失败。';input.disabled=false;submit.disabled=false;input.focus();}}
+  }
+  function showInputIssue(value=input.value) {
+    const issue=passphraseIssue(value);
+    if (!issue || issue==='empty') { input.removeAttribute('aria-invalid'); return false; }
+    input.setAttribute('aria-invalid','true');
+    status.textContent=issue==='too-long'?'口令过长，请检查粘贴内容。':'口令含有控制字符或不可见字符，请检查粘贴内容。';
+    return true;
   }
   document.querySelectorAll<HTMLButtonElement>('[data-vault-entrance]').forEach(button=>{
     let start:{x:number;y:number}|undefined;
@@ -58,6 +67,13 @@ onPage(()=>{
   });
   document.querySelectorAll<HTMLButtonElement>('[data-vault-lock]').forEach(button=>button.addEventListener('click',()=>{vault.lock();close();const focus=document.querySelector<HTMLElement>('[data-vault-entrance], a[aria-label="Home"], [data-search-trigger]');focus?.focus({preventScroll:true});},options));
   submit.addEventListener('click',()=>void unlock(),options);
+  input.addEventListener('input',()=>{if(!showInputIssue())status.textContent='输入口令，进入私人空间。';},options);
+  // Password inputs can strip pasted newlines before `input`; inspect the original paste first.
+  input.addEventListener('paste',event=>{
+    if(!event.clipboardData)return;
+    const start=input.selectionStart??input.value.length,end=input.selectionEnd??start;
+    if(showInputIssue(input.value.slice(0,start)+event.clipboardData.getData('text/plain')+input.value.slice(end)))event.preventDefault();
+  },options);
   input.addEventListener('keydown',event=>{if(event.key==='Enter'&&!event.isComposing){event.preventDefault();void unlock();}},options);
   retry.addEventListener('click',()=>void load(),options);closeButton.addEventListener('click',()=>close(),options);
   dialog.addEventListener('cancel',event=>{event.preventDefault();close();},options);dialog.addEventListener('close',restoreFocus,options);

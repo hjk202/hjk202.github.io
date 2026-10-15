@@ -15,7 +15,7 @@
 - AAD为UTF-8的JSON.stringify(["personal-space-vault",1,iterations,salt,iv])，顺序固定。浏览器derived CryptoKey不可导出，仅decrypt用途；本地按操作使用最小用途。
 - 单包明文最多8MiB，envelope输入最多12MiB；每个asset最多512KiB、最多8个，只支持校验签名的PNG/JPEG/WebP。v1不接SVG、PDF、视频或任意附件，不把不支持的资源改为公开链接。
 - 解密内层严格字段：version=1、modules（模块id到不透明payload）、assets（不透明id到{type,data}）。最多16个模块，未知/禁用模块或错误payload在浏览器失败关闭。安全模块id遵守Registry规则；asset/私人条目id为32位小写hex随机标识。
-- 私人口令新建/换口令至少16个Unicode字符、最多1024 UTF-8字节，不做trim或偷偷规范化。作者本地输入，不作为进程参数、环境变量、源码或日志保存。测试只使用明确非敏感口令。
+- 私人口令新建/换口令至少16个Unicode字符、最多1024 UTF-8字节，不做trim或偷偷规范化。按2026-10-15用户确认，允许Unicode字母/组合标记/数字/标点/符号/空格分隔符（L/M/N/P/S/Zs）；拒绝控制、格式控制、零宽/双向控制、行段分隔符与孤立代理等不在集合内的字符。输入与核心共用校验，先限长再编码/校验，在KDF前拒绝，不删除字符或静默截断。作者本地输入，不作为进程参数、环境变量、源码或日志保存。测试只使用明确非敏感口令。
 
 600000是当前参考指导和原生支持的首版取值，4.2测量Node与浏览器耗时，4.8复核OPPO；性能不满足时报告，不自动弱化保护。原生方案免加密码库；此取舍不声称PBKDF2优于Argon2id，也不声称通过安全认证。
 
@@ -75,3 +75,15 @@ pack/verify/rekey/backup/restore都在本地，源目录必须在仓库外。bac
 入口克制只减少视觉暴露，不能隐藏功能存在：公开源码、可访问名称和密文地址可被发现，旁观者也可能看见口令窗口或已解锁内容。口令不嵌入前端；发现入口或伪造前端状态不等于获得解密能力。此安全判断针对当前静态个人空间模型，不承诺抵抗任意攻击者。
 
 参考：[OWASP认证加密指导](https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html)、上述OWASP口令指导与Web Crypto参数文档。测试样本及其公开验收口令均非真实秘密，不是生产默认口令。
+
+## 口令注入与公开仓库抓取（2026-10-15反馈）
+
+已核对本项目链路：password input.value → 共享校验 → UTF-8 → Web Crypto PBKDF2 → AES-GCM。没有将口令拼入HTML、脚本、SQL或系统命令的环节；`<script>`等字符串本身只是口令数据。拒绝不可见字符与超长输入用于输入完整性、误粘贴和资源边界，不把字符白名单称为XSS防线。如果站点本身已被注入恶意脚本，脚本仍可能在输入阶段窃取口令，白名单无法阻止。
+
+公开源码、公开内容、密文、salt/IV/算法参数及历史版本可以被爬取；这不等于获得未泄露的高熵口令或密钥。AI可辅助定位泄漏、漏洞与生成猜测，不能仅因读懂源码就绕过标准加密。攻击者下载密文后能离线尝试口令，网站前端限次无法约束；使用密码管理器生成独立随机长口令（建议24–32个字符），不采用姓名、生日、常见句子或公开测试口令。
+
+目前验收包与口令明确公开且仅含非敏感测试材料，因此任何人包括AI都可解密这份样本。真实私人材料必须在仓库外由作者使用独立未公开口令加密；若明文/口令曾进入Git历史，之后删文件不会自动撤回。完整公开Git历史审计不属于此次修复的已完成证明，结构和canary扫描也不是独立安全审计。
+
+此处采用的“拒绝不可见字符”是用户确认的本项目输入规则。OWASP通用认证指导更宽泛地允许Unicode与空白、不建议任意密码组合规则；本项目保留普通字符与符号，明确记录这一限制，不声称过滤字符能增强同长度口令的熵。
+
+参考：[OWASP输入校验](https://cheatsheetseries.owasp.org/cheatsheets/Input_Validation_Cheat_Sheet.html)、[认证与口令处理](https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html)、[猜测攻击与KDF](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html)。

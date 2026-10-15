@@ -6,6 +6,10 @@ Milestone 4.1–4.7 已完成协议、本地命令、浏览器入口、四模块
 
 本地命令为vault:pack、vault:verify、vault:rekey、vault:backup、vault:restore；口令交互输入，不出现在命令行参数/环境变量/日志里。新包与换口令至少16个字符，建议使用长随机口令并独立备份。每次更新只发布密文bundle；失败保留上一有效包。
 
+口令支持正常Unicode字母、数字、标点、符号和空格，不要求只用字母数字；最多1024 UTF-8字节。控制/不可见字符和超长内容会被明确拒绝，界面不删除字符或偷偷截断，也不去除前后空格。粘贴出错时检查源口令，不把过滤后的新字符串当成原口令。移动端关闭自动大写与自动纠错，现有验收口令及密文保持不变。
+
+真实材料建议使用密码管理器生成独立随机长口令（例如24–32字符），不要使用公开验收口令。公开源码与加密文件可被AI抓取；公开测试包本就可用测试口令解密。真正保密依赖未公开的强口令和正确加密；离线猜测、泄漏到Git历史、恶意脚本或扩展的边界见[vault-design.md](vault-design.md)。
+
 ```powershell
 npm.cmd run vault:pack -- --source D:\MyPrivateSpace\vault.json
 npm.cmd run vault:verify

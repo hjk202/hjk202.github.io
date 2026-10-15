@@ -1,4 +1,5 @@
 import { object, opaqueId } from './validation.ts';
+import { passphraseIssue } from './passphrase.ts';
 
 export const MAX_PLAIN = 8 * 1024 * 1024;
 export const MAX_ENVELOPE = 12 * 1024 * 1024;
@@ -45,8 +46,9 @@ export function validatePayload(value: unknown): VaultPayload {
   return { version:1, modules, assets };
 }
 function passwordBytes(password: string, creating: boolean) {
+  if (passphraseIssue(password)) throw new Error('Invalid Vault passphrase');
   const bytes = new TextEncoder().encode(password);
-  if (!bytes.length || bytes.length > 1024 || (creating && [...password].length < 16)) throw new Error('Invalid Vault passphrase length');
+  if (creating && [...password].length < 16) throw new Error('Invalid Vault passphrase length');
   return bytes;
 }
 export function associatedData(envelope: Envelope): Uint8Array<ArrayBuffer> {

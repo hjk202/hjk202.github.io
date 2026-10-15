@@ -12,11 +12,11 @@
 
 | 项目 | 状态 |
 | --- | --- |
-| 当前任务 | 内室验收版1520c2f已发布且线上核验通过；停止等待用户OPPO手机验收 |
-| 当前指定实施 milestone | 4.8 In Progress（待手机验收及最终样本清理发布）；V1–V4 Done，无正在执行的子项；Phase 5/6未授权 |
-| 当前授权范围 | 提交并发布已验收的V1–V4版本、原有非敏感手机验收包及发布记录；不清理待验收样本，不扩展功能 |
-| 项目实施 | Phase 1、2、3与D1–D8完成；内室验收版1520c2f已上线；最终无样本版本待4.8 |
-| 下一候选 milestone | 停止等OPPO手机验收；最终样本清理与无样本发布仍未完成，不自动执行 |
+| 当前任务 | 用户明确授权发布V5修复；检查中断状态后继续既有Pages流程，线上验证后停止等手机验收 |
+| 当前指定实施 milestone | 4.8 In Progress：V5发布与线上检查；V1–V5实现Done，Phase 5/6未授权 |
+| 当前授权范围 | 提交并部署已验证的V5口令/原生触摸反馈修复与说明；保留原有非敏感验收密文和口令，不扩展功能 |
+| 项目实施 | Phase 1、2、3与D1–D8完成；线上1520c2f；V5修复仅本地完成，最终无样本版本待4.8 |
+| 下一候选 milestone | 本次发布及线上检查后停止，等OPPO复验；最终样本清理/无样本发布仍未完成，不自动执行 |
 
 创建这两份文档不代表 milestone 1.1 已开始或已完成。所有实施 milestone 初始为 `Pending`。
 
@@ -2343,3 +2343,30 @@ Phase 4全部必需项Done后停止。可选Phase 5仍须用户选择/指定；�
 证据：.cache/inner-release-manifest.json、inner-ci-manifest.json、inner-release-artifact.json、inner-release-jobs.json、inner-release-live.log、inner-release-live.json、inner-release-live-home.png。云端执行完整既有lint/typecheck/unit/build、根/base浏览器、WebKit移动/私人、第五模块会话及extension/content/design/mobile隔离契约；本地V4逐项记录仍保留。
 
 最新手机验收链接：https://hjk202.github.io/?v=1520c2f 。保留原有明确标识的非敏感验收密文，口令沿用此前测试口令；未填充真实私人内容。当前线上取代3dc65c5，随后文档完成记录不改变该已受验产品源。OPPO实机结果尚未取得，4.8/Phase4保持In Progress；不删除样本、不最终收尾、不进入Phase5/6。发布任务已完成并停止，等待用户手机验收。
+
+### V5 — 口令输入与手机原生反馈
+
+**Status：Done（本地实现与验证；未部署，OPPO真实外观待复验）。**
+
+用户手机验收反馈口令注入顾虑与无下划线控件蓝框，并明确选择“保留正常符号，拒绝控制字符和超长输入”。本项是4.8内的最小验收修复，不启动其他Phase，也不把前次上线授权扩展为本轮自动发布。
+
+- **Scope / Files**：core/vault的共享口令校验与crypto调用边界；Unlock.astro/unlock.ts的提示和移动输入属性；theme.css的全站原生点击高亮与键盘焦点区分；相关单元/浏览器测试；NEED/PLAN与Vault安全/维护说明。
+- **Technical Approach**：口令只作为UTF-8密码学数据；输入与核心均校验长度和可接受的可打印Unicode类别，正常字母/数字/符号/空格保留，不trim、规范化、删除或静默截断。保持既有UTF-8 1024字节上限、新口令16字符下限和KDF/AES参数。原生点击高亮在根元素继承覆盖到summary等交互及其子节点，指针焦点不画原生轮廓，键盘focus-visible保留。
+- **Non-goals**：纯字母数字限制、换口令/重加密样本、CSP/账户/服务器改造、隐藏仓库、上线、未来功能。
+- [x] **Done Criteria**：非法或超长输入在KDF前被拒绝，错误不回显口令、无代码执行/网络/存储；符号口令与既有验收包兼容；普通字符逐字保留。支持原生高亮属性的引擎中summary/分类/链接/按钮触摸高亮透明，键盘焦点与展开/搜索/解锁/锁定正常；不支持该属性的引擎记录限制并执行交互/焦点检查。
+- **Verification**：lint/typecheck/test/build；新增边界纯逻辑与真实浏览器负例；根/base受影响入口/模块/搜索/移动回归；Chromium与WebKit触摸/键盘检查，截图与产物扫描。记录OPPO仍待复验，不以模拟器替代真机。
+- **Dependency / Stop**：依赖已完成V1–V4。通过后更新状态并停止，线上仍为1520c2f，手机真实结果和后续发布留待明确任务。
+
+**Completion Record（2026-10-15）**：新增共享可打印Unicode口令校验，界面与核心都在KDF前拒绝非法/超长数据；保留标点、空格和原始字节，不trim/规范化/截断。原始paste在浏览器自动剥离换行前检查，失败保留原输入并提示；移动关闭自动大写/纠错。触摸高亮从仅a/button改为根元素继承，补齐summary/内部文字等原生交互；指针焦点与键盘focus-visible区分，未移除键盘轮廓。更新NEED及Vault设计/维护文档，说明输入字符串不执行代码、真实注入脚本仍可窃取口令、公开样本可解密与真实口令/历史泄漏边界。
+
+最终实际验证：npm.cmd run lint/typecheck（126文件0错误/警告/提示）/test（42项）/build全部退出0；完整浏览器根与/personal-space/各75通过，WebKit相关31通过。包含原样符号/带空格口令、脚本样字符串无执行、无KDF的非法输入、原始换行/零宽/超长粘贴拒绝、保留输入及既有解锁/会话/搜索/分类/返回回归。Chromium检查summary/time/span/a/button高亮为透明；Windows WebKit不支持该私有CSS属性，测试按CSS.supports记录颜色检查不适用，仍实际验证触摸展开、键盘焦点及其他完整交互，不将其计作手机高亮已验收。
+
+此前失败保留：新增触摸用例第一次未等待详情挂载，已补等待；随后旧产物确定性暴露summary非透明（.cache/v5-before-ready.log）。首次根/base协议互通失败来自测试独立加载器未包含新passphrase文件，已补齐；WebKit最初断言空的私有属性失败，能力探针确认不支持，记录条件与限制而不跳过交互。全部修复后按最终源码重新构建/验证；不是删除测试或吞掉异常。
+
+证据：.cache/v5-final-root.log、v5-final-base.log、v5-final-webkit.log及各自results；触摸/键盘两种截图已审阅。产物边界扫描通过（.cache/v5-boundaries.log）；原有public/vault/bundle.json实际解密兼容，SHA256仍fa84cfa3c72c1b183e4bfccdc438c5d8cf1ebc8ce0095e4f6f5cdaefe26e0856，见.cache/v5-existing-sample.json。未换测试口令、未改KDF/AES/会话政策、未部署或填真实内容。Phase4/4.8保持In Progress，停止；OPPO真实点击外观、软键盘仍待发布后复验，完整Git历史和独立密码学审计未冒充完成。
+
+### 4.8 / V5 修复发布（2026-10-15，进行中）
+
+用户明确授权部署此次修复，完成线上验证后停止等手机验收。中断恢复时已核实本地仍为ed233c3、V5尚未提交，远程main仍1520c2f，无本次修复的已启动发布；因此继续正常提交与手动发布，不重复旧运行。
+
+发布范围仅已通过本地验证的V5及其需求/安全/维护记录。42unit、126文件零诊断、生产build、根/base各75浏览器与WebKit31记录保留；云端对本次实际源提交重新执行完整既有门槛。手机仍需要此前非敏感验收包，保持包与测试口令不变，不清理样本或引入新功能。实际源SHA/run/产物/线上结果完成后补记，4.8保持In Progress。

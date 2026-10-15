@@ -1,6 +1,45 @@
 import { test, expect } from '@playwright/test';
+import { encryptVault } from '../../src/core/vault/crypto.ts';
+import { allVaultFixture, vaultPassword } from '../fixtures/vault.ts';
 
 test.use({ hasTouch: true });
+
+test('mobile native disclosures and nested labels have no tap flash while keyboard focus remains visible', async ({ page }, info) => {
+  const envelope = await encryptVault(allVaultFixture, vaultPassword);
+  await page.route('**/vault/bundle.json', route => route.fulfill({ json: envelope }));
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.goto('./');
+  await page.locator('[data-vault-entrance]').press('Enter');
+  await page.getByLabel('私人空间口令', { exact: true }).fill(vaultPassword);
+  await page.getByRole('button', { name: '解锁', exact: true }).tap();
+  await expect(page.locator('[data-vault-dialog]')).not.toBeVisible();
+  await page.getByRole('link', { name: 'Build, 2 entries', exact: true }).tap();
+  await page.getByRole('link', { name: '安全验收样本：私人项目', exact: true }).tap();
+  const summary = page.locator('.private-project .project-update summary');
+  await expect(summary).toBeVisible();
+  if (await page.evaluate(() => CSS.supports('-webkit-tap-highlight-color', 'transparent'))) {
+    for (const selector of ['summary', 'summary time', 'summary span', 'a', 'button']) {
+      const colors = await page.locator(selector).evaluateAll(nodes => nodes.map(node => getComputedStyle(node).getPropertyValue('-webkit-tap-highlight-color')));
+      expect(colors.length).toBeGreaterThan(0);
+      expect(colors.every(color => color === 'rgba(0, 0, 0, 0)'), JSON.stringify({ selector, colors })).toBe(true);
+    }
+  } else {
+    info.annotations.push({ type: 'browser-capability', description: 'This engine does not expose -webkit-tap-highlight-color; touch disclosure and keyboard focus are verified below. Native mobile highlight still requires OPPO acceptance.' });
+  }
+  await summary.tap();
+  await expect(page.locator('.private-project .project-update')).toHaveAttribute('open', '');
+  expect(await summary.evaluate(node => node.matches(':focus-visible'))).toBe(false);
+  await page.screenshot({ path: info.outputPath('touch-disclosure.png'), fullPage: true });
+  await summary.tap();
+  await summary.press('Shift+Tab');
+  await page.keyboard.press('Tab');
+  await expect(summary).toBeFocused();
+  await expect(summary).toHaveCSS('outline-style', 'solid');
+  await expect(summary).toHaveCSS('outline-width', '2px');
+  await summary.press('Enter');
+  await expect(page.locator('.private-project .project-update')).toHaveAttribute('open', '');
+  await page.screenshot({ path: info.outputPath('keyboard-disclosure.png'), fullPage: true });
+});
 
 for (const viewport of [{ width: 320, height: 568 }, { width: 360, height: 640 }, { width: 390, height: 844 }, { width: 430, height: 932 }, { width: 639, height: 900 }, { width: 641, height: 900 }, { width: 667, height: 375 }, { width: 768, height: 600 }, { width: 768, height: 1024 }]) {
   test(`mobile ${viewport.width}×${viewport.height}: real node and label taps navigate once`, async ({ page, baseURL }, info) => {

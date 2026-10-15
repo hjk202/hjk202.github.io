@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import ts from 'typescript';
 import { readFileSync } from 'node:fs';
 import { encryptVault, decryptVault } from '../../src/core/vault/crypto.ts';
-const scripts=Object.fromEntries(['crypto','validation'].map(name=>[name,ts.transpileModule(readFileSync(`src/core/vault/${name}.ts`,'utf8'),{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ESNext,rewriteRelativeImportExtensions:true}}).outputText]));
+const scripts=Object.fromEntries(['crypto','validation','passphrase'].map(name=>[name,ts.transpileModule(readFileSync(`src/core/vault/${name}.ts`,'utf8'),{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ESNext,rewriteRelativeImportExtensions:true}}).outputText]));
 test('Vault protocol interoperates between Node and actual secure browser without persisting plaintext',async({page})=>{
   const password='browser-test-only-not-real';
   const payload={version:1,modules:{},assets:{}};
