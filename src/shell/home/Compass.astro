@@ -50,7 +50,7 @@ const lensClip = nodes.length >= 3 ? `polygon(${nodes.map((node) => `${node.oute
     })}
     <g class="compass-center" aria-hidden="true"><circle cx="300" cy="300" r="5"/><circle cx="300" cy="300" r="1"/></g>
   </svg>
-  <button type="button" class="vault-entrance" data-vault-entrance aria-label="私人空间，长按或按 Enter 解锁" title="私人空间"><span class="sr-only">私人空间</span></button>
+  <button type="button" class="vault-entrance" data-vault-entrance aria-label="私人空间，长按或按 Enter 解锁"><span class="sr-only">私人空间</span></button>
   <div class="compass-readout" aria-live="polite" aria-atomic="true"><span data-compass-name></span><span data-compass-count></span></div>
 </div>
 <script>
@@ -137,8 +137,6 @@ const lensClip = nodes.length >= 3 ? `polygon(${nodes.map((node) => `${node.oute
   .compass-readout span { display: block; }
   .vault-entrance { position: absolute; left: 50%; top: 50%; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 50%; transform: translate(-50%, -50%); background: transparent; color: var(--accent); cursor: pointer; touch-action: none; }
   :root[data-vault-unlocked] .vault-entrance::after { content: ''; position: absolute; inset: 17px; border: 1px solid var(--accent); border-radius: 50%; background: var(--selection); }
-  .compass[data-vault-holding] .compass-radar { animation: none; transform: scale(.75); transform-origin: 300px 300px; transition: transform 1.5s ease; }
-  .compass[data-vault-holding] [data-compass-link] { opacity: .65; transition: opacity 1.5s ease; }
   /* Unlocked navigation swaps this SVG in place; avoid retaining animated compositing layers. */
   :root[data-vault-unlocked] .compass, :root[data-vault-unlocked] .compass * { animation: none !important; transition: none !important; }
   [data-compass-name] { text-transform: uppercase; letter-spacing: .13em; }

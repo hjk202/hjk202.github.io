@@ -48,7 +48,7 @@ lock先通知模块/Spotlight同步清理DOM、投影、缓存、目标/查询�
 
 ## 入口与公开状态
 
-Compass中心指针长按1.5秒，短按不做任何操作；pointercancel、离开中心或松手取消。中心焦点Enter打开同一Unlock，增加可访问性，保持pointer短按无功能。低强度Radar收缩/节点柔化只在长按与Unlock期间出现；减少动态偏好不动画。
+Compass中心指针长按1.5秒，短按不做任何操作；pointercancel、离开中心或松手取消。中心焦点Enter打开同一Unlock，增加可访问性，保持pointer短按无功能。按2026-10-15用户反馈，长按不改变Radar或节点外观，不显示悬停提示；Unlock和遮罩直接开关，无缩放、位移或淡入淡出。公开Spotlight动画保持。
 
 Unlock原生dialog，与Spotlight互斥；口令不回显，错误/加载/缺包/安全API不支持有文字反馈；成功清空输入并关闭。未配置bundle时显示“尚未配置私人内容”，不提供默认密码。解锁后中心小状态及Shell的小锁定按钮，不增加导航栏或搜索命令。
 
@@ -61,3 +61,15 @@ pack/verify/rekey/backup/restore都在本地，源目录必须在仓库外。bac
 验证：标准密码向量、Node/browser互通、wrong password/tamper/version/KDF/size/schema/resource负例；public dist/JS/JSON/map/媒体和候选Git允许列表/canary；DOM/storage/URL/log无秘密；根/base导航/dialog/搜索/计数/锁定/后台/BFCache/迟到结果；独立第五模块接入、4–7几何回归；本地维护恢复与受验发布；OPPO基础可用性集中4.8。非敏感fixtures只在隔离测试环境，最终生产未配置Vault也可完成功能验收。
 
 参考：[Web Crypto AES-GCM](https://developer.mozilla.org/en-US/docs/Web/API/AesGcmParams)、[OWASP口令指导](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html)、[Astro导航生命周期](https://docs.astro.build/en/guides/view-transitions/)。本轮已复核原生API、认证参数和生命周期；后续若发现合同无法安全成立，按AGENTS报告最小调整，不绕过设计。
+
+## 安全判断与入口隐蔽性（2026-10-15复核）
+
+四模块均具备独立私人适配器：Think文章/随记、Keep分类收藏、Build独立项目/公开项目补充、Me资料补充。一次全局解锁后，在所属模块内同时呈现可访问的公开与私人内容；不会进入一个共享私人内容页。没有数据的模块不生成假内容。
+
+当前实现使用标准Web Crypto的口令派生与认证加密组合，不自行设计密码算法。PBKDF2-HMAC-SHA-256的600000次是OWASP对该算法的当前参考工作因子；OWASP对新系统优先推荐内存困难的Argon2id，本项目选择PBKDF2是原生浏览器支持与依赖规模的取舍，不声称更强或获得FIPS认证。AES-GCM同时校验密文和AAD，随机salt/IV每次重建；同密钥不得复用IV。代码检查和负例能提供实施证据，不能替代独立安全审计或形式化证明。
+
+公开静态密文可被任何人下载并离线猜口令，前端等待/次数限制无法阻止它。至少16字符只是输入下限，不代表足够熵；应使用密码管理器生成的独立随机长口令。JS字符串/浏览器内存不能保证物理擦除；XSS、恶意扩展、被替换的站点脚本或已解锁设备可读取内容。旧密文的Git/下载副本不会因换口令或删包失效；没有服务端找回。
+
+入口克制只减少视觉暴露，不能隐藏功能存在：公开源码、可访问名称和密文地址可被发现，旁观者也可能看见口令窗口或已解锁内容。口令不嵌入前端；发现入口或伪造前端状态不等于获得解密能力。此安全判断针对当前静态个人空间模型，不承诺抵抗任意攻击者。
+
+参考：[OWASP认证加密指导](https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html)、上述OWASP口令指导与Web Crypto参数文档。测试样本及其公开验收口令均非真实秘密，不是生产默认口令。

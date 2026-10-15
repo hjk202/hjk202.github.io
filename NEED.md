@@ -1283,23 +1283,11 @@ Private Module
 1.5s
 ```
 
-内部 Radar Polygon 开始：
+长按过程中首页和 Radar 保持原状，不收缩、不淡出、不提示进度，不显示悬停文字。
 
-```text
-慢慢向中心收缩
-```
+达到时长后直接显示极简玻璃口令框；开启和关闭均无缩放、位移或遮罩动画。保留玻璃材质、清晰输入与键盘可访问性。
 
-外部模块逐渐模糊。
-
-中央出现：
-
-```text
-Unlock
-```
-
-随后弹出一个极简玻璃输入框。
-
-这和整个视觉语言是一致的。
+本条按2026-10-15用户验收反馈替代原先的Radar收缩、模块模糊和弹出动画。公开Spotlight仍沿用已验收的展开/收起动画。
 
 ---
 
@@ -1333,7 +1321,7 @@ Konami Code
 
 # 39. Private 内容
 
-解锁之后，各 Module 自己决定有没有 Private 内容。
+当前四个 Module 都支持各自的 Private 内容，由模块自行管理；一次解锁后在对应模块内显示。没有录入私人材料时不生成占位内容，也不集中到另一个私人页面。
 
 例如：
 
@@ -1349,6 +1337,10 @@ private bookmarks
 Build
 public logs
 private logs
+
+Me
+public profile
+private profile supplement
 ```
 
 仍然是各自独立。

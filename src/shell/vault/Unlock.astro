@@ -29,11 +29,5 @@
   #vault-status { margin: 18px 0 0; font-size: .8rem; color: var(--muted); line-height: 1.65; }
   .vault-retry { border: 0; background: transparent; color: var(--ink); min-height: 44px; padding: 0; margin-top: 8px; cursor: pointer; }
   .vault-retry[hidden] { display: none; }
-  .vault-dialog[open] { animation: vault-appear 240ms ease both; }
-  .vault-dialog[open]::backdrop { animation: backdrop-appear 240ms ease both; }
-  .vault-dialog[data-closing] { animation: vault-disappear 220ms ease both; pointer-events: none; }
-  .vault-dialog[data-closing]::backdrop { animation: backdrop-disappear 220ms ease both; }
-  @keyframes vault-appear { from { opacity: 0; transform: translateY(8px) scale(.96); } to { opacity: 1; transform: none; } }
-  @keyframes vault-disappear { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(8px) scale(.96); } }
   @media (max-width: 600px), (max-height: 500px) { .vault-dialog { padding: 28px 24px; } .vault-caption { margin-bottom: 20px; } }
 </style>

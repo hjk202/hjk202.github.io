@@ -9,14 +9,21 @@ async function configured(page:import('@playwright/test').Page) {
 async function open(page:import('@playwright/test').Page) {
   await page.goto('./');await page.locator('[data-vault-entrance]').focus();await page.keyboard.press('Enter');await expect(panel(page)).toBeVisible();
 }
-test('center short press and cancelled movement do nothing; long press and keyboard open unconfigured Vault',async({page})=>{
+test('center stays visually quiet during long press; cancelled gestures and keyboard open unconfigured Vault correctly',async({page})=>{
   // This negative case remains meaningful when the author publishes a real encrypted bundle.
   await page.route('**/vault/bundle.json',route=>route.fulfill({status:404,body:'Not configured'}));
   await page.goto('./');const center=page.locator('[data-vault-entrance]');await center.click();await expect(panel(page)).not.toBeVisible();
   const bounds=await center.boundingBox();await page.mouse.move(bounds!.x+22,bounds!.y+22);await page.mouse.down();await page.mouse.move(bounds!.x+70,bounds!.y+22);await page.mouse.up();await page.waitForTimeout(1550);await expect(panel(page)).not.toBeVisible();
-  await page.mouse.move(bounds!.x+22,bounds!.y+22);await page.mouse.down();await expect(panel(page)).toBeVisible({timeout:2500});await page.mouse.up();
+  await page.mouse.move(bounds!.x+22,bounds!.y+22);
+  await page.locator('.compass-radar').evaluate(async element=>{await Promise.all(element.getAnimations().map(animation=>animation.finished));});
+  const appearance=()=>page.locator('.compass-radar, [data-compass-link]').evaluateAll(elements=>elements.map(element=>{const style=getComputedStyle(element);return {transform:style.transform,opacity:style.opacity};}));
+  const before=await appearance();await expect(center).not.toHaveAttribute('title');
+  await page.mouse.down();await page.waitForTimeout(700);expect(await appearance()).toEqual(before);await expect(panel(page)).not.toBeVisible();
+  await expect(panel(page)).toBeVisible({timeout:2000});await page.mouse.up();
+  await expect(panel(page)).toHaveCSS('animation-name','none');await expect(panel(page)).toHaveCSS('transform','none');
+  expect(await panel(page).evaluate(element=>getComputedStyle(element,'::backdrop').animationName)).toBe('none');
   await expect(panel(page).getByRole('status')).toHaveText('尚未配置私人内容。');await page.keyboard.press('Escape');await expect(panel(page)).not.toBeVisible();await expect(center).toBeFocused();
-  await center.press('Enter');await expect(panel(page)).toBeVisible();await page.getByRole('button',{name:'关闭私人空间'}).click();await expect(panel(page)).toHaveAttribute('data-closing','');await expect(panel(page)).not.toBeVisible();
+  await center.press('Enter');await expect(panel(page)).toBeVisible();await page.getByRole('button',{name:'关闭私人空间'}).click();expect(await panel(page).evaluate(element=>(element as HTMLDialogElement).open)).toBe(false);await expect(center).toBeFocused();
 });
 test('wrong password remains locked; real decryption unlocks, clear inputs, navigates and actively locks',async({page})=>{
   await configured(page);await open(page);const input=page.getByLabel('私人空间口令',{exact:true});
