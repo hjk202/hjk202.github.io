@@ -12,11 +12,11 @@
 
 | 项目 | 状态 |
 | --- | --- |
-| 当前任务 | 用户认可内室本地效果并明确授权发布；发布已验收版本，完成线上检查后停止等手机验收 |
-| 当前指定实施 milestone | 4.8 In Progress：执行内室验收版发布；V1–V4 Done；Phase 5/6未授权 |
+| 当前任务 | 内室验收版1520c2f已发布且线上核验通过；停止等待用户OPPO手机验收 |
+| 当前指定实施 milestone | 4.8 In Progress（待手机验收及最终样本清理发布）；V1–V4 Done，无正在执行的子项；Phase 5/6未授权 |
 | 当前授权范围 | 提交并发布已验收的V1–V4版本、原有非敏感手机验收包及发布记录；不清理待验收样本，不扩展功能 |
-| 项目实施 | Phase 1、2、3与D1–D8完成；内室改版本地完成，线上仍为3dc65c5；最终无样本版本待4.8 |
-| 下一候选 milestone | 发布和线上检查后停止，等OPPO手机验收；最终样本清理与无样本发布仍未完成 |
+| 项目实施 | Phase 1、2、3与D1–D8完成；内室验收版1520c2f已上线；最终无样本版本待4.8 |
+| 下一候选 milestone | 停止等OPPO手机验收；最终样本清理与无样本发布仍未完成，不自动执行 |
 
 创建这两份文档不代表 milestone 1.1 已开始或已完成。所有实施 milestone 初始为 `Pending`。
 
@@ -2333,3 +2333,13 @@ Phase 4全部必需项Done后停止。可选Phase 5仍须用户选择/指定；�
 用户认可本地内室效果并明确要求部署后停止，随后自行手机验收。本次仅发布已完成的V1–V4及原有非敏感验收密文；不新增功能，不清理手机检查仍需的样本，不将桌面认可当作OPPO已通过。
 
 已核实认证账号hjk202、目标hjk202/hjk202.github.io的main及Pages workflow来源，远程发布基线3dc65c5。本地V4公共门槛、39unit、根/base各72浏览器、WebKit28及隔离边界记录保留；本次云端仍对实际源提交重新运行既有全部门槛。部署只使用通过检查的同一dist。源SHA、run、产物及实际线上核验结果将在完成后补记；4.8保持In Progress。
+
+### 4.8 内室验收版发布完成（2026-10-15）
+
+用户认可本地效果后明确授权上线并要求停止等手机验收。产品源1520c2f2768c757e0b602927e159ddda3d4cdba6已通过[完整检查与Pages发布38697523163](https://github.com/hjk202/hjk202.github.io/actions/runs/38697523163)的全部check/deploy。同SHA重复push运行38697519430取消，手动运行完整执行所有门槛，没有跳过部署前验证。Pages产物11955173318，digest sha256:0c1bd2b77ee39817705bb4277fb3e99a17e8a5182a17e65abd2f707947a1efcb。
+
+下载实际云端Pages归档后核对，26文件与本地已认可构建逐项哈希一致；线上26文件也全部匹配。8公开路径、深层刷新/Home/返回、真实404、公开搜索/Me GitHub链接、手机标签间距与触摸高亮通过；真实网络密文安静解锁后Think/Build/Keep/Me、深墨主题、私人内容前置、公开内容完整、搜索来源标记、私人详情/返回和主动锁定通过。整个流程末尾严格断言全部pageerror为空，实际0项。
+
+证据：.cache/inner-release-manifest.json、inner-ci-manifest.json、inner-release-artifact.json、inner-release-jobs.json、inner-release-live.log、inner-release-live.json、inner-release-live-home.png。云端执行完整既有lint/typecheck/unit/build、根/base浏览器、WebKit移动/私人、第五模块会话及extension/content/design/mobile隔离契约；本地V4逐项记录仍保留。
+
+最新手机验收链接：https://hjk202.github.io/?v=1520c2f 。保留原有明确标识的非敏感验收密文，口令沿用此前测试口令；未填充真实私人内容。当前线上取代3dc65c5，随后文档完成记录不改变该已受验产品源。OPPO实机结果尚未取得，4.8/Phase4保持In Progress；不删除样本、不最终收尾、不进入Phase5/6。发布任务已完成并停止，等待用户手机验收。
