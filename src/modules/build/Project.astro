@@ -11,6 +11,7 @@ const hasRecords = !!(project.milestones?.length || updates.length || project.is
 <article class="project">
   <a class="text-link project-return" href={withBase('/build/', import.meta.env.BASE_URL)}>← 返回项目</a>
   <header class="project-cover"><p class="eyebrow">{project.slug.toUpperCase()} / PROJECT ARCHIVE</p><h1>{project.title}</h1><div class="project-overview"><p class="summary">{project.summary}</p><div class="project-metadata">{project.period && <div><span>记录周期</span><p>{project.period}</p></div>}{project.status && <div><span>项目状态</span><p>{projectStatusLabels[project.status]}</p></div>}{!!project.keywords?.length && <div><span>技术关键词</span><ul class="project-tags">{project.keywords.map((word) => <li>{word}</li>)}</ul></div>}</div></div></header>
+  <div data-vault-slot></div><p class="vault-public-heading eyebrow">PUBLIC / 公开档案</p>
   {hasRecords && <nav class="project-local-nav glass-control" aria-label="项目内容"><a href="#archive">项目概览</a>{!!project.milestones?.length && <a href="#milestones">阶段目标</a>}{updates.length > 0 && <a href="#updates">进展记录</a>}{!!project.issues?.length && <a href="#issues">问题与复盘</a>}</nav>}
   <div id="archive" class="project-archive">
     <p class="eyebrow">THE WORK / 技术档案</p>

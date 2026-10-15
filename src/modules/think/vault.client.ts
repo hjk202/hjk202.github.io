@@ -50,7 +50,7 @@ const create:VaultFactory=(value,context)=>{
         }
         article.append(prose);container.append(article);
       }else if(posts.length){const section=element('section','','thought-essays private-thoughts');section.append(privateLabel(),element('h2','留给自己的想法。'));
-        for(const post of posts){const article=element('article','','thought-essay');article.append(element('time',`${post.date} / ${post.kind==='note'?'随记':'文章'}`));const heading=element('h3'),link=element('a',post.title);link.href=target(post.id);heading.append(link);article.append(heading,element('p',post.summary));section.append(article);}container.append(section);}
+        for(const post of posts){const article=element('article','','thought-essay');article.dataset.kind=post.kind;article.append(element('time',`${post.date} / ${post.kind==='note'?'随记':'文章'}`));const heading=element('h3'),link=element('a',post.title);link.href=target(post.id);heading.append(link);article.append(heading,element('p',post.summary));section.append(article);}container.append(section);}
     },
     dispose(){posts=[];},
   };

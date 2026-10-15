@@ -8,9 +8,10 @@ const route = withBase('/keep/', import.meta.env.BASE_URL);
 ---
 <div class="keep-directory" data-bookmark-directory>
   <header class="keep-heading"><p class="eyebrow">A CURATED CORNER OF THE WEB</p><h1>收藏夹</h1><p>整理过的网站、课程和工具。<br />给值得留下来的东西，一个好找的位置。</p></header>
+  <div data-vault-slot></div><div class="vault-public-heading"><p class="eyebrow">PUBLIC / 公开</p><h2>公开收藏</h2></div>
   {bookmarks.length ? <>
     <nav class="category-filter glass-control" aria-label="收藏分类">
-      <a href={route} data-category-filter="all" aria-current="true">全部 <span>{bookmarks.length}</span></a>
+      <a href={route} data-category-filter="all" aria-current="true"><span class="public-only-label">全部</span><span class="vault-only-label">全部公开收藏</span> <span>{bookmarks.length}</span></a>
       {groups.map((group) => <a href={`${route}?category=${group.id}`} data-category-filter={group.id}>{group.label} <span>{group.entries.length}</span></a>)}
     </nav>
     <p class="category-status" data-category-status aria-live="polite">共 {bookmarks.length} 项收藏</p>

@@ -9,7 +9,7 @@ export interface VaultView {
   count(publicCount: number): number;
   search(): SearchResult[];
   hasTarget(id: string): boolean;
-  mount(container: HTMLElement, id?: string): void;
+  mount(container: HTMLElement, id?: string): void | (() => void);
   dispose(): void;
 }
 export type VaultFactory = (value: unknown, context: VaultContext) => VaultView;

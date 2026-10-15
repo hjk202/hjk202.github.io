@@ -82,3 +82,60 @@ button[data-search-trigger]:active, .glass-control:active { transform: translate
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
+
+/* The inner room belongs to the live session, never to a saved theme preference. */
+:root[data-vault-unlocked] {
+  color-scheme: dark;
+  --background: #0d1219;
+  --surface: #18212b;
+  --ink: #e8e9e5;
+  --muted: #b1bbc5;
+  --edge: #384653;
+  --focus: #b7d5e5;
+  --accent: #c7d6dc;
+  --private-accent: #d8c6a4;
+  --glass: #18212bf7;
+  --glass-highlight: #dce8ed38;
+  --selection: #d1c2a51c;
+  --environment-light: #92aab51a;
+  --radar-start: #b4cbd352;
+  --radar-middle: #d8ccaf30;
+  --radar-end: #7e9ca83d;
+  --radar-line: #b0c5cb;
+  --radar-shadow: #00071380;
+  --backdrop: #05090fc2;
+  --lens-glass: #a7c3cf0e;
+  --lens-light: #d7e2e51f;
+  --lens-shade: #00061166;
+  --lens-edge: #b5cbd44a;
+  --lens-shadow: #00050b80;
+  --node-glass: #657d8bbf;
+  --label-glass: #a6c1cf14;
+  --label-edge: #d8e5e938;
+  --label-shadow: #00050b66;
+  --label-hover: #aec5ce29;
+  --warm-reflection: #c9ac7733;
+  --cool-reflection: #7f9faa33;
+  --art-line: #adbec24d;
+}
+:root[data-vault-unlocked] :is(.home, .module-page) {
+  background:
+    radial-gradient(ellipse at 50% 8%, #a2b5bf12, transparent 60%),
+    radial-gradient(ellipse at 50% 48%, #53687919, transparent 68%),
+    var(--background);
+}
+:root[data-vault-unlocked] .home::before {
+  content: ''; position: absolute; z-index: -1; pointer-events: none; inset: 0;
+  background: radial-gradient(ellipse at 50% 46%, transparent 20%, #03070c70 100%);
+}
+:root[data-vault-unlocked] .spotlight {
+  box-shadow: 0 32px 90px #00081399, 0 8px 24px #00071180, inset 0 1px 0 var(--glass-highlight);
+}
+.vault-public-heading, .vault-only-label { display: none; }
+:root[data-vault-unlocked] .vault-public-heading { display: block; margin: 48px 0 24px; }
+:root[data-vault-unlocked] .vault-only-label { display: inline; }
+:root[data-vault-unlocked] .public-only-label { display: none; }
+.vault-public-heading h2 { margin: 8px 0; font-weight: 400; font-size: 1.25rem; }
+:root[data-vault-unlocked] .private-label { color: var(--private-accent); font-size: .68rem; letter-spacing: .13em; }
+[data-vault-slot]:empty { display: none; }
+:root[data-vault-unlocked] .vault-view { min-width: 0; }

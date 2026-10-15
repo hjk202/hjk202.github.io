@@ -3,7 +3,7 @@ import { decodeBase64, type VaultPayload } from '../../core/vault/crypto.ts';
 import type { SearchIndex } from '../../core/search/types.ts';
 import type { VaultView } from '../../core/vault/types.ts';
 import { vaultFactories } from '../../core/module/vault-registry.client.ts';
-import { combineVaultProjection, validateVaultProjection } from '../../core/search/vault-projection.ts';
+import { combineVaultProjection, validateVaultProjection, type VaultSearchIndex } from '../../core/search/vault-projection.ts';
 import { targetId } from '../../core/vault/targets.ts';
 import { onPage, goTo } from '../layout/lifecycle.ts';
 
@@ -57,6 +57,7 @@ function mount() {
   let id:string|undefined;
   try{id=targetId(location.hash);}catch{id='invalid';}
   const root=document.createElement('section');root.className='vault-view';root.dataset.vaultView='';
+  let cleanup: void | (() => void);
   const originals=[...main.children] as HTMLElement[];
   if(id)originals.forEach(element=>{element.hidden=true;element.setAttribute('data-vault-hidden','');});
   if(id&&!vault.isUnlocked){
@@ -65,9 +66,11 @@ function mount() {
     button.addEventListener('click',()=>document.dispatchEvent(new CustomEvent('vault:open',{detail:{source:button}})));root.append(message,button);
   }
   else if(id&&(!view||!view.hasTarget(id))){root.textContent='这条私人内容不存在或已移除。';}
-  else if(vault.isUnlocked&&view){try{view.mount(root,id);}catch{vault.lock();return;}}
-  if(root.childNodes.length)main.append(root);
-  unmount=()=>{root.replaceChildren();root.remove();originals.forEach(element=>{element.hidden=false;element.removeAttribute('data-vault-hidden');});};
+  else if(vault.isUnlocked&&view){try{cleanup=view.mount(root,id);}catch{vault.lock();return;}}
+  // Modules declare the reading position. Private details replace the public page as before.
+  const slot = !id && main.querySelector<HTMLElement>('[data-vault-slot]');
+  if(root.childNodes.length)(slot || main).append(root);
+  unmount=()=>{cleanup?.();root.replaceChildren();root.remove();originals.forEach(element=>{element.hidden=false;element.removeAttribute('data-vault-hidden');});};
 }
 let previouslyUnlocked=false;
 vault.subscribe(()=>{
@@ -92,6 +95,6 @@ onPage(()=>{
   return()=>{abort.abort();unmount?.();unmount=undefined;};
 });
 // Only module-owned projections are exposed; raw content and keys have no global debug handle.
-export function vaultProjection(index: SearchIndex = publicIndex()): SearchIndex {
+export function vaultProjection(index: SearchIndex = publicIndex()): VaultSearchIndex {
   return vault.isUnlocked ? combineVaultProjection(index,views) : index;
 }

@@ -5,6 +5,7 @@
 .bookmark { max-width: 720px; margin: auto; }.bookmark-return { margin: 0 0 48px; }.bookmark .source { margin-top: 28px; }
 @media (max-width: 600px) { .bookmark-card { padding: 22px; }.category-filter a { padding: 8px 10px; }.keep-heading { padding-bottom: 24px; } }
 .keep-directory { overflow-wrap: anywhere; }
+.category-filter a :is(.public-only-label, .vault-only-label) { font-size: inherit; color: inherit; }
 .category-filter a { max-width: 100%; min-width: 0; }
 .category-filter a span { flex-shrink: 0; }
 .bookmark-group > header { gap: 16px; flex-wrap: wrap; }

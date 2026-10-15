@@ -20,9 +20,9 @@ const create:VaultFactory=(value,context)=>{
       const filters=element('div','','private-category-filter');filters.setAttribute('role','group');filters.setAttribute('aria-label','私人收藏分类');
       const panels=new Map<string,HTMLElement>(),buttons=new Map<string,HTMLButtonElement>();
       const choose=(key:string)=>{for(const [id,panel]of panels)panel.hidden=key!=='all'&&id!==key;for(const [id,button]of buttons)button.setAttribute('aria-pressed',String(id===key));};
-      for(const [key,label]of [['all','全部'],...Array.from(groups,([key,group])=>[key,group.label])]){const button=element('button',label);button.type='button';button.addEventListener('click',()=>choose(key));filters.append(button);buttons.set(key,button);}
-      section.append(filters);
-      for(const [key,group]of groups){const panel=element('section','','bookmark-group');panel.append(element('h3',group.label));const grid=element('div','','bookmark-grid');
+      for(const [key,label]of [['all','全部私人收藏'],...Array.from(groups,([key,group])=>[key,group.label])]){const button=element('button',label);button.type='button';button.addEventListener('click',()=>choose(key));filters.append(button);buttons.set(key,button);}
+      section.append(element('p',`${bookmarks.length} 项私人收藏`,'private-collection-count'),filters);
+      for(const [key,group]of groups){const panel=element('section','','bookmark-group');panel.append(element('h3',group.label));const grid=element('div','','bookmark-grid');grid.dataset.single=String(group.entries.length===1);
         for(const entry of group.entries){const card=element('article','','bookmark-card');card.append(element('p',new URL(entry.sourceUrl).hostname,'bookmark-source'));const heading=element('h4'),link=element('a',entry.title);link.href=target(entry.id);heading.append(link);card.append(heading,element('p',entry.description));const footer=element('footer'),detail=element('a','查看收藏说明 →','text-link');detail.href=target(entry.id);footer.append(detail,externalLink('打开网站 ↗',entry.sourceUrl));card.append(footer);grid.append(card);}panel.append(grid);panels.set(key,panel);section.append(panel);}
       choose('all');container.append(section);
     },

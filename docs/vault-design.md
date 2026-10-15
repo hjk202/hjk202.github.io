@@ -25,6 +25,8 @@ vault.server.ts默认导出validate(payload: unknown): unknown，只用于本地
 
 vault.client.ts默认导出create(payload, context): VaultView；模块自行校验并持有自己的内容模型。context只含本模块公开路由/数量/允许的公开父目标，以及受控asset URL访问。VaultView：count(publicCount)、search()、hasTarget(id)、mount(container,id?)、dispose()。返回的搜索投影仍仅title/description/url/module。框架只消费这些能力，不聚合内部条目。模块不存在私人数据时不挂载空占位卡片。
 
+2026-10-15内室设计补充：模块模板可声明`data-vault-slot`以确定私人区域的真实阅读顺序；未声明时保持原有挂载回退。mount可返回销毁回调，用于清理模块在公开项目条目中生成的私人提示；切页、重挂载与锁定时调用。搜索来源由浏览器组合投影中的对象身份Set关联，只作用于实际内容命中；同URL公开/私人皆命中时标为混合，模块快捷入口保持中性。公开SearchResult仍为四字段，不持久化来源信息。视觉规范见[vault-visual-design.md](vault-visual-design.md)，实施与验证见PLAN的4.8 / V1–V4。
+
 - Think：{posts:[{id,title,summary,date,kind:"article"|"note",body}]}，计可访问条目总数；按日期降序。Markdown支持段落/标题/列表/引用/代码/安全链接与asset图片，不执行HTML、MDX、JS，不自动获取远程图片。
 - Keep：{bookmarks:[{id,title,description,sourceUrl,note,category?,kind?}]}，真实收藏项数，私人类别/来源只在解锁后显示。来源仅http(s)，新标签、noopener noreferrer；无预览抓取。
 - Build：{projects:[独立私人项目],supplements:[{id,publicSlug,title,sections?,milestones?,updates?,issues?}]}。独立项目复用Build自己的字段语义，但使用opaque id而非标题slug；补充只能引用确实存在的公开项目。独立项目增加计数，补充/日志不增加项目数。

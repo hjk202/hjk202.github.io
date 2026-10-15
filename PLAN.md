@@ -12,11 +12,11 @@
 
 | 项目 | 状态 |
 | --- | --- |
-| 当前任务 | 用户授权顺序完成Phase 4 / 4.1–4.8；每项独立验证，阶段结束后停止 |
-| 当前指定实施 milestone | 4.8 In Progress：安静入口与转场取消修复3dc65c5已上线、线上全程零异常；待用户复验，随后清理样本及最终发布；Phase 5/6未授权 |
-| 当前授权范围 | 按已批准Phase 4实施，包括4.8既有Pages发布与验收；仅此阶段，不扩展Phase 5/6 |
-| 项目实施 | Phase 1、2、3与D1–D8完成；当前线上为临时非敏感验收修复版3dc65c5；最终无样本版本待4.8 |
-| 下一候选 milestone | 当前完成获准4.8安全/维护/发布/手机验收；结束后停止，Phase 5/6未授权 |
+| 当前任务 | 用户认可内室本地效果并明确授权发布；发布已验收版本，完成线上检查后停止等手机验收 |
+| 当前指定实施 milestone | 4.8 In Progress：执行内室验收版发布；V1–V4 Done；Phase 5/6未授权 |
+| 当前授权范围 | 提交并发布已验收的V1–V4版本、原有非敏感手机验收包及发布记录；不清理待验收样本，不扩展功能 |
+| 项目实施 | Phase 1、2、3与D1–D8完成；内室改版本地完成，线上仍为3dc65c5；最终无样本版本待4.8 |
+| 下一候选 milestone | 发布和线上检查后停止，等OPPO手机验收；最终样本清理与无样本发布仍未完成 |
 
 创建这两份文档不代表 milestone 1.1 已开始或已完成。所有实施 milestone 初始为 `Pending`。
 
@@ -2262,3 +2262,74 @@ Phase 4全部必需项Done后停止。可选Phase 5仍须用户选择/指定；�
 实际线上25文件哈希与受验清单一致，8公开路径、真实404/公开搜索/Me链接/触摸高亮/标签间距通过；安静长按、真实密文解锁、Think/Build/Keep/Me各自私人内容、私人搜索/返回/主动锁定通过，私人流程结束后也严格检查全部pageerror为空，实际0项。不是过滤掉取消错误，而是产品正确处理主动skip产生的ready AbortError；其他错误仍报告。证据.cache/4.8-ready-manifest.json、4.8-ready-live.json、4.8-ready-live-verified.log。旧失败/不完整线上证据已保留并注明局限。
 
 最新验收链接https://hjk202.github.io/?v=3dc65c5，替代前面的临时旧源链接。等待用户对OPPO基础操作、低调入口与四模块私人组织的复验；临时非敏感样本未清理，无真实私人材料。4.8/Phase 4保持In Progress，未进行最终无样本发布，Phase 5/6未开始；随后仅文档完成记录不改变已受验产品源。当前停止等验收。
+
+## Phase 4 / 4.8 内室视觉反馈实施（2026-10-15）
+
+用户已批准 docs/vault-visual-design.md，并明确授权先同步 NEED/PLAN、逐项实施和测试，全部完成后停止等验收。V1–V4 是4.8内的独立执行单元，不是新增Phase；只允许当前单元 In Progress，通过后顺序进入下一单元。4.1–4.7与已上线记录不重写；4.8最终发布与手机验收仍未完成。本轮不部署或删除验收样本。
+
+### V1 — 内室环境与生命周期
+
+**Status：Done。**
+
+**Completion Record（2026-10-15）**：固定内室变量、对称静态环境与稳定搜索玻璃已完成；浅/深系统主题解锁、取消和锁定恢复通过，实际审阅Home/搜索截图。lint/typecheck、38unit、build、11浏览器通过。初次单测受沙箱临时目录rename EPERM阻止，正常权限复跑通过；初次浏览器默认缓存缺失，改用已有.cache/ms-playwright后通过，未改断言。证据.cache/inner-v1-checks.log、inner-v1-verified.log、inner-v1-browser.log、inner-v1-results；不是用户审美验收。
+- **依赖 / Scope**：已完成的Vault状态/安静入口；新增固定深墨材质、Home与共享模块环境、清晰搜索面板、锁定主题恢复。
+- **文件 / 技术方案**：shell/theme、glass、vault/runtime及必要页面环境样式；由真实data-vault-unlocked覆盖变量，静态渐变，无私人转场快照。
+- **Non-goals**：模块内容排序、搜索来源标签、加密或会话政策调整。
+- [x] **Done Criteria**：系统明暗下解锁主题一致且区别公开主题；取消/失败不提前换肤；锁定即时恢复；Home仍仅入口、搜索可读。
+- **Verification**：npm.cmd run lint/typecheck/test/build；主题状态浏览器测试与既有Vault入口/会话回归，截图审阅。
+- **后续依赖**：V2、V3复用材质；V4整体回归。
+
+### V2 — 四模块私人优先与公开完整
+
+**Status：Done。**
+
+**Completion Record（2026-10-15）**：模块声明挂载槽与销毁回调，四模块私人优先、公开完整且标识清楚；Build补充归属项目并即时清理，Keep分类范围明确。lint/typecheck/38unit/build与13浏览器退出0。新增公开完整性测试首次将响应式隐藏装饰文字与新增私人提示一起作innerText比较，误报两项；已改为移除精确私人装饰节点后逐字比较完整公开textContent，复验通过，未删除断言。桌面四模块及375/320截图已审阅。证据.cache/inner-v2-checks.log、inner-v2-verified.log、inner-v2-verified-results。
+- **依赖 / Scope**：V1；模块自行声明挂载槽，真实DOM顺序优先私人；Me叙述、Think文章/随记、Keep分类双区、Build独立项目和对应公开项目内补充；公开详情标识。
+- **文件 / 技术方案**：vault/runtime最小挂载与清理约定、模块模板/vault.client/vault.css/background.css及相关测试。私人明文只在解锁时生成，补充提示随锁定移除。
+- **Non-goals**：新内容、数据模型、通用布局引擎、复杂筛选/排序、编辑器。
+- [x] **Done Criteria**：四模块身份/标题之后首先可见私人区域，公开入口/正文完整；两类标记清楚、空数据无伪卡；Keep分类作用域准确；Build不重复计数；视觉/DOM/键盘顺序一致，锁定无残留。
+- **Verification**：公共四命令；四模块/详情/分类/锁定浏览器回归、新DOM顺序与完整性测试，375/320窄屏和桌面截图。
+- **后续依赖**：V3搜索打开这些目标，V4综合验证。
+
+### V3 — 搜索来源与阅读层级
+
+**Status：Done。**
+
+**Completion Record（2026-10-15）**：来源身份仅在浏览器投影Set中存在，实际内容命中显示公开/私人/混合标记，模块快捷入口保持中性；未改排序与公开四字段契约。首次回归发现模块名命中误贴私人标签，已修正并补独立同URL内容匹配样本。lint/typecheck/39unit/build及21浏览器退出0，搜索截图已审阅。证据.cache/inner-v3-checks.log、inner-v3-verified.log、inner-v3-verified-results；原失败记录保留。
+- **依赖 / Scope**：V2；搜索公开/私人/混合来源标记，保持相关性与四字段公开索引，快捷入口无默认选中。
+- **文件 / 技术方案**：core/search与shell/home/spotlight相关消费方和测试；来源只存在于当前会话投影，按实际匹配处理同URL结果。
+- **Non-goals**：排序重写、命令系统、全文搜索、持久化私人元信息。
+- [x] **Done Criteria**：准确显示命中来源，同URL去重后标记不误导；空查询无私人摘录；锁定清除标记/查询；键盘/IME/开关动画保持可用。
+- **Verification**：公共四命令；来源纯逻辑测试、私人搜索/锁定/IME与公开搜索浏览器回归，搜索截图可读性。
+- **后续依赖**：V4全面交叉验证。
+
+### V4 — 整体验收与交付
+
+**Status：Done。**
+
+**Completion Record（2026-10-15）**：根/部署子路径完整回归、WebKit、空内容/仅私人内容、第五模块兼容及产物安全边界全部通过。补上无公开资料时Me的私人挂载位置；修正Keep“全部”标签的继承字号，保持公开模式外观。实际审阅Home+四模块并排图、明暗对照、公开/私人长文、搜索来源与320px模糊降级截图。完成是技术验证与视觉自检，不等于用户验收。
+
+| 验证 | 实际结果 / 证据 |
+| --- | --- |
+| npm.cmd run lint / typecheck / test / build | 全部退出0；124文件零错误/警告/提示，39单测通过，9页生产构建；.cache/inner-v4-root.log |
+| npm.cmd run test:e2e（根路径） | 72通过；.cache/inner-v4-root.log、inner-v4-root-results |
+| npm.cmd run build -- --base /personal-space/ --outDir .cache/inner-v4-base-dist；对应完整e2e | 构建退出0、72通过；.cache/inner-v4-base.log、inner-v4-base-results |
+| E2E_BROWSER=webkit 受影响内室/Vault/搜索/安全用例 | 28通过；.cache/inner-v4-webkit.log、inner-v4-webkit-results |
+| node tests/verify-content.mjs；E2E_INNER_EMPTY=1 隔离空公开内容e2e | 新增/隐藏/删除/全零构建通过；仅私人、完全空集合2项通过；.cache/inner-v4-content-build.log、inner-v4-empty.log |
+| node tests/verify-vault-session.mjs；E2E_SESSION_PROBE=1 | 隔离第五模块、导航/闲置/刷新/后台清理两引擎各3通过；.cache/inner-v4-extension.log |
+| node --experimental-strip-types tests/verify-vault-release.mjs（根与base产物） | 全部通过，无测试明文/口令/源文件泄漏；.cache/inner-v4-boundaries.log；不等同独立密码学审计 |
+| 页面smoke / 视觉证据 | 1440/375/320、系统明暗、减少动态、模糊降级与两类详情已检查；并排图.cache/inner-contact.png；本地4322实际密文四模块与锁定无页面异常，.cache/inner-preview-smoke.json |
+
+本轮未部署、未提交、未清理待验收密文样本，也未更改口令协议或作者内容。预览 http://127.0.0.1:4322/ 已启动；仅使用此前明确标识的非敏感验收包。OPPO真实软键盘/横竖屏复验与用户审美确认尚未进行；当前4.8/Phase4不标Done。V1–V4全部完成，停止等待用户检查。
+- **依赖 / Scope**：V1–V3全部Done；根/base完整回归、WebKit受影响路径、视觉与空/混合数据边界；必要最小修复、文档完成记录。
+- **文件 / 技术方案**：受影响测试、NEED/PLAN/设计文档，必要范围内修复；使用隔离非敏感fixtures，保留实际证据。
+- **Non-goals**：上线、清理待用户验收样本、Phase5/6、以自检代替用户认可。
+- [x] **Done Criteria**：工程门槛与浏览器回归通过；1440/375/320与明暗/减少动态/模糊降级可读；全部公开内容可达、私人清理正确；记录限制并停止。
+- **Verification**：公共四命令；完整npm.cmd run test:e2e根与/personal-space/；WebKit私人相关回归；Home+四模块并排图、公开/隐藏对照、两类详情与Spotlight截图；数据边界/产物泄漏检查。
+- **后续依赖**：交用户视觉验收；本轮不把4.8或Phase4标Done，最终发布与OPPO检查另行完成。
+
+### 4.8 内室验收版发布（2026-10-15，进行中）
+
+用户认可本地内室效果并明确要求部署后停止，随后自行手机验收。本次仅发布已完成的V1–V4及原有非敏感验收密文；不新增功能，不清理手机检查仍需的样本，不将桌面认可当作OPPO已通过。
+
+已核实认证账号hjk202、目标hjk202/hjk202.github.io的main及Pages workflow来源，远程发布基线3dc65c5。本地V4公共门槛、39unit、根/base各72浏览器、WebKit28及隔离边界记录保留；本次云端仍对实际源提交重新运行既有全部门槛。部署只使用通过检查的同一dist。源SHA、run、产物及实际线上核验结果将在完成后补记；4.8保持In Progress。

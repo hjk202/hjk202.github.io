@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { validateVaultProjection, combineVaultProjection } from '../../src/core/search/vault-projection.ts';
+import { validateVaultProjection, combineVaultProjection, searchVisibility } from '../../src/core/search/vault-projection.ts';
 import { search } from '../../src/core/search/search.ts';
 import { compassStatistics } from '../../src/shell/home/geometry.ts';
 import type { SearchIndex } from '../../src/core/search/types.ts';
@@ -24,4 +24,23 @@ test('combined counts include zero peers and private description sharing a publi
   assert.deepEqual(search('私人资料',projection).map(r=>r.url),['/me/']);assert.deepEqual(search('私人数学',projection).map(r=>r.url),[`/observatory/#vault=${id}`]);
   assert.equal(search('Me',projection).filter(r=>r.url==='/me/').length,1);assert.equal(JSON.stringify(index),before);
   assert.deepEqual(compassStatistics([{count:3},{count:2},{count:1,compassStatistic:'peer-average'},{count:0}]),[3,2,5/3,0]);
+});
+
+test('search visibility follows matching source identity, including shared URLs, without altering ranking or public fields',()=>{
+  const me={...module,id:'me',name:'Me',route:'/me/',count:1};
+  const publicResult={module:'me',title:'Me',description:'public biography shared',url:'/me/'};
+  const privateResult={module:'me',title:'Me · 私人补充',description:'inward words shared',url:'/me/'};
+  const index:SearchIndex={modules:[me],results:[publicResult]};
+  const original=JSON.stringify(index);
+  const projection=combineVaultProjection(index,new Map([['me',{...view,search:()=>[privateResult]}]]));
+  for(const [query,expected]of [['public biography','public'],['inward','private'],['shared','mixed'],['me','module']] as const){
+    const results=search(query,projection);
+    assert.equal(results.length,1);
+    assert.equal(searchVisibility(query,results[0],projection),expected);
+    assert.deepEqual(results,search(query,{modules:projection.modules,results:projection.results}));
+  }
+  assert.equal(searchVisibility('Observatory',result,{modules:[module],results:[]}), 'module');
+  assert.equal(searchVisibility('inward',privateResult,{modules:[me],results:[]}), 'module');
+  assert.equal(JSON.stringify(index),original);
+  for(const result of projection.results)assert.deepEqual(Object.keys(result).sort(),['description','module','title','url']);
 });

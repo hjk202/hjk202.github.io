@@ -6,3 +6,21 @@
 .private-project pre, .private-project-supplement pre { overflow-x: auto; max-width: 100%; padding: 20px; border: 1px solid var(--edge); border-radius: 10px; font-size: .85rem; line-height: 1.6; }
 .private-projects .project-entry { grid-template-columns: 36px minmax(0,1fr); }
 .private-projects h3 { font-size: 1.35rem; line-height: 1.5; }
+:root[data-vault-unlocked] .module-page[data-module="build"] { background: radial-gradient(ellipse at 50% 8%, #8faec51a, transparent 60%), var(--background); }
+:root[data-vault-unlocked] .build-heading { padding: 0 0 28px; }
+:root[data-vault-unlocked] .build-heading h1 { font-size: clamp(2.4rem,4vw,3.25rem); margin: 12px 0; }
+:root[data-vault-unlocked] .build-total { margin-top: 16px; }
+:root[data-vault-unlocked] :is(.private-projects,.private-project-supplement) { margin: 0; padding: 32px clamp(20px,3vw,40px); border: 1px solid var(--lens-edge); border-radius: 20px; background: linear-gradient(145deg,#b4ccda0b,transparent 65%),var(--surface); box-shadow: inset 0 1px 0 var(--glass-highlight),0 16px 40px var(--lens-shadow); }
+.private-projects > h2 { font-size: 1.5rem; font-weight: 400; margin: 12px 0 28px; }
+.private-projects .project-entry:last-child { border-bottom: 0; padding-bottom: 8px; }
+.private-projects .project-entry { gap: 20px; }
+.private-projects h3 a { text-decoration: none; }
+.private-projects h3 a:hover { text-decoration: underline; }
+.private-project-note { margin-top: 24px; padding: 16px 20px; border: 1px solid var(--lens-edge); border-radius: 12px; background: var(--label-glass); }
+.private-project-note p { margin: 0 0 8px; }
+.private-project-note a { overflow-wrap: anywhere; }
+:root[data-vault-unlocked] .project [data-vault-slot] { margin-top: 32px; }
+.private-project-supplement .project-record-section { max-width: none; margin-top: 24px; }
+.private-project-supplement > h2 { line-height: 1.6; }
+.private-project-supplement > h2 a { text-decoration: none; }
+@media(max-width:600px) { .private-projects .project-entry { grid-template-columns: minmax(0,1fr); gap: 4px; } }

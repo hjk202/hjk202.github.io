@@ -8,6 +8,7 @@ const Content = post.Content;
 ---
 <article class="think-article">
   <a class="text-link think-return" href={withBase('/think/', import.meta.env.BASE_URL)}>← 返回 Think</a>
+  <p class="vault-public-heading eyebrow">PUBLIC / 公开文章</p>
   <time datetime={post.metadata.date}>{post.metadata.date}</time>
   <h1>{post.metadata.title}</h1>
   <p class="summary">{post.metadata.summary}</p>

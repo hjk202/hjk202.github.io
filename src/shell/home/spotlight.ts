@@ -1,5 +1,6 @@
 import { onPage, goTo } from '../layout/lifecycle';
 import { moduleShortcuts, search } from '../../core/search/search';
+import { searchVisibility } from '../../core/search/vault-projection';
 import type { ModuleMetadata } from '../../core/module/types';
 import type { SearchIndex, SearchResult } from '../../core/search/types';
 import { vault, vaultProjection } from '../vault/runtime';
@@ -52,7 +53,8 @@ if (dialog) {
   function render(reset = true) {
     const query = input.value.trim();
     const fallback: SearchIndex = { modules: publicModules, results: [] };
-    results = query ? search(query, vaultProjection(index ?? fallback)) : moduleShortcuts(metadata);
+    const projection = vaultProjection(index ?? fallback);
+    results = query ? search(query, projection) : moduleShortcuts(metadata);
     list.replaceChildren();
     list.classList.toggle('shortcuts', !query);
     caption.textContent = query ? 'Search results' : 'Explore a direction';
@@ -79,6 +81,16 @@ if (dialog) {
         const label = document.createElement('span');
         label.className = 'result-module';
         label.textContent = module.name;
+        if (vault.isUnlocked) {
+          const visibility = searchVisibility(query, result, projection);
+          if (visibility !== 'module') {
+            option.dataset.visibility = visibility;
+            const badge = document.createElement('span');
+            badge.className = 'result-visibility';
+            badge.textContent = visibility === 'private' ? '私人' : visibility === 'mixed' ? '公开 · 含私人内容' : '公开';
+            label.append(badge);
+          }
+        }
         option.append(label);
       }
       const title = document.createElement('span');

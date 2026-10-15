@@ -21,11 +21,20 @@ const create:VaultFactory=(value,context)=>{
     search:()=>Array.from([...data.projects,...data.supplements],entry=>({title:entry.title,description:'summary'in entry?entry.summary:'项目的私人阶段、进展与复盘。',url:vaultTarget(context.module.route,entry.id),module:context.module.id})),
     hasTarget:id=>[...data.projects,...data.supplements].some(entry=>entry.id===id),
     mount(container,id) {
+      const decorations: HTMLElement[]=[];
       if(id){const entry=[...data.projects,...data.supplements].find(entry=>entry.id===id)!;const article=element('article','','private-project');const back=element('a','← 返回项目','text-link');back.href=withBase(context.module.route,context.base);article.append(back,privateLabel(),element('h1',entry.title));
         if('summary'in entry){article.append(element('p',entry.summary,'summary'));if(entry.status)article.append(element('p',projectStatusLabels[entry.status]));if(entry.period)article.append(element('p',entry.period));if(entry.keywords.length)article.append(element('p',entry.keywords.join(' · ')));for(const link of entry.links)article.append(externalLink(link.label,link.url));}
         else{const link=element('a','查看公开项目档案 →','text-link');link.href=withBase(`${context.module.route}${entry.publicSlug}/`,context.base);article.append(link);}content(article,entry);container.append(article);return;}
       if(location.pathname===withBase(context.module.route,context.base)&&data.projects.length){const section=element('section','','private-projects');section.append(privateLabel(),element('h2','私人项目档案'));const list=element('div','','project-entries');for(const [index,project]of data.projects.entries()){const card=element('article','','project-entry');card.append(element('div',String(index+1).padStart(2,'0'),'project-number'));const body=element('div','','project-entry-main');const heading=element('h3'),link=element('a',project.title);link.href=target(project.id);heading.append(link);body.append(heading,element('p',project.summary));if(project.status)body.append(element('p',projectStatusLabels[project.status]));card.append(body);list.append(card);}section.append(list);container.append(section);}
-      for(const entry of data.supplements){const parent=`${context.module.route}${entry.publicSlug}/`;if(location.pathname!==withBase(context.module.route,context.base)&&location.pathname!==withBase(parent,context.base))continue;const section=element('section','','private-project-supplement');section.append(privateLabel());const title=element('h2'),link=element('a',entry.title);link.href=target(entry.id);title.append(link);section.append(title);if(location.pathname===withBase(parent,context.base))content(section,entry);else section.append(element('p','这份私人记录属于已存在的公开项目，不另计为项目。'));container.append(section);}
+      for(const entry of data.supplements){const parent=`${context.module.route}${entry.publicSlug}/`;
+        if(location.pathname===withBase(context.module.route,context.base)) {
+          const card=[...document.querySelectorAll<HTMLElement>('[data-public-project]')].find(node=>node.dataset.publicProject===entry.publicSlug)?.querySelector('.project-entry-main');
+          if(card){const note=element('div','','private-project-note');note.append(element('p','含私人记录','private-label'));const link=element('a',entry.title,'text-link');link.href=target(entry.id);note.append(link);card.append(note);decorations.push(note);}
+        } else if(location.pathname===withBase(parent,context.base)) {
+          const section=element('section','','private-project-supplement');section.append(privateLabel(),element('p','内部记录','eyebrow'));const title=element('h2'),link=element('a',entry.title);link.href=target(entry.id);title.append(link);section.append(title);content(section,entry);container.append(section);
+        }
+      }
+      return ()=>decorations.forEach(node=>{node.replaceChildren();node.remove();});
     },
     dispose(){data={projects:[],supplements:[]};},
   };
