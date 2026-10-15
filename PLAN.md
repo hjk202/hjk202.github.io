@@ -21,16 +21,16 @@
 
 | 项目 | 现状 |
 | --- | --- |
-| 本次任务 | 用户已确认手机检查无问题；完成 4.8 样本清理、最终验证/发布与 Git 保存，结束 Phase 4 后停止 |
-| 已完成 | Phase 1–3；公开设计 D1–D8；Phase 4 的 4.1–4.7 与 4.8 内 V1–V5 修复 |
-| 当前 milestone | **4.8 In Progress**；手机复验已通过，正在清理临时样本并完成无样本最终发布 |
-| 最近已核验线上产品源 | `1f3ce49a9f824757e56a56b22302e2188b05e564` |
-| 最近发布 | [Actions 38731022976](https://github.com/hjk202/hjk202.github.io/actions/runs/38731022976)，check/deploy 成功 |
-| 访问地址 | [正式网站](https://hjk202.github.io/)；[本轮手机验收入口](https://hjk202.github.io/?v=1f3ce49) |
-| 私人数据状态 | 本地已移除非敏感 `public/vault/bundle.json`；最终无样本产物已通过本地验证，待替换线上旧验收包 |
+| 本次任务 | 4.8 样本清理、最终验证/发布及手机验收记录完成；保存收尾记录后停止 |
+| 已完成 | **Phase 1–4 全部 Done**；公开设计 D1–D8 与内室 V1–V5 完成 |
+| 当前 milestone | 无；**4.8 Done**，Phase 4 完成，不自动开始下一阶段 |
+| 最近已核验线上产品源 | `4f2d6b9007167d49bace3d08c85ba5095ea37e85` |
+| 最近发布 | [Actions 38738688217](https://github.com/hjk202/hjk202.github.io/actions/runs/38738688217)，全部 check/deploy 成功 |
+| 访问地址 | [正式网站](https://hjk202.github.io/)；[最终版本入口](https://hjk202.github.io/?v=4f2d6b9) |
+| 私人数据状态 | 本地/产物/线上均无验收密文，真实 Vault 未配置；私人功能完整，入口显示未配置提示 |
 | 后续阶段 | Phase 5 未选择，Phase 6 延后；写进计划不等于授权实施 |
 
-2026-10-15 用户澄清要求完成 Phase 4 及以前全部工作，并明确表示“我都检查过了，没有问题”。手机复验据此记通过；此前 Closed 是误解收尾意图的历史停点。本次继续原 4.8 范围，清理临时样本、复验并最终发布后标 Done、停止，不开始 Phase 5/6。
+2026-10-15 用户澄清要求完成 Phase 4 及以前全部工作，并明确表示“我都检查过了，没有问题”。手机复验据此记通过；此前 Closed 是误解收尾意图的历史停点。本次已完成原 4.8 的样本清理、完整复验及最终发布，全部标准满足，标 Done 并停止；Phase 5/6 未开始。
 
 <a id="architecture"></a>
 ## 2. Overall Architecture
@@ -276,7 +276,7 @@ Think 私人正文仅安全 Markdown 子集：段落、标题、列表、引用�
 
 明文/口令一旦进入 Git 历史，删文件不能撤回；旧密文的历史/下载副本不因 rekey 失效。忘记口令无服务端找回。结构/canary 扫描不等于完整历史审计或独立安全审计，未实施的审计不得写成通过。
 
-当前样本及公开口令 `phase4-nonsensitive-acceptance` **本来就允许任何人解密**，仅供功能验收，不用于真实资料。无真实材料时最终版本允许 Vault 未配置，必须清除验收包后再发布，不设置默认生产密码。
+测试 fixtures 及此前的公开验收包/口令 `phase4-nonsensitive-acceptance` **本来就允许任何人解密**，仅供功能验收，不用于真实资料。线上验收包现已清除；无真实材料时最终版本允许 Vault 未配置，不设置默认生产密码。
 
 参考保留为方案依据，不表示本次文档整理重新核验了最新标准：[Web Crypto AES-GCM](https://developer.mozilla.org/en-US/docs/Web/API/AesGcmParams)、[OWASP 口令派生](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html)、[认证加密](https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html)、[输入校验](https://cheatsheetseries.owasp.org/cheatsheets/Input_Validation_Cheat_Sheet.html)、[Astro 生命周期](https://docs.astro.build/en/guides/view-transitions/)。
 
@@ -321,7 +321,7 @@ npm.cmd run vault:restore -- --input D:\MyVaultBackup\bundle.json
 | Phase 1 | 架构、契约、首页、Compass、Spotlight、可扩展基础 | Done | 无；1.8 后停止 |
 | Phase 2 | 四模块最小实用内容与各自布局，统一玻璃修订 | Done | Phase 1；不捆绑后续内容增长 |
 | Phase 3 | 基础移动可用性、元信息、可重复静态发布与手机验收 | Done | Phase 2 + D1–D8；公开站已验收 |
-| Phase 4 | 加密/本地维护/内存解锁/模块私人适配/搜索/锁定/内室 | In Progress | 手机通过；完成 4.8 无样本最终验证/发布后停止 |
+| Phase 4 | 加密/本地维护/内存解锁/模块私人适配/搜索/锁定/内室 | Done | 手机通过，4.8 无样本最终验证/发布完成，停止 |
 | Phase 5 | 零个或少量按需功能补齐 | Pending，候选未选 | Phase 4 验收后先复盘；逐项明确指定 |
 | Phase 6 | 合并旅行/摄影模块、首次正式录入和后续内容维护 | Pending，延后 | 对应功能已验收 + 用户指定 + 所需素材 |
 
@@ -403,9 +403,9 @@ Phase 1 当时不含复杂模块功能、Private、完整移动端、部署或�
 | **4.5 Done** Think 链路 | Think vault schema/server/client/markdown/style | 私人文章/随记可读可搜可计数，无 HTML/脚本执行/媒体泄漏 | 公共 + 实际密文、Markdown/asset/目标与注入负例/根/base/锁定；依赖 4.4 |
 | **4.6 Done** 三模块适配 | Keep/Build/Me 各自 vault 文件 | 分类收藏、独立项目/公开补充、资料补充可用，真实计数 | 公共 + 三模块合法/非法/空数据、父项目/链接、独立计数/搜索/清理；依赖 4.5 |
 | **4.7 Done** 搜索/统计清理 | vault-projection、Spotlight、Compass、DOM 生命周期 | 公开 JSON 不变，内存组合/同 URL 命中正确，锁定全部清理，无默认 Build | 公共 + 根/base/两引擎真实第五适配会话、4–7 几何、IME/迟到请求/导航异常；依赖 4.6 |
-| **4.8 In Progress** 阶段验收 | 安全/维护/恢复/线上/手机与阶段内修复，详见下节 | 手机通过；完成样本清理和最终发布证据 | 第 7–8 节完整检查；依赖 4.1–4.7 全 Done |
+| **4.8 Done** 阶段验收 | 安全/维护/恢复/线上/手机与阶段内修复，详见下节 | 手机通过；样本清理、完整检查与最终发布证据齐全 | 第 7–8 节完整检查/线上通过；依赖 4.1–4.7 全 Done |
 
-#### 4.8 最终收尾（In Progress）
+#### 4.8 最终收尾（Done）
 
 **目标 / Scope**：验证已有私人功能、安全/维护与手机可用性；不改架构，不以内容缺失阻塞验收。涉及 tests、现有发布接点、必要阶段内修复、密文样本以及三份文档。每次具体执行仍遵守当次授权。
 
@@ -419,12 +419,12 @@ Phase 1 当时不含复杂模块功能、Private、完整移动端、部署或�
 | **V4 Done** 整体回归 | tests 与必要修复 | 内室一致、公开独立布局保留、空集合/手机/模糊降级可用，0 pageerror | 公共 + 根/base、WebKit、第五真实会话、扩展/设计/内容/移动/发布边界 |
 | **V5 Done** 输入/触摸 | passphrase/crypto、Unlock、theme；原样口令校验、原始粘贴与继承 tap highlight | 符号兼容；不可见/超长在 KDF 前拒绝；支持引擎中高亮透明，键盘焦点保留 | 公共 + 原始字符/粘贴负例、实际旧包解锁、根/base、WebKit 能力探针/触摸与焦点；线上已发布，用户确认手机检查无问题 |
 
-**最终收尾任务（本次明确授权）**：
+**最终收尾任务（本次明确授权，已完成）**：
 
-1. 收到 OPPO 反馈，核对按钮蓝块、口令/软键盘、四模块/搜索/返回、主动锁定/后台/刷新；仅修必要问题并逐项复验。
-2. 在明确收尾授权内移除临时非敏感 `public/vault/bundle.json`，以未配置真实 Vault 为最终状态；不自行填真实资料或生成默认密码包。
-3. 对实际无样本候选重新执行公共/完整专项、产物/候选 Git/CI 边界、生产预览；用隔离 fixture 验证加密功能依然可用，生产缺包状态正确。
-4. 按获准的现有发布流程核对新源、同一受验产物及线上公共路径/缺包行为，记录结果，再更新 4.8/Phase 4 并停止。
+1. 用户已明确确认手机等检查无问题；记录实际反馈，不推测系统/浏览器版本。
+2. 已移除临时非敏感 `public/vault/bundle.json`，最终未配置真实 Vault；未填真实资料或生成默认密码包。
+3. 实际无样本候选的公共/完整专项、产物/候选 Git/CI 边界和生产预览通过；隔离 fixture 验证私人能力，生产缺包状态正确。
+4. 已核对发布源、同一受验产物及线上公共路径/缺包行为，4.8/Phase 4 标 Done，保存记录后停止。
 
 **Done Criteria**：
 
@@ -432,10 +432,10 @@ Phase 1 当时不含复杂模块功能、Private、完整移动端、部署或�
 - [x] 公开产物/候选 Git/CI 与浏览器持久化/URL 边界已验证；非敏感维护增改删、换口令、恢复/失败保护可复现；不把扫描当安全证明。
 - [x] V1–V5 已实现、验证、部署，最近线上检查通过。
 - [x] 用户明确确认手机等已检查无问题；按此前 OPPO Find X7 Ultra 默认浏览器验收上下文记录，未提供系统/浏览器版本，iOS 真机未测。
-- [ ] 临时样本清理，最终无样本候选检查与发布/线上验证齐全，记录最终源/run/artifact。
-- [ ] 功能不依赖真实材料，最终无测试记录冒充作者内容，状态汇总一致，停止待用户验收。
+- [x] 临时样本清理，最终无样本候选检查与发布/线上验证齐全，最终源/run/artifact 见 9.5。
+- [x] 功能不依赖真实材料，最终无测试记录冒充作者内容，状态汇总一致，用户已确认验收，停止等待下一明确指令。
 
-**Verification**：第 7 节完整本地/隔离/浏览器/安全检查；第 8 节真实 Actions/产物/线上；OPPO 用户反馈。用户验收已通过，待实际无样本候选验证/发布完成后标 Done。**后续依赖**：Phase 4 Done 后停止，Phase 5/6 仍需另行明确选择和授权。
+**Verification**：第 7 节完整本地/隔离/浏览器/安全检查、第 8 节真实 Actions/产物/线上均已通过，OPPO 用户反馈通过，具体结果见 9.5。**后续依赖**：Phase 4 Done 后停止，Phase 5/6 仍需另行明确选择和授权。
 
 ### 6.6 Phase 5 — 按需功能候选，均 Pending / 未选择
 
@@ -617,25 +617,25 @@ Windows WebKit 未暴露 `-webkit-tap-highlight-color`：颜色断言按 CSS.sup
 | 2026-10-14 / 4.1–4.7 | 协议/CLI/会话/入口/四模块/搜索统计与清理完成；当时公共命令退出 0，4.7 根/base 各 60 浏览器、38 unit、第五真实会话两引擎通过 | 维护交互与 canary/路径/资源负例仅用非敏感样本；4.8 留后验收 |
 | 2026-10-14 至 10-15 / 4.8、V1–V4 | 维护恢复、隔离回退、安全边界及静默入口/转场取消修复；内室主题、真实私人优先/公开完整、来源标记完成；`1520c2f` 发布并线上验证 | 仍非敏感验收环境，不代表真实私人材料已录入 |
 | 2026-10-15 / V5 | 共享可打印 Unicode/1024 字节规则、原始 paste 校验、移动属性、原生点击高亮继承/keyboard focus 区分；未改包/口令/加密参数 | lint/typecheck（126 文件 0 诊断）/42 unit/build（9 HTML 页）退出 0；根/base 各 75 浏览器、WebKit 相关 31 通过；原验收密文互通通过 |
-| 2026-10-15 / V5 发布 | `1f3ce49` 经 Actions 38731022976 全部 check/deploy 成功；本地/下载产物/线上 26 文件哈希一致；8 公开页/404/搜索/输入负例/真实解锁/四模块/来源/锁定均通过，0 pageerror | 发布与线上验证 Done；当时 4.8/Phase 4 为 In Progress，后续按用户指示 Closed，手机结果未补报 |
+| 2026-10-15 / V5 发布 | `1f3ce49` 经 Actions 38731022976 全部 check/deploy 成功；本地/下载产物/线上 26 文件哈希一致；8 公开页/404/搜索/输入负例/真实解锁/四模块/来源/锁定均通过，0 pageerror | 手机结果随后由用户确认，已由 9.5 的无样本最终版取代 |
 | 2026-10-15 / 文档归并 | 用户授权将 11 份项目文档归并为 AGENTS/PLAN/README；旧需求/风格/接口/安全/维护/发布有效内容迁入本文，源码结构核对，保留历史 milestone 编号/状态 | 仅文档，不实现/部署；工程检查未重跑。文档专项结果见下 |
 
-最新发布 artifact `11970576759`，digest `sha256:02bd522cf3be9e28220632f3a8a685274fa237770b31da847e25fc0ee4366db5`。V5 修复前的失败证据与后续修复均保留在旧记录，未通过吞异常/删测试过关。同源重复 push 运行取消不替代手动运行中的完整验证。
+最新最终发布 artifact `11976255759`，digest `sha256:495ce267a61dd7b7439f7f5ad87e54db93087c54aeb666ef981af4ea89520563`，详见 9.5。V5 修复前的失败证据与后续修复均保留在旧记录，未通过吞异常/删测试过关。同源重复 push 运行取消不替代手动运行中的完整验证。
 
-最新本地证据索引：`.cache/v5-final-root.log`、`v5-final-base.log`、`v5-final-webkit.log`、`v5-boundaries.log`、`v5-existing-sample.json`；发布证据 `.cache/v5-release-manifest.json`、`v5-ci-manifest.json`、`v5-release-artifact.json`、`v5-release-jobs.json`、`v5-release-run.json`、`v5-release-live.log`、`v5-release-live.json`、`v5-release-live-home.png`。这些为**此前执行证据**，不是文档整理新运行的结果。
+此前 V5 证据索引：`.cache/v5-final-root.log`、`v5-final-base.log`、`v5-final-webkit.log`、`v5-boundaries.log`、`v5-existing-sample.json`；发布证据 `.cache/v5-release-manifest.json`、`v5-ci-manifest.json`、`v5-release-artifact.json`、`v5-release-jobs.json`、`v5-release-run.json`、`v5-release-live.log`、`v5-release-live.json`、`v5-release-live-home.png`。最终收尾的新执行证据见 9.5，不与历史记录混用。
 
-验收密文 SHA256 `fa84cfa3c72c1b183e4bfccdc438c5d8cf1ebc8ce0095e4f6f5cdaefe26e0856`，保持不变。真实明文/口令从未作为本次文档任务输入，不在本轮补录。
+已退役验收密文 SHA256 `fa84cfa3c72c1b183e4bfccdc438c5d8cf1ebc8ce0095e4f6f5cdaefe26e0856`；该文件已在最终收尾中删除，仅历史/隔离测试保留非敏感样本。真实明文/口令未作为本次输入，不在本轮补录。
 
 ### 9.2 Open Questions / Risks
 
-- **当前收尾**：用户已确认手机等检查无问题，本地样本清理/无样本验证完成，正在最终发布；完成后 Phase 4 标 Done 并停止。
+- **当前状态**：用户手机验收、样本清理、无样本完整验证/最终发布均完成，Phase 1–4 Done，没有本阶段遗留执行项。
 - **保密边界**：公开密文可离线猜口令；旧副本不能远程撤回，浏览器/站点代码须可信。完整 Git 历史泄漏审计和独立密码学审计未做。
 - **性能/支持**：KDF 不因手机慢自动降级；Web Crypto 不可用保持锁定。Windows WebKit 私有点击高亮颜色不可检测；OPPO 已由用户确认检查无问题，系统/浏览器版本仍未知。
 - **候选需求**：Phase 5 可能选零项，RSS 纳入范围、旅行/摄影名称/id/计数等在相应启动前再确认；Phase 4 关闭不构成下一阶段授权。
 - **内容维护**：真实私人材料以后由作者本地处理；内容缺失不制造假数据，未公开 Markdown/资源不能承担秘密。
 - **文档一致性**：以后只在本文更新需求/设计/接口/详细状态，在 README 同步主线，AGENTS 仅管执行，避免重新长出重复专题文档。
 
-### 9.3 本次文档 Verification
+### 9.3 文档归并 Verification（历史）
 
 检查范围：三份项目文档数量；相对链接与锚点；旧文档引用迁移；历史 milestone 编号/Done Criteria/Verification 与当前状态；需求/设计/安全/维护覆盖；Git diff 空白；非文档文件 SHA256 与整理前基线一致。
 
@@ -643,13 +643,13 @@ Windows WebKit 未暴露 `-webkit-tap-highlight-color`：颜色断言按 CSS.sup
 
 未改工程输入，该次 lint/typecheck/test/build/页面 smoke 未运行；此前通过记录见 9.1，不能声称该次重跑。该次整理交付时未提交或部署；随后用户批准 Git 保存与 Phase 4 收尾，见下节。
 
-### 9.4 文档保存与 Phase 4 关闭（2026-10-15）
+### 9.4 文档保存与临时关闭（历史停点，已由 9.5 取代）
 
-用户明确认可三份文档，要求提交 Git、结束 Phase 4 并停止。本次仅同步 PLAN/README 的关闭状态并提交已整理的文档；不改源码、配置、测试、真实内容或密文，不推送远程、不部署。Phase 4 / 4.8 为 Closed，无正在执行的 milestone；手机复验与样本清理/最终发布保持未完成，不改写原 Done Criteria 或声称真机通过，Phase 5/6 仍未授权。
+文档整理已在 `5eff33e` 保存。当时误解“结束”为仅记录 Closed，保留了手机/样本收尾项而未发布；用户随后澄清需要全部完成。该临时状态已由 9.5 的完整验收与最终发布取代，不是当前状态。
 
 Verification：`node .cache/verify-phase4-closure-docs.mjs` 与 `git diff --check` 均退出 0；23 处相对链接/锚点、43 个历史完成单元/6 个未来单元、Phase 4/4.8 Closed 与未勾选遗留项核对通过。150 个非文档文件哈希与整理前一致，Git 差异仅 11 个文档的归并及状态更新；无既有暂存内容需要保护。证据为 `.cache/phase4-closure-doc-result.json`。工程输入未变，lint/typecheck/test/build/页面 smoke 未重跑；历史功能与线上结果见 9.1。Git 保存后核对提交范围与工作区，随后停止。
 
-### 9.5 Phase 4 最终收尾（2026-10-15，进行中）
+### 9.5 Phase 4 Completion Record（2026-10-15，Done）
 
 用户澄清“把 phase4 及以前的所有内容完成，我都检查过了，没有问题”，确认已部署 `1f3ce49` 的整体/手机复验通过，并授权完成样本清理和最终发布。沿用此前 OPPO Find X7 Ultra 默认浏览器的设备上下文，未提供版本、不声称 iOS 真机通过。前节 Closed 是历史误解停点，由本次完整收尾取代。
 
@@ -661,4 +661,12 @@ Verification：`node .cache/verify-phase4-closure-docs.mjs` 与 `git diff --chec
 
 补跑旧空集合浏览器探针时确定性暴露与现有 Spotlight 契约冲突的默认选择假设，已按第 3.2 节及现有 spotlight.spec.ts 的同一行为修正测试，不修改运行逻辑。保留原失败日志/截图/trace；修正后 lint/typecheck/42 unit/build 再次退出 0，公开内容与全空浏览器探针各 1 通过。重新构建的 25 文件哈希与此前已做完整根/base/WebKit 验证的产物一致，不把相同产物的重复构建当作新功能验证。
 
-证据前缀 `.cache/phase4-final-`：lint/typecheck/test/build、root/base、webkit-mobile/webkit-private、session-webkit/session-chromium、verify-extension/verify-content/verify-design/verify-mobile/verify-vault-session、extension-browser/design-browser、local-live.log/json 与 release-manifest.json。候选 Git 源、真实 Actions/artifact 与最终线上验证在完成后补记；必要项未完成前保持 4.8 In Progress，不进入 Phase 5/6。
+最终产品源 `4f2d6b9007167d49bace3d08c85ba5095ea37e85` 经 [Actions 38738688217](https://github.com/hjk202/hjk202.github.io/actions/runs/38738688217) 全部 check/deploy 成功。云端对该源重跑全部既有门槛，上传并部署同一 dist，不重建；同源重复 push 检查 38738649410 取消，不减少手动发布验证。Pages artifact `11976255759`，digest `sha256:495ce267a61dd7b7439f7f5ad87e54db93087c54aeb666ef981af4ea89520563`。
+
+实际下载归档、本地完整受验构建与线上 25 文件逐项哈希一致；8 公开路由及刷新/Home/返回、真实 404、四条搜索目标、Me GitHub、375px 标签间距/触摸反馈通过。未拦截实际网络的 `/vault/bundle.json` 返回 404，静默 Unlock 显示“尚未配置私人内容”，无口令表单/解锁状态/验收文字，关闭后可继续正常搜索/打开内容；全过程 pageerror 为 0。最终没有真实私人材料或默认口令，功能通过隔离非敏感测试验证；作者以后按第 5.5 节自行维护。
+
+证据前缀 `.cache/phase4-final-`：lint/typecheck/test/build、root/base、webkit-mobile/webkit-private、session-webkit/session-chromium、verify-extension/verify-content/verify-design/verify-mobile/verify-vault-session、extension-browser/design-browser/content-browser/empty-browser、local-live.log/json、release-manifest.json、source-boundaries.json、release-run.json、release-jobs.json、release-artifact.json、artifact-comparison.json、live.log/json、live-home.png。148 个受保护文件哈希不变，应用源码/配置/作者内容未改；仅样本删除、一份测试契约修正及计划/简报状态更新。
+
+所有 Done Criteria 满足，4.8 与 Phase 4 标 Done，Phase 1–4 完成；手机系统/浏览器版本未知、iOS 真机未测、未做独立安全审计等已知保护边界继续有效，不是遗留开发任务。最终状态/文档检查后保存 Git 记录并停止，Phase 5/6 未选择、未实施。
+
+最终文档专项通过：23 处相对链接/锚点、4.8 全部完成项、阶段与简报状态、发布源/Actions/实际线上证据、148 个未变文件及仅文档的最终差异核对均通过，`git diff --check` 退出 0；证据 `.cache/phase4-final-completion-docs.json`。随后保存并推送完成记录，文档记录不改变受验产品/产物，不重复部署。
