@@ -16,6 +16,12 @@ test('unpublished content leaves four accessible empty modules and honest zero r
   await page.getByRole('combobox').fill('NEMU');
   await expect(page.getByRole('option')).toHaveCount(0);
   await page.getByRole('combobox').fill('');
+  await expect(page.locator('[role="option"][aria-selected="true"]')).toHaveCount(0);
+  await page.getByRole('combobox').press('Enter');
+  await expect(page).toHaveURL(baseURL!);
+  await expect(page.getByRole('combobox')).toBeVisible();
+  await page.getByRole('combobox').press('ArrowDown');
+  await expect(page.getByRole('option').first()).toHaveAttribute('aria-selected', 'true');
   await page.getByRole('combobox').press('Enter');
   await expect(page).toHaveURL(/think\/$/);
   for (const path of ['think/understanding-from-the-bottom/', 'build/nemu/', 'keep/missing-semester/']) expect((await request.get(new URL(path, baseURL!).href)).status()).toBe(404);

@@ -21,16 +21,16 @@
 
 | 项目 | 现状 |
 | --- | --- |
-| 本次任务 | 保存已认可的文档整理，按用户指示结束 Phase 4 并本地 Git 提交；不改代码、不发布 |
+| 本次任务 | 用户已确认手机检查无问题；完成 4.8 样本清理、最终验证/发布与 Git 保存，结束 Phase 4 后停止 |
 | 已完成 | Phase 1–3；公开设计 D1–D8；Phase 4 的 4.1–4.7 与 4.8 内 V1–V5 修复 |
-| 当前 milestone | 无；**4.8 Closed**，Phase 4 按用户指示结束，未执行的验收/清理项保留记录，不自动继续 |
+| 当前 milestone | **4.8 In Progress**；手机复验已通过，正在清理临时样本并完成无样本最终发布 |
 | 最近已核验线上产品源 | `1f3ce49a9f824757e56a56b22302e2188b05e564` |
 | 最近发布 | [Actions 38731022976](https://github.com/hjk202/hjk202.github.io/actions/runs/38731022976)，check/deploy 成功 |
 | 访问地址 | [正式网站](https://hjk202.github.io/)；[本轮手机验收入口](https://hjk202.github.io/?v=1f3ce49) |
-| 线上私人数据 | `public/vault/bundle.json` 为非敏感安全验收样本；不是作者私人记录或生产默认配置 |
+| 私人数据状态 | 本地已移除非敏感 `public/vault/bundle.json`；最终无样本产物已通过本地验证，待替换线上旧验收包 |
 | 后续阶段 | Phase 5 未选择，Phase 6 延后；写进计划不等于授权实施 |
 
-2026-10-15 用户认可文档整理并明确要求“提交到 Git，结束 phase4，然后停止”。据此 Phase 4 与 4.8 标为 **Closed（用户指示结束）**，不是全部原验收项完成的 Done。手机复验、样本清理和无样本最终发布未执行，未勾选项仍如实保留；后续须另行明确授权，不自动清理、重发或开始 Phase 5。
+2026-10-15 用户澄清要求完成 Phase 4 及以前全部工作，并明确表示“我都检查过了，没有问题”。手机复验据此记通过；此前 Closed 是误解收尾意图的历史停点。本次继续原 4.8 范围，清理临时样本、复验并最终发布后标 Done、停止，不开始 Phase 5/6。
 
 <a id="architecture"></a>
 ## 2. Overall Architecture
@@ -321,7 +321,7 @@ npm.cmd run vault:restore -- --input D:\MyVaultBackup\bundle.json
 | Phase 1 | 架构、契约、首页、Compass、Spotlight、可扩展基础 | Done | 无；1.8 后停止 |
 | Phase 2 | 四模块最小实用内容与各自布局，统一玻璃修订 | Done | Phase 1；不捆绑后续内容增长 |
 | Phase 3 | 基础移动可用性、元信息、可重复静态发布与手机验收 | Done | Phase 2 + D1–D8；公开站已验收 |
-| Phase 4 | 加密/本地维护/内存解锁/模块私人适配/搜索/锁定/内室 | Closed（用户指示结束） | 功能已上线；原验收遗留项见 4.8，不自动执行 |
+| Phase 4 | 加密/本地维护/内存解锁/模块私人适配/搜索/锁定/内室 | In Progress | 手机通过；完成 4.8 无样本最终验证/发布后停止 |
 | Phase 5 | 零个或少量按需功能补齐 | Pending，候选未选 | Phase 4 验收后先复盘；逐项明确指定 |
 | Phase 6 | 合并旅行/摄影模块、首次正式录入和后续内容维护 | Pending，延后 | 对应功能已验收 + 用户指定 + 所需素材 |
 
@@ -403,9 +403,9 @@ Phase 1 当时不含复杂模块功能、Private、完整移动端、部署或�
 | **4.5 Done** Think 链路 | Think vault schema/server/client/markdown/style | 私人文章/随记可读可搜可计数，无 HTML/脚本执行/媒体泄漏 | 公共 + 实际密文、Markdown/asset/目标与注入负例/根/base/锁定；依赖 4.4 |
 | **4.6 Done** 三模块适配 | Keep/Build/Me 各自 vault 文件 | 分类收藏、独立项目/公开补充、资料补充可用，真实计数 | 公共 + 三模块合法/非法/空数据、父项目/链接、独立计数/搜索/清理；依赖 4.5 |
 | **4.7 Done** 搜索/统计清理 | vault-projection、Spotlight、Compass、DOM 生命周期 | 公开 JSON 不变，内存组合/同 URL 命中正确，锁定全部清理，无默认 Build | 公共 + 根/base/两引擎真实第五适配会话、4–7 几何、IME/迟到请求/导航异常；依赖 4.6 |
-| **4.8 Closed** 阶段验收 | 安全/维护/恢复/线上/手机与阶段内修复，详见下节 | 原标准保留：所有必需项通过、真机反馈及最终样本清理发布有证据；尚未全部满足 | 已完成验证记录保留；手机/最终无样本发布未执行；依赖 4.1–4.7 全 Done |
+| **4.8 In Progress** 阶段验收 | 安全/维护/恢复/线上/手机与阶段内修复，详见下节 | 手机通过；完成样本清理和最终发布证据 | 第 7–8 节完整检查；依赖 4.1–4.7 全 Done |
 
-#### 4.8 收尾记录与遗留项（Closed）
+#### 4.8 最终收尾（In Progress）
 
 **目标 / Scope**：验证已有私人功能、安全/维护与手机可用性；不改架构，不以内容缺失阻塞验收。涉及 tests、现有发布接点、必要阶段内修复、密文样本以及三份文档。每次具体执行仍遵守当次授权。
 
@@ -417,9 +417,9 @@ Phase 1 当时不含复杂模块功能、Private、完整移动端、部署或�
 | **V2 Done** 模块组织 | 四模块模板/vault client/style 与 slot/cleanup | 私人在前且真实 DOM 顺序，公开完整，两区空态正常，补充不重复项目 | 公共 + 各模块/混合/仅私人/仅公开/全空、根/base 与清理 |
 | **V3 Done** 搜索层级 | 会话投影身份 Set、Spotlight/详情标记 | 来源按实际命中，同 URL 混合准确，排序不变，公开四字段不变 | 公共 + 公开/私人/混合/空快捷入口、锁定与独立预期 |
 | **V4 Done** 整体回归 | tests 与必要修复 | 内室一致、公开独立布局保留、空集合/手机/模糊降级可用，0 pageerror | 公共 + 根/base、WebKit、第五真实会话、扩展/设计/内容/移动/发布边界 |
-| **V5 Done** 输入/触摸 | passphrase/crypto、Unlock、theme；原样口令校验、原始粘贴与继承 tap highlight | 符号兼容；不可见/超长在 KDF 前拒绝；支持引擎中高亮透明，键盘焦点保留 | 公共 + 原始字符/粘贴负例、实际旧包解锁、根/base、WebKit 能力探针/触摸与焦点；线上已发布，OPPO 外观待验 |
+| **V5 Done** 输入/触摸 | passphrase/crypto、Unlock、theme；原样口令校验、原始粘贴与继承 tap highlight | 符号兼容；不可见/超长在 KDF 前拒绝；支持引擎中高亮透明，键盘焦点保留 | 公共 + 原始字符/粘贴负例、实际旧包解锁、根/base、WebKit 能力探针/触摸与焦点；线上已发布，用户确认手机检查无问题 |
 
-**原剩余任务（本阶段关闭后保留，须另行授权才执行）**：
+**最终收尾任务（本次明确授权）**：
 
 1. 收到 OPPO 反馈，核对按钮蓝块、口令/软键盘、四模块/搜索/返回、主动锁定/后台/刷新；仅修必要问题并逐项复验。
 2. 在明确收尾授权内移除临时非敏感 `public/vault/bundle.json`，以未配置真实 Vault 为最终状态；不自行填真实资料或生成默认密码包。
@@ -431,11 +431,11 @@ Phase 1 当时不含复杂模块功能、Private、完整移动端、部署或�
 - [x] 4.1–4.7 功能与公共/专项验证完成；真实加解密、四模块、搜索/统计、锁定与刷新有效。
 - [x] 公开产物/候选 Git/CI 与浏览器持久化/URL 边界已验证；非敏感维护增改删、换口令、恢复/失败保护可复现；不把扫描当安全证明。
 - [x] V1–V5 已实现、验证、部署，最近线上检查通过。
-- [ ] 当前 OPPO 基础反馈齐全，必要问题修复并复验；未知平台/版本如实记录。
+- [x] 用户明确确认手机等已检查无问题；按此前 OPPO Find X7 Ultra 默认浏览器验收上下文记录，未提供系统/浏览器版本，iOS 真机未测。
 - [ ] 临时样本清理，最终无样本候选检查与发布/线上验证齐全，记录最终源/run/artifact。
 - [ ] 功能不依赖真实材料，最终无测试记录冒充作者内容，状态汇总一致，停止待用户验收。
 
-**Verification**：第 7 节完整本地/隔离/浏览器/安全检查；第 8 节真实 Actions/产物/线上；OPPO 用户反馈。原标准不变，未执行项不冒充通过，因此本次采用 Closed 而非 Done。**后续依赖**：用户后续若选择 Phase 5，先核对该候选是否依赖上述遗留验收，关闭状态不自动证明依赖已满足；真实内容另属 Phase 6。
+**Verification**：第 7 节完整本地/隔离/浏览器/安全检查；第 8 节真实 Actions/产物/线上；OPPO 用户反馈。用户验收已通过，待实际无样本候选验证/发布完成后标 Done。**后续依赖**：Phase 4 Done 后停止，Phase 5/6 仍需另行明确选择和授权。
 
 ### 6.6 Phase 5 — 按需功能候选，均 Pending / 未选择
 
@@ -628,9 +628,9 @@ Windows WebKit 未暴露 `-webkit-tap-highlight-color`：颜色断言按 CSS.sup
 
 ### 9.2 Open Questions / Risks
 
-- **关闭时遗留项**：OPPO 新版反馈、样本清理和无样本最终发布尚未完成。按用户指示本阶段已结束，遗留项不再自动推进；不要用 Phase 3 真机结果或 V5 自动化结果代替。
+- **当前收尾**：用户已确认手机等检查无问题，本地样本清理/无样本验证完成，正在最终发布；完成后 Phase 4 标 Done 并停止。
 - **保密边界**：公开密文可离线猜口令；旧副本不能远程撤回，浏览器/站点代码须可信。完整 Git 历史泄漏审计和独立密码学审计未做。
-- **性能/支持**：KDF 不因手机慢自动降级；Web Crypto 不可用保持锁定。Windows WebKit 私有点击高亮颜色不可检测，OPPO 需真实确认。
+- **性能/支持**：KDF 不因手机慢自动降级；Web Crypto 不可用保持锁定。Windows WebKit 私有点击高亮颜色不可检测；OPPO 已由用户确认检查无问题，系统/浏览器版本仍未知。
 - **候选需求**：Phase 5 可能选零项，RSS 纳入范围、旅行/摄影名称/id/计数等在相应启动前再确认；Phase 4 关闭不构成下一阶段授权。
 - **内容维护**：真实私人材料以后由作者本地处理；内容缺失不制造假数据，未公开 Markdown/资源不能承担秘密。
 - **文档一致性**：以后只在本文更新需求/设计/接口/详细状态，在 README 同步主线，AGENTS 仅管执行，避免重新长出重复专题文档。
@@ -648,3 +648,17 @@ Windows WebKit 未暴露 `-webkit-tap-highlight-color`：颜色断言按 CSS.sup
 用户明确认可三份文档，要求提交 Git、结束 Phase 4 并停止。本次仅同步 PLAN/README 的关闭状态并提交已整理的文档；不改源码、配置、测试、真实内容或密文，不推送远程、不部署。Phase 4 / 4.8 为 Closed，无正在执行的 milestone；手机复验与样本清理/最终发布保持未完成，不改写原 Done Criteria 或声称真机通过，Phase 5/6 仍未授权。
 
 Verification：`node .cache/verify-phase4-closure-docs.mjs` 与 `git diff --check` 均退出 0；23 处相对链接/锚点、43 个历史完成单元/6 个未来单元、Phase 4/4.8 Closed 与未勾选遗留项核对通过。150 个非文档文件哈希与整理前一致，Git 差异仅 11 个文档的归并及状态更新；无既有暂存内容需要保护。证据为 `.cache/phase4-closure-doc-result.json`。工程输入未变，lint/typecheck/test/build/页面 smoke 未重跑；历史功能与线上结果见 9.1。Git 保存后核对提交范围与工作区，随后停止。
+
+### 9.5 Phase 4 最终收尾（2026-10-15，进行中）
+
+用户澄清“把 phase4 及以前的所有内容完成，我都检查过了，没有问题”，确认已部署 `1f3ce49` 的整体/手机复验通过，并授权完成样本清理和最终发布。沿用此前 OPPO Find X7 Ultra 默认浏览器的设备上下文，未提供版本、不声称 iOS 真机通过。前节 Closed 是历史误解停点，由本次完整收尾取代。
+
+本次实际产品改动仅删除 `public/vault/bundle.json` 非敏感验收样本；应用代码、加密参数、作者真实内容不变。另修正 `tests/e2e/content-empty.spec.ts` 的旧空查询默认选择假设：明确验证无默认选中/Enter 不跳转，再按方向键选择并进入，保留全零/空态/404 断言。最终生产未配置真实 Vault，入口应显示“尚未配置私人内容”；私人能力用隔离非敏感 fixture 保持完整验证，不创建默认生产口令。
+
+本地 lint/typecheck（126 文件零诊断）/test（42 项）/build（9 HTML 页、25 文件）均退出 0；根/base 完整浏览器各 75、WebKit 移动 16/私人 29、第五模块真实会话两引擎各 3、extension/content/design/mobile/session 隔离契约、第五模块浏览器 1/设计浏览器 5 通过。实际生产预览的 25 文件哈希、8 公开路由/404/搜索/Home/返回、Me 链接、手机标签与透明高亮及未拦截的缺包端点/Unlock 提示通过，0 pageerror。与 V5 受验产物相比仅少密文文件，其余 25 文件哈希一致；公开计数仍各 1，搜索 4 条。
+
+初次沙箱单元测试因临时目录原子 rename 被 EPERM 阻止，保留 `.cache/phase4-final-test-sandbox-failure.log`；正常本机权限下原断言 42 项全通过，未改代码。临时发布探针最初误将本地预览地址当 canonical，已按实际配置修正为正式站地址并重跑通过，失败日志保留；不是修改产品 head 或放宽断言。
+
+补跑旧空集合浏览器探针时确定性暴露与现有 Spotlight 契约冲突的默认选择假设，已按第 3.2 节及现有 spotlight.spec.ts 的同一行为修正测试，不修改运行逻辑。保留原失败日志/截图/trace；修正后 lint/typecheck/42 unit/build 再次退出 0，公开内容与全空浏览器探针各 1 通过。重新构建的 25 文件哈希与此前已做完整根/base/WebKit 验证的产物一致，不把相同产物的重复构建当作新功能验证。
+
+证据前缀 `.cache/phase4-final-`：lint/typecheck/test/build、root/base、webkit-mobile/webkit-private、session-webkit/session-chromium、verify-extension/verify-content/verify-design/verify-mobile/verify-vault-session、extension-browser/design-browser、local-live.log/json 与 release-manifest.json。候选 Git 源、真实 Actions/artifact 与最终线上验证在完成后补记；必要项未完成前保持 4.8 In Progress，不进入 Phase 5/6。
