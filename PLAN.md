@@ -13,9 +13,9 @@
 | 项目 | 状态 |
 | --- | --- |
 | 当前任务 | 用户授权顺序完成Phase 4 / 4.1–4.8；每项独立验证，阶段结束后停止 |
-| 当前指定实施 milestone | 4.8 In Progress：安静入口2ddc5c4已上线；补修私人转场取消异常后复验发布，再交用户检查；Phase 5/6未授权 |
+| 当前指定实施 milestone | 4.8 In Progress：安静入口与转场取消修复3dc65c5已上线、线上全程零异常；待用户复验，随后清理样本及最终发布；Phase 5/6未授权 |
 | 当前授权范围 | 按已批准Phase 4实施，包括4.8既有Pages发布与验收；仅此阶段，不扩展Phase 5/6 |
-| 项目实施 | Phase 1、2、3与D1–D8完成；当前线上为临时非敏感验收修复版2ddc5c4；最终无样本版本待4.8 |
+| 项目实施 | Phase 1、2、3与D1–D8完成；当前线上为临时非敏感验收修复版3dc65c5；最终无样本版本待4.8 |
 | 下一候选 milestone | 当前完成获准4.8安全/维护/发布/手机验收；结束后停止，Phase 5/6未授权 |
 
 创建这两份文档不代表 milestone 1.1 已开始或已完成。所有实施 milestone 初始为 `Pending`。
@@ -2256,3 +2256,9 @@ Phase 4全部必需项Done后停止。可选Phase 5仍须用户选择/指定；�
 用户可通过https://hjk202.github.io/?v=2ddc5c4复验。当前停在手机/内容组织验收；临时非敏感样本继续用于验收，尚未清理。四模块共用一次全局解锁和加密包，不是分模块权限域；密码学标准组合的安全边界见docs/vault-design.md。README旧公开版描述已标明为Phase 3历史记录。4.8和Phase 4保持In Progress，不开始Phase 5/6；文档记录的后续提交不改变本次已部署产品源。
 
 转场补修本地复验：lint/typecheck（122files0诊断）/38unit/build、根/base各62浏览器及WebKit相关21全部退出0；新增真实私人跨模块pageerror空列表断言通过，旧产物失败日志保留，不过滤浏览器异常。产物边界扫描通过。证据.cache/4.8-ready-fixed-checks.log、4.8-ready-base-checks.log、4.8-ready-webkit-checks.log和4.8-ready-before-checks.log。待新源CI/实际线上全程异常复核后再交用户验收，不将2ddc5c4的部署记录用作新修复的发布证明。
+
+**本轮最终停点（2026-10-15）**：补修源3dc65c5b23d3db4a0368b7af8eae29be507b4641经[38687875057](https://github.com/hjk202/hjk202.github.io/actions/runs/38687875057)全部check/deploy成功；同SHA重复push运行38687871718取消，手动完整执行所有门槛。Pages产物11949964815，digest sha256:8a511b9794e5dc6950613cffb579090a4f05ef97ac793499a54451d6b81ed08b。
+
+实际线上25文件哈希与受验清单一致，8公开路径、真实404/公开搜索/Me链接/触摸高亮/标签间距通过；安静长按、真实密文解锁、Think/Build/Keep/Me各自私人内容、私人搜索/返回/主动锁定通过，私人流程结束后也严格检查全部pageerror为空，实际0项。不是过滤掉取消错误，而是产品正确处理主动skip产生的ready AbortError；其他错误仍报告。证据.cache/4.8-ready-manifest.json、4.8-ready-live.json、4.8-ready-live-verified.log。旧失败/不完整线上证据已保留并注明局限。
+
+最新验收链接https://hjk202.github.io/?v=3dc65c5，替代前面的临时旧源链接。等待用户对OPPO基础操作、低调入口与四模块私人组织的复验；临时非敏感样本未清理，无真实私人材料。4.8/Phase 4保持In Progress，未进行最终无样本发布，Phase 5/6未开始；随后仅文档完成记录不改变已受验产品源。当前停止等验收。

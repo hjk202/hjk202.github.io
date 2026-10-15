@@ -148,3 +148,9 @@ verify-vault-release 检查产物没有源码/地图/测试后门或已知样本
 验收链接https://hjk202.github.io/?v=2ddc5c4；非敏感临时包仍保留，真实私人材料未提供。当前等待用户复验后再清理样本/最终发布，4.8与Phase 4仍In Progress，Phase 5/6不开始。后续仅文档记录提交不自动重发产品。
 
 转场取消补修在旧产物上确定性复现后，已通过新一轮lint/typecheck（122files0诊断）/38unit/build、根/base各62与WebKit相关21；私人跨模块全程零pageerror断言通过，产物边界扫描通过。仅处理主动skip的ready AbortError，其他异常仍抛出；线上脚本增加私人流程结束后的异常/资源断言，不过滤页面错误。新源发布/线上记录待实际补充，不以旧发布替代。
+
+**2026-10-15最新停点**：补修源3dc65c5b23d3db4a0368b7af8eae29be507b4641经[38687875057](https://github.com/hjk202/hjk202.github.io/actions/runs/38687875057)全部check/deploy成功；同SHA重复push运行38687871718取消，手动仍执行完整门槛。Pages产物11949964815，digest sha256:8a511b9794e5dc6950613cffb579090a4f05ef97ac793499a54451d6b81ed08b。
+
+线上25文件哈希与受验产物相同，8公开路径/404/公开搜索/资产/Me链接/手机标签间距通过。实际网络解密后安静长按、四模块私人内容、私人搜索/返回和主动锁定通过；私人流程末尾严格断言全部pageerror为空，实际0项，没有过滤取消异常。证据.cache/4.8-ready-manifest.json、4.8-ready-live.json、4.8-ready-live-verified.log；前述旧失败和不完整脚本证据保留并注明限制。
+
+当前验收链接https://hjk202.github.io/?v=3dc65c5。待用户OPPO/组织方式复验后，再清理非敏感样本与最终发布；4.8和Phase 4保持In Progress，停止等待，不进入Phase 5/6。本次后续文档记录不自动发布新产品源。
