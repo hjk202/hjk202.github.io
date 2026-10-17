@@ -66,6 +66,52 @@ test('Think renders real Markdown, formula and readable long text', async ({ pag
   await expect(page.getByRole('button', { name: 'Search my space', exact: true })).toBeFocused();
 });
 
+test('Think notes show four-line previews and open the complete note with keyboard or pointer', async ({ page, baseURL }, info) => {
+  const errors: string[] = [], failed: string[] = [];
+  page.on('pageerror', error => errors.push(error.message));
+  page.on('requestfailed', request => failed.push(request.url()));
+  await page.goto('./think/');
+  const note = page.locator('.thought-note').filter({ has: page.getByRole('link', { name: '阳光正好', exact: true }) });
+  const preview = note.locator('.note-preview');
+  await expect(preview).toContainText('今天天气很好，好到让人想原谅所有迟到的事。');
+  await expect(preview).not.toContainText('我点点头，在心里回了一句');
+  await expect(preview.locator('a, button, img, h1, script')).toHaveCount(0);
+  for (const width of [1280, 375, 320]) {
+    await page.setViewportSize({ width, height: 812 });
+    for (const colorScheme of ['light', 'dark'] as const) {
+      await page.emulateMedia({ colorScheme });
+      const size = await preview.evaluate(element => ({
+        height: element.getBoundingClientRect().height,
+        lineHeight: Number.parseFloat(getComputedStyle(element).lineHeight),
+        contentHeight: element.scrollHeight,
+      }));
+      expect(size.height).toBeLessThanOrEqual(size.lineHeight * 4 + 1);
+      expect(size.contentHeight).toBeGreaterThan(size.height);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      expect((await note.locator('.note-read-more').boundingBox())!.height).toBeGreaterThanOrEqual(44);
+    }
+  }
+  await note.scrollIntoViewIfNeeded();
+  await page.screenshot({ path: info.outputPath('notes-collapsed-mobile.png'), animations: 'disabled' });
+  const more = note.getByRole('link', { name: '阅读全文：阳光正好', exact: true });
+  await expect(more).toHaveAttribute('href', new URL('think/sunshine/', baseURL!).pathname);
+  await more.focus();
+  await more.press('Enter');
+  await expect(page).toHaveURL(new URL('think/sunshine/', baseURL!).href);
+  await expect(page.locator('.prose')).toContainText('我点点头，在心里回了一句：是啊，吃得也很饱。');
+  await page.reload();
+  await expect(page.locator('.prose')).toContainText('我点点头，在心里回了一句');
+  await page.getByRole('link', { name: /返回 Think/ }).click();
+  await expect(preview).toBeVisible();
+  await more.click();
+  await expect(page.locator('.think-article > h1')).toHaveText('阳光正好');
+  await page.goBack();
+  await note.getByRole('link', { name: '阳光正好', exact: true }).click();
+  await expect(page).toHaveURL(new URL('think/sunshine/', baseURL!).href);
+  expect(errors).toEqual([]);
+  expect(failed).toEqual([]);
+});
+
 test('Build real NEMU project has complete explanations, paths and no invented links', async ({ page }, info) => {
   await page.goto('./');
   await page.getByRole('link', { name: 'Build, 1 entry', exact: true }).click();

@@ -106,12 +106,16 @@ for (const previewBase of ['/', '/personal-space/']) test.describe(previewBase, 
     await expect(page.locator('#save-state')).toHaveText('已保存（本地源码）'); await expect(page.locator('#save')).toBeEnabled();
     const published = websiteBuild(repo, previewBase, 'published-out', 1);
     expect(fs.readFileSync(join(published, 'think/understanding-from-the-bottom/index.html'), 'utf8')).toContain('M4_CANDIDATE');
-    if (previewBase !== '/') expect(fs.readFileSync(join(published, 'think/index.html'), 'utf8')).toContain('M4_CANDIDATE');
+    if (previewBase !== '/') expect(fs.readFileSync(join(published, 'think/index.html'), 'utf8')).not.toContain('M4_CANDIDATE');
     expect(fs.existsSync(join(published, 'studio'))).toBe(false);
     const visitor = await page.context().newPage(), home = repo.website(published);
     await visitor.goto(home);
     await visitor.getByRole('link', { name: 'Think, 1 entry', exact: true }).click();
-    if (previewBase !== '/') await expect(visitor.locator('.note-body')).toContainText('M4_CANDIDATE');
+    if (previewBase !== '/') {
+      await expect(visitor.locator('.note-body')).toContainText('刚开始学计算机的时候');
+      await expect(visitor.locator('.note-body')).not.toContainText('M4_CANDIDATE');
+      await expect(visitor.getByRole('link', { name: '阅读全文：我为什么越来越喜欢从底层理解一个东西', exact: true })).toBeVisible();
+    }
     await visitor.getByRole('link', { name: '我为什么越来越喜欢从底层理解一个东西', exact: true }).click();
     await expect(visitor).toHaveURL(home + 'think/understanding-from-the-bottom/');
     await expect(visitor.locator('[role="math"]')).toBeVisible(); await expect(visitor.locator('.prose')).toContainText('M4_CANDIDATE');

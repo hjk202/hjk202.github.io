@@ -119,7 +119,7 @@ Phase 1–4 已完成，Phase 5 可选增强、Phase 6 内容/旅行摄影扩展
 | `summary` | string，公开时必填 | 非空白；列表、页面说明与搜索描述 |
 | `date` | string，公开时必填 | 引号包裹的有效公历 `YYYY-MM-DD`，如 `"2026-10-15"` |
 | `published` | boolean，可省略 | **只有 true 才公开**；false/省略不生成文章页面或搜索条目，字符串 `"true"` 无效 |
-| `kind` | `'article'` 或 `'note'`，可选 | 省略按长文展示；note 在模块页内展开，但也有自己的详情 URL |
+| `kind` | `'article'` 或 `'note'`，可选 | 省略按长文展示；note 在模块页显示正文前四行纯文字预览，点标题/阅读全文进入现有详情 URL；不改原文 |
 | frontmatter 后的正文 | Markdown，公开时非空 | 页面会自行显示标题、日期、摘要，正文建议从 `##` 开始 |
 
 文件名推荐 `<slug>.md`，实际路由以 frontmatter.slug 为准。修改标题不改 slug。**未来日期不会定时发布**：只要 `published: true`，本次构建就发布。当前验证器不为公开文本设置统一长度上限，也不严格拒绝所有未知 frontmatter 字段；作者/编辑器应只写上表支持字段，不把未知字段当成功能。

@@ -23,9 +23,9 @@
 
 | 项目 | 现状 |
 | --- | --- |
-| 本次任务 | Studio v0 收尾、获准的 WebKit 预取最小修复、提交/推送/正式部署及最终验收全部完成；等待新的工作授权 |
+| 本次任务 | 用户指定 N1 随记列表收起，随后授权测试通过后提交/推送/部署；完成线上验证后停止，等待作者检查 |
 | 已完成 | **Phase 1–4 全部 Done**；公开设计 D1–D8 与内室 V1–V5 完成 |
-| 当前 milestone | Studio M0–M6、v0.1/v0.2/v0.3 全部 Done；studio-v0 基线已创建，Phase 5/6 仍延后 |
+| 当前 milestone | N1 In Progress；Studio M0–M6、v0.1/v0.2/v0.3 全部 Done，Phase 5/6 仍延后 |
 | 最近已核验线上产品源 | `224eea0884eaed4673f89c6c919e5b5a0c38b4e7`（26 文件三方哈希一致，线上 Chromium/WebKit 无 pageerror） |
 | 最近发布 | [Actions 39012527756](https://github.com/hjk202/hjk202.github.io/actions/runs/39012527756)，全部 check/deploy 成功、线上最终验收通过 |
 | 访问地址 | [正式网站](https://hjk202.github.io/)；[v0 发布入口](https://hjk202.github.io/?v=224eea0) |
@@ -183,7 +183,7 @@ published: true
 | --- | --- | --- |
 | Home | 精确 Compass 为主对象，轻量身份文字，中性连续环境；丰富度来自玻璃厚度/边缘/真实 Radar | 节点打开模块，hover 临时强调；返回/前进/BFCache 清理旧指针高亮，保留真实键盘 focus-visible |
 | Me | 个人主页：姓名身份与静态个人几何对象平衡 → 动机 → 完整叙述 → 兴趣与真实链接 | 无头像时不造肖像/空框，不做熟练度雷达、简历表格或动态 Feed |
-| Think | 温暖写意的思想空间；首屏少量光谱/光学形体 → 文章主入口与真实随记 → 安静窄列正文 | 文章进入详情，随记可原地读；代码/公式优先可读，不做散乱拖拽、自动关联或梦幻动态壁纸 |
+| Think | 温暖写意的思想空间；首屏少量光谱/光学形体 → 文章主入口与真实随记 → 安静窄列正文 | 文章进入详情；随记列表为正文前四行纯文字预览，标题/阅读全文进入现有详情；代码/公式优先可读，不做散乱拖拽、自动关联或梦幻动态壁纸 |
 | Keep | 一眼能认出收藏夹：标题用途 → 薄玻璃分类 → 规则资源目录；卡片含域名、类别、短说明和独立动作 | 来源访问与本站说明分开；有多少展示多少，不靠复制填满、不造空分类，不把外链套进整卡链接 |
 | Build | 严谨项目档案：较宽项目概览/成果与紧凑事实区 → 真实阶段/更新/问题 → 技术阅读区 | 局部锚点与原生 details；有记录才显示，文字状态不只靠颜色，不用终端/蓝图壁纸伪装严肃 |
 
@@ -650,7 +650,7 @@ Think content/*.md
 | --- | --- |
 | [metadata.ts](./src/modules/think/metadata.ts)、[unit](./tests/unit/think.test.ts) | slug 合法性、重复（含草稿）、published 类型先检查；非 true 提前过滤，只有公开文章完整检查 title/summary/date/body/kind。不能把空结果当草稿合法；可小幅抽取纯诊断函数，保持网站过滤顺序和排序语义 |
 | [content.server.ts](./src/modules/think/content.server.ts) | 只扫描本层 `.md`，不是普通 Node loader；API 新增受限目录枚举，不 import 构建 loader。已安装 MDX 不等于已接入 `.mdx` |
-| [pages.ts](./src/modules/think/pages.ts)、[Index.astro](./src/modules/think/Index.astro) | URL 取自 frontmatter.slug；note 首页内联且有详情，缺省 kind 按 article 展示。文件名与 slug 不必相同，需区分 key/slug/实际文件名 |
+| [pages.ts](./src/modules/think/pages.ts)、[Index.astro](./src/modules/think/Index.astro) | URL 取自 frontmatter.slug；note 首页四行正文纯文字预览且有详情，缺省 kind 按 article 展示。文件名与 slug 不必相同，需区分 key/slug/实际文件名 |
 | [Article.astro](./src/modules/think/Article.astro)、[当前文章](./src/modules/think/content/understanding-from-the-bottom.md) | 正文用 Astro Content，含原生 HTML 公式；不能用 Vault Markdown 子集替代公开预览 |
 | [module.ts](./src/modules/think/module.ts)、[搜索构建](./src/core/search/build.ts) | count 为公开篇数，搜索仅标题/摘要并校验真实页面目标；不新增全文/作者状态到公开索引 |
 | [package.json](./package.json)、[Astro 配置](./astro.config.mjs) | 静态构建；build 自动先跑 prebuild；dev 读取磁盘，preview 展示已构建 dist，均不是未保存草稿 API |
@@ -1493,3 +1493,22 @@ src/shell/vault/runtime.ts 的公开链接标 data-astro-reload，goTo 在锁定
 最终范围/结构/链接/敏感边界审计通过：本轮 207 文件中 202 个非目标文件字节不变，含两篇作者源、AGENTS、Studio 全部实现、package/lock 与 M0–M6/v0.1/v0.2 已完成历史。Key 仍仅在作者本机 DPAPI 存储及可信进程内存；桌面服务正常可用。没有重复本轮未改动的真实付费 AI 调用，9.15/9.17 的真实证据保留，完整 Studio/AI 模拟与后端单测已重新通过。
 
 限制如实保留：1 个既有 Windows 普通文件 symlink 权限子项、1 个既有 WebKit CDP IME 子项跳过，均没有当作通过；DPAPI/快捷方式原生测试与本次 WebKit 导航实际通过。未新增真人输入法候选窗/手机/其他 OS Studio 验收，不改变既有 Phase 4 作者反馈，不承诺 AI 质量或同用户恶意进程隔离。v0.3 全部当前标准满足、标 Done；M0–M6 与 v0.1/v0.2 Done 保持，Studio v0 基线收尾完成，Phase 5/6 未开始，完成本轮授权后停止。
+
+<a id="notes-n1"></a>
+### 9.19 N1 — 随记列表预览（2026-10-17，In Progress）
+
+**授权 / Scope**：用户明确要求随记只展示前几行、点击查看余文；作为独立小单元执行。Think 公开列表从完整正文改为最多四行的正文纯文字预览，标题及“阅读全文”进入既有详情。私人列表本来仅展示摘要/链接，保持；不改变文章内容、数据字段、计数/搜索、Studio、其他模块，不开启 Phase 5/6。用户随后明确授权测试通过后提交/推送/部署，完成线上验证后停止，等待作者检查。
+
+**文件 / 方案**：Think Index/background、构建期 note-preview.server、相关单元/浏览器测试，必要 PLAN/MAINTENANCE/README。复用已有 HTML parser 提取可读文字、去除脚本/样式，最多 400 Unicode 字符；CSS 四行省略，原生详情链接支持键盘，无新增客户端脚本或依赖。
+
+**Done Criteria**：
+- [x] 列表预览最多四行，没有整篇正文或隐藏交互元素；长随记不撑页面，短随记正常。
+- [x] 标题/阅读全文可点、键盘 Enter 可用，完整详情及返回/刷新/搜索/计数保持。
+- [x] 作者原文、其他模块/Studio/Vault 不改；根/base、桌面/窄屏、明暗与 Chromium/WebKit 检查通过。
+- [ ] 提交/推送准确候选，完整 Actions check/deploy 成功，同产物线上核对与随记 smoke 通过。
+
+**Verification**：lint、typecheck、test、build；根路径完整 E2E；base 随记/Think 导航与相关回归；WebKit 随记/窄屏 smoke；相关 Studio note 公开预览与 design fixture 回归；页面 pageerror/失败请求为 0，截图检查。按追加授权完成完整发布门槛、实际 Actions、产物/线上比对与双引擎线上 smoke 后标 Done；手机由作者之后检查，不冒充本轮真机验证。
+
+**本地记录**：lint/typecheck（170 文件 0 诊断，含 Studio tsc）/build（10 HTML 页）退出 0，unit 101 passed / 1 既有 Windows symlink skipped；根/base E2E 各 77 passed，WebKit Think/导航/私人相关 7 passed，WebKit mobile 16 passed，design fixture 5 passed，Studio 相关公开预览/保存/隐藏/删除 × 两种 base × 两引擎 4 passed。320/375/1280px、明暗、四行实测/44px 入口/键盘与点击/全文结尾/返回刷新通过，已查看手机宽度截图。证据 `.cache/n1-*.log`、`.cache/n1-*-results/`；完整发布专项记录随后补齐。
+
+初次类型/构建发现 Astro 7 `compiledContent()` 返回 Promise，已在构建期 await 后重跑通过；无修改业务契约。首轮 sandbox 中既有网络/硬链接检查被 EACCES/EPERM 拒绝，获工具权限后原测试完整通过；mobile 脚本首轮未设置已安装浏览器目录，按实际 `PLAYWRIGHT_BROWSERS_PATH` 重跑，不改测试规则或安装依赖掩盖失败。原失败日志保留可用部分，未把失败写成通过。

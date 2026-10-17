@@ -78,11 +78,13 @@ test('Keep multiple categories survive filtering, refresh, Back and detail retur
   expect(errors).toEqual([]);
 });
 
-test('Think separates real article and note forms and renders the note inline', async ({ page }) => {
+test('Think separates articles and note previews with a full note destination', async ({ page }) => {
   await page.goto('./think/');
   await expect(page.locator('.thought-entry')).toHaveCount(1);
   await expect(page.locator('.thought-note')).toHaveCount(1);
   await expect(page.locator('.note-body')).toContainText('测试中的想法正文，可以在列表直接读完。');
+  await expect(page.locator('.note-body a, .note-body img, .note-body h1')).toHaveCount(0);
+  await expect(page.getByRole('link', { name: '阅读全文：一个测试中的小问题', exact: true })).toHaveAttribute('href', '/personal-space/think/design-note/');
   await page.getByRole('link', { name: '一个测试中的小问题', exact: true }).click();
   await expect(page).toHaveURL(/personal-space\/think\/design-note\/$/);
   await expect(page.locator('.prose')).toContainText('测试中的想法正文');
