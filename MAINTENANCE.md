@@ -973,7 +973,7 @@ Studio 已选范围的逐项 Done Criteria/Verification 现集中在 [PLAN 6.8](
 | 发布（若选择） | 保存不部署、校验失败阻断、源变化使验证失效、精确提交、Actions SHA/产物/线上一致、可恢复 |
 | Private（若选择） | Node/browser 互通、模块与资源负例、关联依赖、整包保留、口令规则、锁定清理、不在网络/存储/日志留下明文 |
 
-Studio M0–M6 全部 Done；M5 于 2026-10-17 完成真实五项记录核验、真实 UI 与余下验证。随后作者授权 v0 润色优化、本机 DPAPI 凭据与桌面启动，并提交/正式部署网站；逐项状态与证据见 PLAN 6.9 / 9.16 起的记录。Studio 服务仍只在本机，发布的仍是静态网站。真人输入法候选窗与恶意项目 OS 沙箱未验收；既有首版证据见 PLAN 9.12，AI 不能用模拟结果冒充真实接通。
+Studio M0–M6 全部 Done；M5 于 2026-10-17 完成真实五项记录核验、真实 UI 与余下验证。随后作者授权的 v0 润色优化、本机 DPAPI 凭据与桌面启动，以及 WebKit 预取最小修复、提交/正式部署与最终验收均已完成；基线为 studio-v0 / 224eea0，状态与证据见 PLAN 6.9 / 9.16 起的记录。Studio 服务仍只在本机，发布的仍是静态网站。真人输入法候选窗与恶意项目 OS 沙箱未验收；既有首版证据见 PLAN 9.12，AI 不能用模拟结果冒充真实接通。
 
 <a id="troubleshooting"></a>
 ## 10. 常见问题与维护记录
@@ -1023,3 +1023,6 @@ Studio M0–M6 全部 Done；M5 于 2026-10-17 完成真实五项记录核验、
 
 
 **Studio M5 最终验收（2026-10-17）**：已核验作者本机 `live.json` 五项成功、simulated:false、complete:true，原记录保留；另经作者已配置的原服务作一次真实 Chromium 非敏感润色/采纳/校验，只有内存缓冲变化，源文件和 published 不变，无外部浏览器请求/Authorization/pageerror。lint/typecheck/test/根与 base build 退出 0，unit 95 通过、1 项既有 symlink 权限跳过；AI 双引擎 10/10、默认网站 E2E 75/75、四组合 smoke 全通过。193 个非目标文件、package/lock、真实源和历史记录不变，仅 PLAN/README/MAINTENANCE 更新；证据 `.cache/studio-m5-acceptance/`，详见 PLAN 9.15。M5 Done，Studio M0–M6 全部完成。生成内容仍须作者逐次核对，凭据仍按本机进程配置；未读取/记录 Key，未修改作者源或关闭原服务，未提交、推送或发布，保留全部已有工作并停止。
+
+
+**Studio v0 最终交付（2026-10-17）**：润色保留事实/个人语气并修正病句、重复与衔接，完全相同结果提示“本次未产生修改”；Key 已在作者本机 DPAPI 保存，桌面打开/重复打开/停止/重开免输入实际通过。M0–M6、v0.1/v0.2/v0.3 Done，正式源 224eea0 / 标签 studio-v0。公开网站关闭隐式预取，原导航和私人协议保持；根/base 各 76、WebKit 专项、Studio 37 passed/1 既有 IME skipped、公共检查与云端发布通过，另有 1 项既有 symlink 权限 skipped。线上两引擎 0 pageerror/失败请求，26 文件三方哈希一致；详见 PLAN 9.18 与 .cache/studio-v0-prefetch/。作者文章、Studio 实现与依赖在最小预取修复中原样保护，Key 不在 Git/浏览器/Pages；日常仍双击本机快捷方式，保存与发布分别处理。当前授权收尾完成，不自动开始后续功能或再次发布。
