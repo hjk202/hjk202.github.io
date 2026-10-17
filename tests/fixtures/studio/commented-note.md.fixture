@@ -1,0 +1,22 @@
+---
+# 非敏感 M0 格式样本，不复制到正式内容目录。
+slug: serialization-note # 保留稳定标识
+title: '标题: "引号"、中文与 emoji 🌱' # 标题旁注
+summary: |-
+  第一行摘要：保持文字。
+  第二行带有 "引号" 和 '单引号'。
+date: '2026-10-15' # 日期旁注
+published: false
+kind: note
+---
+
+## 正文原样保留
+
+含有 **Markdown**、`行内代码` 和 Q<sup>T</sup>。
+
+```yaml
+---
+title: 这不是 frontmatter
+```
+
+<div class="attention-equation" role="math"><span>QK<sup>T</sup></span></div>

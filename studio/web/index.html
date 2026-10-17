@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Personal Space Studio</title>
+</head>
+<body>
+  <header>
+    <h1>Personal Space Studio <span>Think</span></h1>
+    <p>本地作者工具 · 保存到 Markdown 源文件，不提交 Git，不推送或部署。预览不保存源文件。</p>
+  </header>
+  <div class="workspace">
+    <aside aria-label="Think 文章">
+      <div class="toolbar"><h2>文章</h2><button id="new" type="button">新建文章</button></div>
+      <label for="filter">文章状态</label>
+      <select id="filter"><option value="all">全部</option><option value="draft">draft · 草稿</option><option value="published">published · 构建纳入</option></select>
+      <button id="refresh" type="button">刷新列表</button>
+      <p id="list-message" role="status"></p>
+      <ul id="documents"></ul>
+    </aside>
+    <main>
+      <p id="empty">选择文章，或新建一篇草稿。内容只保留在当前页面内存中。</p>
+      <form id="editor" hidden>
+        <div class="toolbar">
+          <h2 id="editor-heading">编辑文章</h2>
+          <strong id="save-state" role="status"></strong>
+        </div>
+        <p id="source-state"></p>
+        <p class="hint">published: true 仅表示下次网站构建纳入，不代表已上线。修改已有文章不会自动改变其状态。</p>
+        <p>文件：<output id="filename"></output></p>
+        <details><summary>源文件版本</summary><code id="revision"></code></details>
+        <fieldset id="fields">
+          <legend>Metadata</legend>
+          <div class="metadata">
+            <label>Slug<input id="slug" name="slug" autocomplete="off" spellcheck="false" aria-describedby="slug-help issues"></label>
+            <p id="slug-help" class="hint">已有文章的 slug 只读；新建使用小写英文、数字和连字符。</p>
+            <label>标题<input id="title" name="title" autocomplete="off" aria-describedby="issues"></label>
+            <label>摘要<textarea id="summary" name="summary" rows="2" aria-describedby="issues"></textarea></label>
+            <label>日期<input id="date" name="date" placeholder="YYYY-MM-DD" autocomplete="off" aria-describedby="issues"></label>
+            <label>内容类型<select id="kind" name="kind" aria-label="内容类型" aria-describedby="issues"><option value="">源中省略（按 article 展示）</option><option value="article">article · 文章</option><option value="note">note · 随记</option></select></label>
+            <label>候选公开状态<select id="published" name="published" aria-label="候选公开状态" aria-describedby="issues"><option value="">源中省略（draft）</option><option value="false">draft · 草稿</option><option value="true">published · 构建纳入</option></select></label>
+          </div>
+          <label class="body-label">Markdown 正文<textarea id="body" name="body" rows="20" spellcheck="false" aria-describedby="issues"></textarea></label>
+        </fieldset>
+        <div class="toolbar actions">
+          <button id="save" type="button">保存</button>
+          <button id="validate" type="button">校验</button>
+          <button id="preview" type="button">预览</button>
+          <button id="cancel-preview" type="button" hidden>取消预览</button>
+          <button id="reload" type="button">重新读取源文件</button>
+          <button id="delete" type="button">删除文章</button>
+          <span class="hint">Ctrl / ⌘ + S 保存</span>
+        </div>
+        <p id="message" role="status" aria-live="polite"></p>
+        <section aria-label="校验结果"><p id="validation-state"></p><ul id="issues"></ul></section>
+        <section id="ai-panel" aria-label="AI 文本建议">
+          <h2>AI 文本建议</h2>
+          <p id="ai-service" class="hint">正在读取本机 AI 配置状态…</p>
+          <p class="hint">点击“请求建议”才发送下方的当前 Markdown 正文快照至阿里云百炼；不发送 metadata、文件名、revision 或其他文章。不发送私人资料。单次输入最多 32 KiB，无自动重试，服务可能计费。</p>
+          <label>将发送的正文（只读快照）<textarea id="ai-input" readonly rows="4" spellcheck="false"></textarea></label>
+          <label>建议操作<select id="ai-operation" aria-label="建议操作"><option value="polish">润色正文</option><option value="rewrite">改写正文</option><option value="summarize">概括正文（采纳将替换正文）</option><option value="generateTitle">生成标题</option><option value="generateSummary">生成 metadata 摘要</option></select></label>
+          <div class="toolbar"><button id="ai-request" type="button" disabled>请求建议</button><button id="ai-cancel" type="button" hidden>取消建议</button><button id="ai-apply" type="button" disabled>采纳到正文（替换）</button><button id="ai-discard" type="button" disabled>丢弃建议</button></div>
+          <p id="ai-state" role="status">建议不会自动修改缓冲或源码；采纳后仍需人工核对、校验并显式保存。</p>
+          <label>AI 建议（未采纳）<textarea id="ai-output" readonly rows="7" spellcheck="false"></textarea></label>
+        </section>
+        <section id="preview-panel" aria-label="隔离预览" hidden><h2>隔离预览</h2><p id="preview-state" role="status"></p><div id="preview-frame"></div></section>
+      </form>
+    </main>
+  </div>
+  <noscript>请启用 JavaScript 以使用本地编辑器。</noscript>
+  <!--studio-session-->
+  <script type="module" src="./main.ts"></script>
+</body>
+</html>

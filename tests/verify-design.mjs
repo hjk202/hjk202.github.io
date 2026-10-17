@@ -1,4 +1,4 @@
-import { cpSync, mkdirSync, readFileSync, readdirSync, writeFileSync, existsSync } from 'node:fs';
+import { cpSync, mkdirSync, readFileSync, readdirSync, unlinkSync, writeFileSync, existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
@@ -14,6 +14,13 @@ const before = snapshot('src');
 const isolated = resolve('.cache', `design-${Date.now()}`);
 mkdirSync(isolated, { recursive: true });
 cpSync('src', join(isolated, 'src'), { recursive: true });
+const fixtureContent = join(isolated, 'src/modules/think/content');
+for (const name of readdirSync(fixtureContent).filter(name => name.endsWith('.md') && name !== 'understanding-from-the-bottom.md')) {
+  const target = resolve(fixtureContent, name);
+  assert.ok(target.startsWith(resolve(isolated) + (process.platform === 'win32' ? '\\' : '/')));
+  unlinkSync(target);
+}
+
 if (existsSync('public')) cpSync('public', join(isolated, 'public'), { recursive: true });
 for (const file of ['package.json', 'astro.config.mjs', 'tsconfig.json']) cpSync(file, join(isolated, file));
 const bookmarks = [

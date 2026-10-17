@@ -11,12 +11,18 @@
   "scripts": {
     "dev": "astro dev",
     "lint": "eslint . --max-warnings=0",
-    "typecheck": "astro check",
+    "typecheck": "astro check && tsc --noEmit -p studio/tsconfig.json",
     "test": "node --experimental-strip-types --test tests/unit/*.test.ts",
     "test:e2e": "playwright test",
     "test:extension": "node tests/verify-extension.mjs",
     "build": "astro build",
     "preview": "astro preview",
+    "studio": "npm run studio:build && node --experimental-strip-types studio/server/main.ts",
+    "studio:open": "powershell.exe -NoProfile -ExecutionPolicy RemoteSigned -File studio/windows/Open.ps1",
+    "studio:stop": "powershell.exe -NoProfile -ExecutionPolicy RemoteSigned -File studio/windows/Stop.ps1",
+    "studio:configure": "powershell.exe -NoProfile -ExecutionPolicy RemoteSigned -File studio/windows/Configure.ps1",
+    "studio:build": "vite build --config studio/vite.config.ts",
+    "studio:test": "npm run studio:build && playwright test --config tests/studio/playwright.config.ts",
     "prebuild": "node --experimental-strip-types scripts/vault/check-public.mjs",
     "vault:pack": "node --experimental-strip-types scripts/vault/cli.mjs pack",
     "vault:verify": "node --experimental-strip-types scripts/vault/cli.mjs verify",
@@ -36,6 +42,11 @@
     "eslint": "10.12.0",
     "eslint-plugin-astro": "3.2.1",
     "typescript": "6.0.3",
-    "typescript-eslint": "8.71.1"
+    "typescript-eslint": "8.71.1",
+    "yaml": "2.9.1",
+    "vite": "8.3.4",
+    "ultrahtml": "1.7.0",
+    "entities": "4.5.0",
+    "@astrojs/markdown-satteri": "0.4.3"
   }
 }

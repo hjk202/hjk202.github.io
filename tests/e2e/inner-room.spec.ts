@@ -42,7 +42,7 @@ for (const colorScheme of ['light', 'dark'] as const) {
 
 const modules = [
   { id: 'me', private: '.private-profile', public: '.profile-story', text: '从一个问题', link: /^Me, average/ },
-  { id: 'think', private: '.private-thoughts', public: '.thought-reading', text: '我为什么越来越喜欢从底层理解一个东西', link: 'Think, 3 entries' },
+  { id: 'think', private: '.private-thoughts', public: '.thought-reading', text: '我为什么越来越喜欢从底层理解一个东西', link: 'Think, 4 entries' },
   { id: 'keep', private: '.private-bookmarks', public: '.keep-directory > .bookmark-group', text: 'The Missing Semester', link: 'Keep, 2 entries' },
   { id: 'build', private: '.private-projects', public: '.project-directory > .project-entries', text: 'NEMU', link: 'Build, 2 entries' },
 ];

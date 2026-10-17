@@ -9,10 +9,10 @@ for (const theme of ['light', 'dark'] as const) {
       const dimensions = await page.evaluate(() => ({ width: innerWidth, scrollWidth: document.documentElement.scrollWidth, height: innerHeight, scrollHeight: document.documentElement.scrollHeight }));
       expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.width);
       expect(dimensions.scrollHeight).toBeLessThanOrEqual(dimensions.height + 1);
-      await expect(page.getByRole('link', { name: 'Think, 1 entry' })).toBeVisible();
+      await expect(page.getByRole('link', { name: 'Think, 2 entries' })).toBeVisible();
       await page.screenshot({ path: info.outputPath('home.png'), animations: 'disabled' });
-      await page.getByRole('link', { name: 'Think, 1 entry' }).hover();
-      await expect(page.locator('[data-compass-count]')).toHaveText('1 entry');
+      await page.getByRole('link', { name: 'Think, 2 entries' }).hover();
+      await expect(page.locator('[data-compass-count]')).toHaveText('2 entries');
       await page.getByRole('button', { name: 'Search my space', exact: true }).click();
       await expect(page.getByRole('combobox')).toBeFocused();
       const bounds = await page.getByRole('dialog').boundingBox();

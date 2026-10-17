@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "exactOptionalPropertyTypes": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true,
+    "types": ["node"]
+  },
+  "include": ["contracts/**/*.ts", "server/**/*.ts", "web/**/*.ts", "adapters/**/*.ts", "windows/**/*.ts", "vite.config.ts", "../tests/unit/studio-*.test.ts", "../tests/studio/**/*.ts"]
+}

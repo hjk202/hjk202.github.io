@@ -26,7 +26,7 @@ async function reviewBackground(page: Page, info: TestInfo, name: string) {
 
 test('Me real profile is reachable from Compass and Spotlight', async ({ page }, info) => {
   await page.goto('./');
-  await page.getByRole('link', { name: 'Me, average count 1 across other modules', exact: true }).click();
+  await page.getByRole('link', { name: 'Me, average count 1.33 across other modules', exact: true }).click();
   await expect(page.locator('h1')).toHaveText('韩江恺');
   await expect(page.locator('main')).toContainText('南京大学计算机科学与技术专业本科生');
   await expect(page.locator('.demo-label')).toHaveCount(0);

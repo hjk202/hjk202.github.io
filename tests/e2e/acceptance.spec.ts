@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test('Compass clears click emphasis on Back/Forward and responds to fresh pointer movement', async ({ page }) => {
   await page.goto('./');
   for (const name of ['Think', 'Build', 'Me', 'Keep']) {
-    const label = name === 'Me' ? 'Me, average count 1 across other modules' : `${name}, 1 entry`;
+    const label = name === 'Me' ? 'Me, average count 1.33 across other modules' : name === 'Think' ? 'Think, 2 entries' : `${name}, 1 entry`;
     const link = page.getByRole('link', { name: label, exact: true });
     await link.hover();
     await expect(page.locator('[data-compass-name]')).toHaveText(name);
@@ -16,7 +16,7 @@ test('Compass clears click emphasis on Back/Forward and responds to fresh pointe
     await expect(page.locator('[data-compass-count]')).toBeEmpty();
     await page.mouse.move(1, 1);
     await link.hover();
-    await expect(page.locator('[data-compass-count]')).toHaveText(name === 'Me' ? 'Avg · 1' : '1 entry');
+    await expect(page.locator('[data-compass-count]')).toHaveText(name === 'Me' ? 'Avg · 1.33' : name === 'Think' ? '2 entries' : '1 entry');
   }
 });
 
@@ -46,8 +46,8 @@ test('all modules and public search targets are accessible with correct base and
   expect(response.status()).toBe(200);
   const index = await response.json();
   expect(index.modules.map((module: { id: string }) => module.id)).toEqual(['think', 'build', 'me', 'keep']);
-  expect(index.modules.map((module: { count: number }) => module.count)).toEqual([1, 1, 1, 1]);
-  expect(index.results.map((result: { url: string }) => result.url)).toEqual(['/think/understanding-from-the-bottom/', '/build/nemu/', '/me/', '/keep/missing-semester/']);
+  expect(index.modules.map((module: { count: number }) => module.count)).toEqual([2, 1, 1, 1]);
+  expect(index.results.map((result: { url: string }) => result.url)).toEqual(['/think/sunshine/', '/think/understanding-from-the-bottom/', '/build/nemu/', '/me/', '/keep/missing-semester/']);
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
   const failedResponses: string[] = [];
@@ -60,7 +60,7 @@ test('all modules and public search targets are accessible with correct base and
     if (target === '/me/') await expect(page.locator('h1')).toHaveText('韩江恺');
     else if (target.startsWith('/think/')) {
       await expect(page.locator('.demo-label')).toHaveCount(0);
-      await expect(page.locator('h1')).toHaveText(target === '/think/' ? '想法不必一开始就有答案。' : '我为什么越来越喜欢从底层理解一个东西');
+      await expect(page.locator(target === '/think/' ? '.thought-heading h1' : '.think-article > h1')).toHaveText(target === '/think/' ? '想法不必一开始就有答案。' : target === '/think/sunshine/' ? '阳光正好' : '我为什么越来越喜欢从底层理解一个东西');
     } else if (target.startsWith('/build/')) {
       await expect(page.locator('.demo-label')).toHaveCount(0);
       await expect(page.locator('h1')).toHaveText(target === '/build/' ? '构建与记录。' : 'NEMU：从指令执行到分页与异常的 x86 模拟器');

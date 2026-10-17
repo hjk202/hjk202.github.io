@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { publicArticles } from '../../src/modules/think/metadata.ts';
+import { articleIdentityIssues, publicArticles, publishedArticleIssues } from '../../src/modules/think/metadata.ts';
 const article = (slug = 'one', date = '2026-10-13', published: unknown = true) => ({ frontmatter: { slug, title: '标题', summary: '摘要', date, published }, rawContent: () => '正文' });
 
 test('Think filters unpublished files, sorts dates and slugs, and rejects broken public metadata', () => {
@@ -22,4 +22,18 @@ test('Think accepts optional article/note forms without changing publication and
   assert.equal(publicArticles([note])[0].metadata.kind, 'note');
   assert.equal(publicArticles([article()])[0].metadata.kind, undefined);
   assert.throws(() => publicArticles([{ ...note, frontmatter: { ...note.frontmatter, kind: 'command' } }]), /kind/);
+});
+
+test('Think shared diagnostics keep legacy publication filtering, duplicates and error precedence', () => {
+  const draft = { frontmatter: { slug: 'draft', title: 4, kind: 'unknown', date: 'broken', extra: true }, rawContent: (): string => { throw new Error('draft body must not be read'); } };
+  assert.deepEqual(publicArticles([draft]), []);
+  assert.throws(() => publicArticles([draft, draft]), /^Error: Think draft: duplicate slug$/);
+  assert.throws(() => publicArticles([{ ...draft, frontmatter: { ...draft.frontmatter, slug: '../bad', published: 'yes' } }]), /^Error: Think ..\/bad: published must be boolean$/);
+  assert.throws(() => publicArticles([{ ...article(), frontmatter: { ...article().frontmatter, title: '', date: 'bad', kind: 'bad' }, rawContent: () => '' }]), /^Error: Think one: title and summary are required$/);
+  assert.throws(() => publicArticles([{ ...article(), frontmatter: { ...article().frontmatter, date: 'bad' }, rawContent: (): string => { throw new Error('body must not be read before metadata succeeds'); } }]), /^Error: Think one: invalid date$/);
+  assert.deepEqual(articleIdentityIssues({ slug: 'ok', published: false }), []);
+  assert.deepEqual(publishedArticleIssues({ title: '', summary: '', date: '2026-02-30', kind: 'bad' }, '').map(issue => [issue.field, issue.code]), [
+    ['title', 'REQUIRED_FIELD'], ['summary', 'REQUIRED_FIELD'], ['date', 'INVALID_DATE'], ['body', 'REQUIRED_FIELD'], ['kind', 'INVALID_KIND'],
+  ]);
+  assert.equal(publicArticles([{ ...article(), frontmatter: { ...article().frontmatter, extra: 'legacy field' } }]).length, 1);
 });

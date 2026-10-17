@@ -3,6 +3,7 @@ import { test, expect } from '@playwright/test';
 test('all public pages expose truthful distinct titles, summaries and root/base-safe assets', async ({ page, request, baseURL }) => {
   const pages = [
     ['', 'Personal Space'], ['me/', '韩江恺 — Me — Personal Space'], ['think/', 'Think — Personal Space'],
+    ['think/sunshine/', '阳光正好 — Think — Personal Space'],
     ['think/understanding-from-the-bottom/', '我为什么越来越喜欢从底层理解一个东西 — Think — Personal Space'],
     ['build/', 'Build — Personal Space'], ['build/nemu/', 'NEMU：从指令执行到分页与异常的 x86 模拟器 — Build — Personal Space'],
     ['keep/', 'Keep — Personal Space'], ['keep/missing-semester/', 'The Missing Semester of Your CS Education — Keep — Personal Space'],
@@ -24,7 +25,7 @@ test('all public pages expose truthful distinct titles, summaries and root/base-
     await expect(page.locator('meta[name="robots"]')).toHaveCount(0);
     await expect(page.locator('meta[property="og:image"]')).toHaveCount(0);
   }
-  expect(titles.size).toBe(8);
+  expect(titles.size).toBe(9);
 });
 
 test('nested missing pages return a real 404 with usable Home and Spotlight', async ({ page, request, baseURL }, info) => {
