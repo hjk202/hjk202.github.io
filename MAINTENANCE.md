@@ -22,10 +22,10 @@
 
 | 文档 | 职责 |
 | --- | --- |
+| [README.md](./README.md) | 项目入口：简要介绍、目录总览、常用命令、当前进度与待检查事项 |
+| [PLAN.md](./PLAN.md) | 产品需求、架构、风格、阶段路线、验收状态及完成证据的 source of truth；历史记录集中于此 |
+| 本手册 | 内容字段、真实维护接口、操作步骤、AI 录入规则及未来扩展参考；不产生新功能的实施授权 |
 | [AGENTS.md](./AGENTS.md) | 约束 AI 的授权、范围、最小改动、验证与停点 |
-| [PLAN.md](./PLAN.md) | 产品需求、架构、风格、阶段路线和验收状态的 source of truth；原 NEED.md 的有效内容已归入其中，旧文件只供 Git 历史参考 |
-| 本手册 | 内容字段、真实维护接口、操作步骤、AI 录入规则和未来编辑器的设计参考；不产生新功能的实施授权 |
-| [README.md](./README.md) | 给所有者看的简要介绍和主线进度 |
 
 Phase 1–4 已完成，Phase 5 可选增强、Phase 6 内容/旅行摄影扩展仍延后。本手册不重新开启它们。实际代码与文档发生冲突时先报告证据及最小建议，不能通过改文档授权重构。
 
@@ -37,6 +37,9 @@ Phase 1–4 已完成，Phase 5 可选增强、Phase 6 内容/旅行摄影扩展
 | 添加私人记录 | 第 5 节准备仓库外完整源 → 第 6 节交互加密 |
 | 让 AI 录入公开素材 | 第 8 节复制任务模板；提交和上线分别授权 |
 | 使用 Studio 编辑 Think | 第 9.3.2 节 PC 编辑器、第 9.3.3 节隔离预览、第 9.3.4 节 AI 建议、第 9.3.1 节独立 HTTP；[PLAN 6.8](./PLAN.md#studio-plan) 记录架构/状态 |
+| 配置 AI、启动或停止 Studio | [第 9 节](#editor)；日常可用桌面快捷方式，AI 配置见 [9.3.4](#studio-ai) |
+| 让 Agent 调用 Studio | [第 9.3.5 节](#studio-agent)，复用本机 HTTP API |
+| 查目录分工、显示被隐藏的生成目录 | [README](./README.md) 的项目结构；[PLAN 仓库组织](./PLAN.md#repository-layout) 说明边界与视图设置 |
 
 <a id="interfaces"></a>
 ## 2. 文件、路由和已有接口
@@ -996,33 +999,8 @@ Studio M0–M6 全部 Done；M5 于 2026-10-17 完成真实五项记录核验、
 
 ### 本手册的维护依据
 
-**首次手册编写记录（历史）**：
+本手册自 2026-10-15 起按实际模块模型、内容加载、校验、Vault CLI、Studio 接口和发布流程维护。首次编写与规划入档记录见 [PLAN 完成记录](./PLAN.md#records) 的 9.6 / 9.7；旧阶段当时的“未实现 / 待验”属于历史停点，不代表当前能力。
 
-2026-10-15 从当前工作区核对模块模型/加载器、Module/Search/Vault 类型、校验器、crypto/passphrase、CLI/文件操作、package.json、Playwright 配置和 Pages 工作流。产品阶段仍为 Phase 1–4 Done，Phase 5/6 延后；未新增内容、修改源码、实现写作前端或部署。
+Studio M0–M6 的实现、实际命令、失败处理、平台跳过及验收证据集中在 PLAN 9.8–9.15；[M5 最终验收](./PLAN.md#studio-m5-acceptance)已取代早期待验状态。[Studio v0](./PLAN.md#studio-v0) 与 PLAN 9.16–9.18 记录润色、Windows 加密凭据、桌面启动和正式发布；[N1](./PLAN.md#notes-n1)记录随记列表预览及最近网站发布。本手册保留实际操作与限制，不再复制整段交付日志。
 
-**文档专项 Verification（2026-10-15，通过）**：内联 Node 校验退出 0，10 个主章节/代码围栏、四份文档的 73 处相对链接/锚点有效；6 份示例（1 份 YAML/Markdown、5 份 JSON）由现有公开/私人校验器检查通过，完整私人示例及 NEMU 补充还通过本地模块/关联校验，未产生密文。核对 12 个实际 npm 命令、74 个接口属性与 59 处私人白名单字段，阶段与授权表述一致；149 个非目标跟踪文件 SHA-256 未变。`git diff --check` 退出 0。
-
-只新增本手册并同步 AGENTS/PLAN/README 的职责、入口与本轮记录，保留此前 Phase 5 规划/延后改动。工程 lint/typecheck/test/build/E2E 和页面 smoke 本轮未运行（纯文档，不改工程输入）；未提交、推送或部署，未实现编辑器，完成后停止。
-
-**Studio 同步记录（2026-10-15）**：按已认可且仅获准入档的方案更新第 8.4/9 节和入口；作者字段/草稿/版本冲突语义与 PLAN 6.8 一致，Git/发布与私人编辑参考仍未选，不扩大实施范围。文档审计退出 0，四份文档 100 处相对链接/锚点有效、Studio 状态与 7 个单元一致；`git diff --check` 退出 0，150 个非目标文件哈希不变。完整记录见 PLAN 9.7。本轮仅改三份文档，保留已有未提交改动；M0 未开始，未运行工程检查/页面 smoke，未提交、推送或发布。
-
-**Studio M0 交付记录（2026-10-15）**：已实现第 9 节列明的契约/纯函数，保留正文、注释、字段省略与无修改字节往返，严格区分草稿可保存和公开就绪；网站旧过滤/校验/排序行为保留。lint/typecheck/52 unit/根与 base build 退出 0，原内容浏览器 4/4 与根/base×Chromium/WebKit 四组合 Think smoke 通过、0 pageerror。146 个非目标文件哈希及既有非根锁条目不变，证据在 `.cache/studio-m0/`，命令/失败处理/已知限制完整记录在 PLAN 9.8。M0 Done，M1 未开始；仍无文件写入/HTTP/UI，未提交、推送或发布，保留已有未提交改动后停止。
-
-**Studio M1 交付记录（2026-10-15）**：第 9.3 节文件服务已实现、M1 Done；六项非预览方法、key/revision、仓库锁和安全落盘/错误语义与契约源码一致。lint/typecheck/build 退出 0；67 项 unit 中 66 通过、0 失败，普通文件 symlink 建链因 Windows 账户 EPERM 明确 skipped，实际 junction/hardlink/ADS 已验证。隔离 CRUD 后七次构建、根/base×三种内容状态×Chromium/WebKit 的 12 组合浏览器通过，0 pageerror/失败请求；原内容浏览器 4/4 通过。155 个非目标文件与依赖/真实源哈希不变，证据 `.cache/studio-m1/`，完整命令/限制见 PLAN 9.9。锁/临时文件人工恢复与竞争限度见第 9.3 节；HTTP/UI/预览仍未实现，M2 未开始。保留已有未提交改动，未提交、推送或发布，停止。
-
-**Studio M2 交付记录（2026-10-16）**：第 9.3.1 节 HTTP 已实现、M2 Done，M1 文件服务原样复用；固定 loopback、Host/Origin/token、JSON/限额/超时/错误映射及启动/配对/关闭均验证。lint/typecheck/根与 base build 退出 0；76 项 unit 中 75 通过、0 失败、1 个继承的普通文件 symlink 权限 skipped。两个浏览器配对/CRUD/CSRF 通过，WebKit 5 条预期跨源拒绝 pageerror 全量记录/核对，正常页面无错误；既有内容 4/4、网站根/base×双引擎 smoke 通过。Windows Ctrl+C 清锁、同端口重启及无凭据/正文日志已实测，160 个非目标文件哈希不变。证据 `.cache/studio-m2/`，完整命令/恢复/边界见 PLAN 9.10；配对不是本机账号隔离，编辑器/预览/AI/Agent 未实现。保留已有未提交改动，不进入 M3，不提交、推送或发布，停止。
-
-**Studio M3 交付记录（2026-10-16）**：第 9.3.2 节基础编辑器已实现、M3 Done，六项操作只用现有 M2 同源 HTTP，字段省略/源版本/文件边界保留。lint/typecheck/unit/网站根与 base/独立 Web build 退出 0；unit 77 通过，1 个继承的 symlink 权限 skipped；编辑器两引擎 13 通过、0 pageerror，WebKit 无 CDP IME 的子项 skipped，真实 Chromium 组合输入/快捷键通过。既有内容 4/4、根/base 双引擎 smoke、API-only 安全回归通过，npm 启动/浏览器读取与 Ctrl+C 清锁已实测。161 个非目标文件和 438 个非根 lock 条目不变，证据 `.cache/studio-m3/`，完整限制/失败处理见 PLAN 9.11。未验证真人输入法候选窗，不宣称首版全部完成；预览、AI/Agent 均未实施。保留已有未提交改动，未进入 M4，未提交、推送或发布，停止。
-
-**Studio M4 交付记录（2026-10-16）**：第 9.3.3 节按钮隔离预览完成，M0–M4 Done、首版本地验收通过；M5/M6 Deferred。预览复用真实 Astro，在临时副本公开完整候选，再以受控 HTML/data 图片交给无权限 sandbox；不保存源、不改源 published/根 dist，编辑后旧结果失效。lint/typecheck/unit/根与 base/独立 Web build 通过；unit 81 通过、1 项既有 symlink 权限跳过；Studio 两引擎 23 通过、1 项 WebKit CDP IME 跳过，新增预览十项全通过、0 pageerror。网站完整默认 E2E 75/75、四组合 smoke、额外预览视觉检查及 API 安全回归通过。165 个非目标文件、438 个依赖条目及历史记录保持，证据 `.cache/studio-m4/`；详细命令、截图、清理/可信构建与未运行项见 PLAN 9.12。保留已有未提交工作，未进入 M5/M6，未提交、推送或发布，按授权停止。
-
-**Studio M5 实施/待验记录（2026-10-16）**：仅接入用户选定的百炼 `deepseek-v4.1-flash`，第 9.3.4 节操作、后端环境配置、建议接口和非敏感真实调用脚本已加入。建议只在人工采纳后进入缓冲，再走原校验/revision 保存，不自动写入/公开。lint/typecheck/根与 base build 退出 0，unit 88 通过、1 项既有 symlink 权限跳过；Studio 双引擎 33 通过、1 项既有 WebKit CDP IME 跳过，新 AI 十项全通过、0 pageerror；网站四组合 smoke/API-only 回归通过。构建环境 canary、公开产物/Web bundle/日志、176 个非目标文件及原 package/lock/历史记录审计通过。真实调用入口因本机 Key/Base URL 缺失返回 AI_NOT_CONFIGURED，未向真实服务发请求，不能冒称已接通；M5 仍 In Progress，待本机配置后的真实五项调用验收。证据 `.cache/studio-m5/`，完整命令/限制/停点见 PLAN 9.13；保留已有未提交改动，未进入 M6，未提交、推送或发布。
-
-
-**Studio M6 交付记录（2026-10-16）**：用户选定的轻量 Node/JSON-lines stdio 已完成，M6 Done；五项操作经原 HTTP/Think 服务执行，默认只读，可信启动开写权限；createDraft 不公开，save 保留 published（含省略）与 revision，未知写结果不重试。lint/typecheck/test/根与 base build 退出 0；unit 95 通过、1 项继承的 Windows symlink 权限跳过，新增 Agent 七项全通过；Studio 两引擎 35 通过、1 项继承的 WebKit CDP IME 跳过，新增 Agent/Web 双向冲突两项全通过、0 pageerror。网站默认 E2E 75/75、四组合 smoke 和原 API 安全回归通过。188 个非目标文件、package/lock、真实内容与 M0–M5 历史记录不变；证据 `.cache/studio-m6/`，详见 PLAN 9.14。M5 继续 Awaiting Verification（真实百炼调用待验），未执行真实模型调用；不新增依赖/MCP/AI 调用或发布能力，未提交、推送或发布，保留已有工作并停止。
-
-
-**Studio M5 最终验收（2026-10-17）**：已核验作者本机 `live.json` 五项成功、simulated:false、complete:true，原记录保留；另经作者已配置的原服务作一次真实 Chromium 非敏感润色/采纳/校验，只有内存缓冲变化，源文件和 published 不变，无外部浏览器请求/Authorization/pageerror。lint/typecheck/test/根与 base build 退出 0，unit 95 通过、1 项既有 symlink 权限跳过；AI 双引擎 10/10、默认网站 E2E 75/75、四组合 smoke 全通过。193 个非目标文件、package/lock、真实源和历史记录不变，仅 PLAN/README/MAINTENANCE 更新；证据 `.cache/studio-m5-acceptance/`，详见 PLAN 9.15。M5 Done，Studio M0–M6 全部完成。生成内容仍须作者逐次核对，凭据仍按本机进程配置；未读取/记录 Key，未修改作者源或关闭原服务，未提交、推送或发布，保留全部已有工作并停止。
-
-
-**Studio v0 最终交付（2026-10-17）**：润色保留事实/个人语气并修正病句、重复与衔接，完全相同结果提示“本次未产生修改”；Key 已在作者本机 DPAPI 保存，桌面打开/重复打开/停止/重开免输入实际通过。M0–M6、v0.1/v0.2/v0.3 Done，正式源 224eea0 / 标签 studio-v0。公开网站关闭隐式预取，原导航和私人协议保持；根/base 各 76、WebKit 专项、Studio 37 passed/1 既有 IME skipped、公共检查与云端发布通过，另有 1 项既有 symlink 权限 skipped。线上两引擎 0 pageerror/失败请求，26 文件三方哈希一致；详见 PLAN 9.18 与 .cache/studio-v0-prefetch/。作者文章、Studio 实现与依赖在最小预取修复中原样保护，Key 不在 Git/浏览器/Pages；日常仍双击本机快捷方式，保存与发布分别处理。当前授权收尾完成，不自动开始后续功能或再次发布。
+2026-10-17 按作者要求理顺四份文档入口：项目总览与常用命令在 README，产品/架构/状态及验收历史在 PLAN，AI 执行规则在 AGENTS，字段与操作在本手册。保留一个 Git 和原目录，仅增加编辑器生成目录隐藏配置；未改变文章、Studio 接口、密钥存储或发布方式。本轮验证与改动范围见 [文档整理记录](./PLAN.md#docs-organization)。

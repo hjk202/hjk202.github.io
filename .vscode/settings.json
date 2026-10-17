@@ -1,0 +1,10 @@
+{
+  "files.exclude": {
+    "node_modules": true,
+    ".astro": true,
+    ".cache": true,
+    "dist": true,
+    "test-results": true,
+    "playwright-report": true
+  }
+}

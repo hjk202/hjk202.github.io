@@ -2,12 +2,13 @@
 
 更新：2026-10-17。本文是产品需求、目标架构、风格设计、分阶段实施及验收状态的 **source of truth**；执行守则见 [AGENTS.md](./AGENTS.md)，所有者简报见 [README.md](./README.md)，完整内容维护与未来写作接口参考见 [MAINTENANCE.md](./MAINTENANCE.md)。
 
-此前按用户要求合并原需求书、设计稿、架构/内容/加密/维护/发布指南；随后用户明确要求一份完整内容维护手册，现维护以上四份文档。本文保留产品与阶段依据，维护手册集中记录实际字段、操作及未实现的编辑器接口参考，不另立需求来源或启动未来功能。旧文档及完整历史验证记录可从整理前提交 `6202827` 读取，例如 `git show 6202827:NEED.md`；不再以旧文档作为并行依据。
+此前按用户要求合并原需求书、设计稿、架构/内容/加密/维护/发布指南；随后用户明确要求一份完整内容维护手册，现维护以上四份文档。README 是项目入口，AGENTS 约束 AI 执行；本文集中保存产品与阶段依据、完成记录和验收证据，维护手册集中记录实际字段、操作、已实现 Studio 接口及未来扩展参考，不另立需求来源或启动未来功能。旧文档及完整历史验证记录可从整理前提交 `6202827` 读取，例如 `git show 6202827:NEED.md`；不再以旧文档作为并行依据。
 
 ## 阅读索引
 
 - [当前状态](#current-state)
 - [产品与架构](#architecture)
+- [仓库组织与网站 / Studio 边界](#repository-layout)
 - [模块接口与内容维护](#contracts)
 - [公开与内室风格](#design)
 - [私人协议、安全与维护](#vault)
@@ -23,7 +24,7 @@
 
 | 项目 | 现状 |
 | --- | --- |
-| 本次任务 | N1 随记四行预览已提交/推送/部署，完整本地/云端及双引擎线上验证通过；已完成，停止等待作者检查 |
+| 本次任务 | 文档整理已完成；按追加授权进行测试、提交与正式发布（In Progress），见 [9.21](#docs-release)。保留单一 Git 和现有目录；N1 手机反馈仍待作者 |
 | 已完成 | **Phase 1–4 全部 Done**；公开设计 D1–D8 与内室 V1–V5 完成 |
 | 当前 milestone | 无；N1 Done，Studio M0–M6、v0.1/v0.2/v0.3 全部 Done，Phase 5/6 仍延后 |
 | 最近已核验线上产品源 | `2a8ff37da0c2ad322e155eedd2a6ee09fa8f74e3`（26 文件三方哈希一致，线上 Chromium/WebKit 无 pageerror/失败请求） |
@@ -80,6 +81,15 @@ Astro 静态输出 + TypeScript strict + 原生 SVG/CSS/浏览器脚本；公开
 配置：`astro.config.mjs` 为 static，`SITE_URL` 默认 `https://hjk202.github.io`，`BASE_PATH` 默认 `/`；环境输入只用于配置。`tsconfig.json` 继承 Astro strict；ESLint 检查 JS/TS/Astro。Playwright 单 worker、零自动重试、不复用已有测试服务。
 
 当前锁定依赖为 Astro 7.3.8、TypeScript 6.0.3、Playwright 1.64.0，精确版本见 package.json/package-lock.json；不随任务升级。`.node-version` 为 22.23.2，npm 10.9.8；其他 Node 范围以 engines 为准。
+
+<a id="repository-layout"></a>
+**仓库组织与网站 / Studio 边界**：
+
+- 维护一个 Git 仓库，保留根目录的 Astro 项目与独立 `studio/`；不搬到 `website/`、不拆仓库或引入 workspaces。根 `package.json` / lockfile 管理两者依赖与命令。
+- 网站源码是 `src/` 和 `public/`；Studio 的界面、服务、契约、Agent 与 Windows 启动脚本都在 `studio/`，细分职责见 [6.8.2](#studio-plan)。Think Markdown 仍只有 `src/modules/think/content/*.md` 一份源，不向 Studio 复制持久化正文。
+- 网站静态产物为 `dist/`，Pages 只部署该受检产物；Studio Web 产物和隔离预览位于 `.cache/studio/`，本地服务不进入公开网站。网站不 import Studio，Studio 后端只按既有边界复用 Think 纯模型/校验。
+- `tests/`、`scripts/` 和根配置保留原位，不借本次整理重分测试、修改启动或发布行为。项目目录总览及常用命令见 [README](./README.md)，具体维护操作见 [MAINTENANCE](./MAINTENANCE.md#start)。
+- `.vscode/settings.json` 通过 `files.exclude` 隐藏根目录的依赖、构建、缓存和测试输出，适用于支持该设置的编辑器。不删除文件，不修改 Git 忽略规则，不额外配置搜索或文件监听；编辑器搜索是否继承隐藏规则取决于其搜索设置。临时查看可把对应项设为 `false`，结束后恢复；不要为整理视图删除运行中的 Studio 缓存/锁。
 
 ### 2.3 构建期与浏览器边界
 
@@ -1520,3 +1530,25 @@ src/shell/vault/runtime.ts 的公开链接标 data-astro-reload，goTo 在锁定
 真实线上 Chromium/WebKit 各检查 9 个正常路由及 404；320/375/1280px 明暗下预览最多四行且内容实际溢出被收起、无隐藏链接/媒体/标题，阅读全文键盘 Enter 与点击进入完整末段，返回/刷新/Spotlight/文章公式正常，未配置私人入口仍正确。两引擎均 0 pageerror、0 failed request，已查看线上手机宽度截图。证据 `.cache/n1-release/` 中 run/dispatch/artifact/local-manifest/release-comparison/online-smoke/scope-check JSON 与截图；本地证据见 `.cache/n1-*.log` 和对应 results。
 
 N1 全部 Done Criteria/Verification 满足、标 Done；手机真人检查留给作者，本轮不冒充 OPPO 复验。最终仅更新完成记录/简报，文档检查后保存 Git，不为纯文档重复部署或移动 studio-v0/v0 标签；Phase 5/6 不启动，完成后停止。
+
+<a id="docs-organization"></a>
+### 9.20 文档入口与编辑器目录视图整理（2026-10-17，文档任务完成）
+
+**授权与范围**：按作者要求保留一个 Git 和现有目录，精简 README、理顺四份文档的入口与职责，并在编辑器中隐藏生成目录。开始时 Git 工作区干净；不搬迁源码、拆仓库、清理缓存或调整测试/构建/发布行为，不启动产品 milestone。
+
+**实际修改**：README 集中目录总览、常用命令、当前状态与待检查项；PLAN 2.2 明确仓库边界并保留既有全部验收记录；MAINTENANCE 保留字段/操作/接口，将重复交付日志改为 PLAN 入口；AGENTS 仅补充文档分工说明，不改执行规则。新增 `.vscode/settings.json`，仅以 `files.exclude` 隐藏根 `node_modules/`、`.astro/`、`.cache/`、`dist/`、`test-results/`、`playwright-report/` 六个生成目录，不删除磁盘文件、不改 Git 忽略或额外的搜索/监听配置。
+
+**验证**：实际运行 `node .cache/doc-organization/verify.mjs`，退出 0；四份文档代码围栏闭合、133 处相对链接/锚点有效，README 六个 npm script 入口与 package.json 一致。README UTF-8 篇幅比开始时缩减约 39%；六项隐藏配置的 JSON 结构与既有 Git 忽略目录一致，根与 studio 的 Git 顶层相同。205 个非目标跟踪文件 SHA-256 原样保持；PLAN 原有完整完成记录、MAINTENANCE 第 2–10 节操作正文和 AGENTS 执行规则字节对应内容保持。仅四份文档修改及一个新增编辑器配置；`git diff --check` 退出 0。证据为 `.cache/doc-organization/baseline.json` / `verification.json`。初次链接检查器将行内代码中的教学图片路径误判为导航链接，修正代码区分后重跑通过，未删除示例或修改产品来绕过检查。
+
+**限制与停点**：工程 lint/typecheck/test/build、页面 smoke 未运行，本轮未改工程输入；编辑器设置仅适用于支持 VS Code 工作区配置的编辑器，未直接验收实际文件树。N1 手机反馈仍待作者，既有阶段状态及发布源不变；未提交、推送或发布，完成后停止。
+
+<a id="docs-release"></a>
+### 9.21 文档整理的测试、提交与发布（2026-10-17，In Progress）
+
+**追加授权**：作者要求“测试后提交并发布”。仅提交已整理的四份文档与 `.vscode/settings.json`；保留一个 Git、现有网站/Studio 目录、文章和凭据。验证候选后普通推送 main，手动运行原完整 Pages 工作流，下载受检产物并核对本地/线上文件与双引擎页面。不修改产品功能、不移动历史标签，不以旧发布结果替代本次验收。
+
+**Verification / 停点**：执行文档审计、lint/typecheck/test/build、网站根/base E2E、WebKit/mobile/private、Studio 回归、原隔离与发布边界检查；全部通过后提交、推送和部署。记录实际结果、失败/跳过、源 SHA、Actions 与产物身份，再完成线上验收。N1 作者手机反馈仍待，不冒充真机检查；当前尚未提交或发布。
+
+**本地验证（提交前）**：实际运行 `.cache/doc-release/run.mjs` 中各项检查，全部退出 0，逐项原始命令、退出码与日志位于同目录的 `{task}.json` / `{task}.log`。lint/typecheck（170 files 零诊断，含 Studio tsc）/unit/build、隔离 base build 通过；unit 为 101 passed / 1 既有 Windows 普通文件 symlink 权限 skipped，真实 junction/hardlink 另有执行。网站根/base 完整 E2E 各 77 passed，WebKit mobile 16 passed、private 29 passed；Studio 独立 build 及双引擎 37 passed / 1 既有 WebKit CDP IME skipped。未删除测试、过滤真实 pageerror 或弱化断言。
+
+原 extension/content/design/mobile/session 隔离专项与 release/Vault 边界均通过；4–7 模块双引擎移动布局、第五私人 adapter/session 两引擎各 3 passed。205 个非目标跟踪文件保持，文章、凭据、依赖及运行代码未改；文档审计和 `git diff --check` 通过。26 个本地公开文件与此前 N1 受验产物逐项哈希相同，见 `unchanged-site.json`；这不替代本次云端与线上验收。编辑器实际文件树、N1 作者手机反馈未在本轮验收；以上仍停于提交/发布前。
