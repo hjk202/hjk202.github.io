@@ -24,11 +24,11 @@
 
 | 项目 | 现状 |
 | --- | --- |
-| 本次任务 | 文档整理已完成；按追加授权进行测试、提交与正式发布（In Progress），见 [9.21](#docs-release)。保留单一 Git 和现有目录；N1 手机反馈仍待作者 |
+| 本次任务 | 文档整理的测试、提交与正式发布已完成；结果见 [9.21](#docs-release)。保留单一 Git 和现有目录，N1 手机反馈仍待作者，完成后停止 |
 | 已完成 | **Phase 1–4 全部 Done**；公开设计 D1–D8 与内室 V1–V5 完成 |
 | 当前 milestone | 无；N1 Done，Studio M0–M6、v0.1/v0.2/v0.3 全部 Done，Phase 5/6 仍延后 |
-| 最近已核验线上产品源 | `2a8ff37da0c2ad322e155eedd2a6ee09fa8f74e3`（26 文件三方哈希一致，线上 Chromium/WebKit 无 pageerror/失败请求） |
-| 最近发布 | [Actions 39016722251](https://github.com/hjk202/hjk202.github.io/actions/runs/39016722251)，全部 check/deploy 成功、随记及全站线上验证通过 |
+| 最近已核验线上产品源 | `dcc5d826631935d20ef8378056c46617bb8e3513`（26 文件三方哈希一致，线上 Chromium/WebKit 无 pageerror/失败请求；公开内容与 N1 相同） |
+| 最近发布 | [Actions 39019825142](https://github.com/hjk202/hjk202.github.io/actions/runs/39019825142)，完整 check/deploy 成功；本轮仅整理文档与编辑器视图，线上全站验证通过 |
 | 访问地址 | [正式网站](https://hjk202.github.io/)；[随记预览验收入口](https://hjk202.github.io/think/?v=2a8ff37) |
 | 私人数据状态 | 本地/产物/线上均无验收密文，真实 Vault 未配置；私人功能完整，入口显示未配置提示 |
 | 后续阶段 | Phase 5 按用户决定延后，方案保留为储备；Phase 6 仍延后，均不影响当前可用状态 |
@@ -1543,12 +1543,20 @@ N1 全部 Done Criteria/Verification 满足、标 Done；手机真人检查留�
 **限制与停点**：工程 lint/typecheck/test/build、页面 smoke 未运行，本轮未改工程输入；编辑器设置仅适用于支持 VS Code 工作区配置的编辑器，未直接验收实际文件树。N1 手机反馈仍待作者，既有阶段状态及发布源不变；未提交、推送或发布，完成后停止。
 
 <a id="docs-release"></a>
-### 9.21 文档整理的测试、提交与发布（2026-10-17，In Progress）
+### 9.21 文档整理的测试、提交与发布（2026-10-17，Done）
 
 **追加授权**：作者要求“测试后提交并发布”。仅提交已整理的四份文档与 `.vscode/settings.json`；保留一个 Git、现有网站/Studio 目录、文章和凭据。验证候选后普通推送 main，手动运行原完整 Pages 工作流，下载受检产物并核对本地/线上文件与双引擎页面。不修改产品功能、不移动历史标签，不以旧发布结果替代本次验收。
 
-**Verification / 停点**：执行文档审计、lint/typecheck/test/build、网站根/base E2E、WebKit/mobile/private、Studio 回归、原隔离与发布边界检查；全部通过后提交、推送和部署。记录实际结果、失败/跳过、源 SHA、Actions 与产物身份，再完成线上验收。N1 作者手机反馈仍待，不冒充真机检查；当前尚未提交或发布。
+**启动时的 Verification / 停点**：执行文档审计、lint/typecheck/test/build、网站根/base E2E、WebKit/mobile/private、Studio 回归、原隔离与发布边界检查；全部通过后提交、推送和部署。记录实际结果、失败/跳过、源 SHA、Actions 与产物身份，再完成线上验收。N1 作者手机反馈仍待，不冒充真机检查；开始时尚未提交或发布。
 
 **本地验证（提交前）**：实际运行 `.cache/doc-release/run.mjs` 中各项检查，全部退出 0，逐项原始命令、退出码与日志位于同目录的 `{task}.json` / `{task}.log`。lint/typecheck（170 files 零诊断，含 Studio tsc）/unit/build、隔离 base build 通过；unit 为 101 passed / 1 既有 Windows 普通文件 symlink 权限 skipped，真实 junction/hardlink 另有执行。网站根/base 完整 E2E 各 77 passed，WebKit mobile 16 passed、private 29 passed；Studio 独立 build 及双引擎 37 passed / 1 既有 WebKit CDP IME skipped。未删除测试、过滤真实 pageerror 或弱化断言。
 
 原 extension/content/design/mobile/session 隔离专项与 release/Vault 边界均通过；4–7 模块双引擎移动布局、第五私人 adapter/session 两引擎各 3 passed。205 个非目标跟踪文件保持，文章、凭据、依赖及运行代码未改；文档审计和 `git diff --check` 通过。26 个本地公开文件与此前 N1 受验产物逐项哈希相同，见 `unchanged-site.json`；这不替代本次云端与线上验收。编辑器实际文件树、N1 作者手机反馈未在本轮验收；以上仍停于提交/发布前。
+
+**实际提交 / 云端发布**：五个获准文件精确提交为 `dcc5d826631935d20ef8378056c46617bb8e3513` 并普通推送 main；[手动工作流 39019825142](https://github.com/hjk202/hjk202.github.io/actions/runs/39019825142) 对同一 SHA 执行原全部检查，check 与 deploy 均 success。重复 push 检查 39019820547 只取消去重，不替代手动完整验收。上传/部署消费同一受检 dist，没有在 deploy 重建；未移动历史标签。
+
+实际 github-pages artifact `12096238478`，ZIP digest `sha256:1f1ef4752315988377031853bed0ebb73098f1eea3f9b88b5b7e3a94c0762796`；下载摘要核对及拒绝越界/链接/特殊成员的安全解包通过。本地受验 dist、实际下载产物、线上 **26 文件逐项 SHA-256 相同**；源身份由 dispatch / local-manifest / release-comparison 核对，不把部署成功或原 N1 相同字节单独当作本次验收。
+
+**线上 smoke**：真实 Chromium/WebKit 各验证九个正常路由和真实 404，Think 四行预览/全文、320/375/1280px 明暗、键盘与点击、返回/刷新、Spotlight、公式和未配置私人入口均通过；两引擎各 0 pageerror、0 failed request，截图已查看。证据为 `.cache/doc-release/` 的 run/dispatch/artifact/local-manifest/release-comparison/online-smoke JSON、原始日志与截图。
+
+**收尾与限制**：编辑器实际文件树和 N1 作者手机反馈未在本轮验收，原两项 Windows/WebKit 平台跳过未当作通过；未改文章、Studio、依赖或发布流程。仅补记本段及 README/MAINTENANCE 的发布入口；最终文档审计退出 0，135 处相对链接/锚点有效、205 个非目标文件保持，`git diff --check` 通过，另存记录提交。工程输入与已发布源仍为上述受验版本，不为完成记录再次部署。Phase 5/6 不启动，完成后停止。

@@ -2,7 +2,7 @@
 
 韩江恺的个人数字空间：Me 个人介绍、Think 文章与随记、Build 项目档案、Keep 收藏。Personal Space Studio 是同仓库中的 Windows 本地 Think 作者工具。
 
-**网站：[hjk202.github.io](https://hjk202.github.io/)** · 最近核验线上源：`2a8ff37`（2026-10-17）。网站面向访客，Studio 只在本机运行。
+**网站：[hjk202.github.io](https://hjk202.github.io/)** · 最近核验线上源：`dcc5d82`（2026-10-17，文档整理后重新验收发布）。网站面向访客，Studio 只在本机运行。
 
 ## 文档入口
 
@@ -64,4 +64,4 @@ Studio 支持文章编辑、校验、隔离预览和 AI 文本建议；建议经
 - **随记四行预览 N1 已发布并通过线上验证**；仍待你检查手机效果。[查看效果](https://hjk202.github.io/think/?v=2a8ff37)，[验收记录](./PLAN.md#notes-n1)。
 - **真实私人资料尚未配置**；私人功能已完成，入口提示未配置属正常行为。维护步骤见 [私人内容操作](./MAINTENANCE.md#private-operations)。
 
-目录与文档整理保持现有功能和目录结构；本次按追加授权测试、提交与发布，结果见 [PLAN 发布记录](./PLAN.md#docs-release)。后续开发仍需明确授权。
+目录与文档整理已测试、提交并正式发布，现有功能和目录结构保持；结果见 [PLAN 发布记录](./PLAN.md#docs-release)。后续开发仍需明确授权。
