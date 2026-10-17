@@ -497,6 +497,8 @@ npm.cmd run vault:restore -- --input "D:\MyVaultBackup\bundle-2026-10-15.json"
 <a id="workflow"></a>
 ## 7. 从修改到预览、验证、上线和恢复
 
+`astro.config.mjs` 显式设置 `prefetch: false`：公开链接沿用整页导航，私人会话沿用既有受控导航，悬停/聚焦不预先请求文章。此设置避免 Windows WebKit 在整页卸载时启动隐式预取所触发的访问控制错误；不要仅为提速重新开启。变更导航或预取策略时需复验根/base、快速点击与完整 pageerror 记录。
+
 ### 7.1 一次维护的完整闭环
 
 1. 读 AGENTS、PLAN、本手册相关章节；查看 Git 状态和目标文件，确认已有用户改动。

@@ -1,5 +1,31 @@
 import { test, expect } from '@playwright/test';
 
+test('public links navigate without speculative requests on hover or fast clicks', async ({ page, baseURL }) => {
+  const errors: string[] = [];
+  const speculative: string[] = [];
+  const targets = new Set(['', 'think/', 'think/understanding-from-the-bottom/'].map(path => new URL(path, baseURL!).href));
+  page.on('pageerror', error => errors.push(error.message));
+  page.on('request', request => {
+    if (targets.has(request.url()) && !request.isNavigationRequest()) speculative.push(request.url());
+  });
+  await page.goto('./think/sunshine/');
+  const back = page.getByRole('link', { name: /返回 Think/ });
+  await back.hover();
+  // Observe background hover activity before the explicit navigation action.
+  await page.waitForTimeout(400);
+  expect(speculative).toEqual([]);
+  await back.click();
+  await expect(page).toHaveURL(new URL('think/', baseURL!).href);
+  await page.getByRole('link', { name: '我为什么越来越喜欢从底层理解一个东西', exact: true }).click();
+  await expect(page).toHaveURL(new URL('think/understanding-from-the-bottom/', baseURL!).href);
+  await expect(page.locator('[role="math"]')).toBeVisible();
+  await page.getByRole('link', { name: 'Home', exact: true }).click();
+  await expect(page).toHaveURL(baseURL!);
+  await expect(page.getByRole('link', { name: 'Think, 2 entries', exact: true })).toBeVisible();
+  expect(speculative).toEqual([]);
+  expect(errors).toEqual([]);
+});
+
 test('Compass clears click emphasis on Back/Forward and responds to fresh pointer movement', async ({ page }) => {
   await page.goto('./');
   for (const name of ['Think', 'Build', 'Me', 'Keep']) {

@@ -2,7 +2,7 @@
 
 韩江恺的个人数字空间。以一枚玻璃 Compass 探索不同领域，用 Spotlight 快速查找；每个模块拥有自己的排版和内部秩序。
 
-**网站：[hjk202.github.io](https://hjk202.github.io/)** · 最近核验的线上版本：`4f2d6b9`（2026-10-15）。
+**网站：[hjk202.github.io](https://hjk202.github.io/)** · 当前线上源：`968f313`（2026-10-17，部署及产物一致性已通过；WebKit 交互仍待修复）。
 
 ## 现在有什么
 
@@ -55,7 +55,9 @@ Windows 日常可双击桌面 **Personal Space Studio**，自动启动/复用本
 
 **M6 Done**：Node/JSON-lines stdio 调用同一 HTTP API，默认只读，作者启动时显式 `--allow-write` 才能创建草稿/保存；保留 published 与 revision 边界，不提供 MCP/删除/发布。协议和命令见[手册 9.3.5](./MAINTENANCE.md#studio-agent)，验证与平台限制见 [PLAN M6](./PLAN.md#studio-m6) / 9.14。
 
-**Studio v0 收尾进行中**：本轮已获授权优化润色、在 Windows 本机加密记住 AI Key、提供桌面快捷启动，并提交/正式部署为 `studio-v0` 基线；`sunshine.md` 按原 published:true 纳入。润色与 Windows 启动已完成验证：真实新版润色有效，桌面重复打开/停止/重开免配置通过；完整网站 75/75、Studio 37 通过/1 既有平台跳过。原样响应显示“本次未产生修改”。现进入发布前专项检查；各项状态与验证集中在 [PLAN 6.9](./PLAN.md#studio-v0)，完成前不把本地修改当上线。
+**Studio v0 收尾进行中**：润色、原样结果提示、Windows 加密记住 Key 与桌面快捷启动均已验收；sunshine.md 原样纳入，“阳光正好”已上线。首次部署 968f313 的云端 check/deploy 与 26 文件三方哈希一致，线上发现的 WebKit 预取竞态已获准最小修复。
+
+本地修复后公共四项、根/base 各 76 项、WebKit 专项均通过；完整 Studio 37 通过/1 项既有平台跳过，文章、Studio 后端、依赖与历史记录保持。现等待新提交的完整再部署、线上双引擎验收与 studio-v0 标签，v0.3 仍 In Progress。状态和证据见 [PLAN 6.9](./PLAN.md#studio-v0) / 9.18。
 
 ## 文档入口
 

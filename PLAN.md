@@ -25,10 +25,10 @@
 | --- | --- |
 | 本次任务 | 用户授权润色优化、本机加密凭据与快捷启动，并将当前版提交、推送及正式部署为 Studio v0；sunshine.md 原样纳入 |
 | 已完成 | **Phase 1–4 全部 Done**；公开设计 D1–D8 与内室 V1–V5 完成 |
-| 当前 milestone | Studio M0–M6 Done；v0.1/v0.2 Done；v0.3 提交/正式部署 In Progress，逐项验证 |
-| 最近已核验线上产品源 | `4f2d6b9007167d49bace3d08c85ba5095ea37e85` |
-| 最近发布 | [Actions 38738688217](https://github.com/hjk202/hjk202.github.io/actions/runs/38738688217)，全部 check/deploy 成功 |
-| 访问地址 | [正式网站](https://hjk202.github.io/)；[最终版本入口](https://hjk202.github.io/?v=4f2d6b9) |
+| 当前 milestone | Studio M0–M6 Done；v0.1/v0.2 Done；v0.3 In Progress：已部署 968f313，线上 WebKit 预取竞态最小修复已获准，正在重新验收/部署 |
+| 最近已核验线上产品源 | `968f31363f0c7fba59658a218c371d2ed000a630`（26 文件字节一致；WebKit 交互错误仍待修复） |
+| 最近发布 | [Actions 39010209782](https://github.com/hjk202/hjk202.github.io/actions/runs/39010209782)，check/deploy 成功；本轮线上交互验收尚未全部通过 |
+| 访问地址 | [正式网站](https://hjk202.github.io/)；[当前发布入口](https://hjk202.github.io/?v=968f313) |
 | 私人数据状态 | 本地/产物/线上均无验收密文，真实 Vault 未配置；私人功能完整，入口显示未配置提示 |
 | 后续阶段 | Phase 5 按用户决定延后，方案保留为储备；Phase 6 仍延后，均不影响当前可用状态 |
 | Studio | 独立本地作者工具路线，Windows PC、同仓库、Think 优先；不是访客网站新模块，也不重启 Phase 5/6，详见 [6.8](#studio-plan) |
@@ -954,7 +954,7 @@ Web 只把当前 Markdown 正文快照送给后端，明确显示发送范围与
 | --- | --- | --- | --- | --- | --- | --- |
 | v0.1 润色优化 | Done | 明确修正病句、减少重复、改善衔接，保留事实和作者语气；原样响应显示“本次未产生修改” | 不新增 Provider、自动重试/保存或通用提示词系统 | suggest.ts、web/main.ts、AI unit/browser 测试；原 HTTP/DTO 保持，返回文本→与请求时原文精确比较→状态/采纳按钮 | 共同 lint/typecheck/test/build；双引擎验证原样结果不采纳、不写源、空白差异仍可采纳；本机上游核对新请求指令，真实新进程润色归入 v0.2 集成验收；授权新文章的公开计数/路由测试与 smoke 不弱化 | 不保证模型每次都改；通过后仅进入已授权 v0.2 |
 | v0.2 Windows 本机启动 | Done | Key 用当前用户 DPAPI 加密保存在仓库外；一次录入后复用；桌面快捷方式启动/复用服务并打开浏览器，提供停止/重新配置方式 | 不存明文 Key、不做账号/云同步/后台开机常驻/MCP，不把 localhost 服务部署公网 | studio/windows/ 启动/配置脚本及必要本地进程管理、Windows 协议测试；本地密文→可信启动内存/子进程配置→原 HTTP | 共同门槛；真实 DPAPI 保存/加载/坏密文/无配置/更新、快捷方式实际目标、首次/重复启动、停止/重启/浏览器与新提示词非敏感真实调用；Key 不进 args/日志/Git，原内容不变 | 同用户程序不是安全隔离；首次保存需要作者本机安全录入，不能从旧进程窃取；通过后进入 v0.3 |
-| v0.3 v0 基线提交与正式部署 | In Progress | 审阅并提交当前 Studio/文档/授权文章，推送 main，手动触发原 workflow，核对实际公开产物与线上，创建 studio-v0 基线 | 不移动历史 v0、不夹带凭据、无强推、不把 Studio/本地配置上传 Pages | 现有 release/Vault 检查、Git、固定 GitHub Actions 与验收记录 | lint/typecheck/unit/build/默认 E2E 与原发布专项；云端检查/deploy 成功，源 SHA/下载 artifact/本地与线上哈希/受影响页面一致，浏览器无异常 | 不从本地通过推断已部署；保留实际 run/commit/tag 和限制，完成本授权后停止 |
+| v0.3 v0 基线提交与正式部署 | In Progress | 审阅并提交当前 Studio/文档/授权文章，推送 main，手动触发原 workflow，核对实际公开产物与线上，创建 studio-v0 基线；补充获准关闭 Astro 隐式预取及行为回归 | 不移动历史 v0、不夹带凭据、无强推、不把 Studio/本地配置上传 Pages | 现有 release/Vault 检查、Git、固定 GitHub Actions 与验收记录 | lint/typecheck/unit/build/默认 E2E 与原发布专项；云端检查/deploy 成功，源 SHA/下载 artifact/本地与线上哈希/受影响页面一致，浏览器无异常 | 不从本地通过推断已部署；保留实际 run/commit/tag 和限制，完成本授权后停止 |
 
 <a id="verification"></a>
 ## 7. Verification：执行命令与证据
@@ -1466,4 +1466,17 @@ sunshine.md 经作者明确同意原样纳入，当前 published:true、kind:not
 
 暂存后完整 git diff --cached --check 另报 sunshine.md:21 的 trailing whitespace，确认为原文两个空格的 Markdown 显式换行，作者已要求原样保留。文章原始哈希保持；只对该文用命令级 core.whitespace=-blank-at-eol 验证其余空白规则，其余全部文件仍执行严格 --check，不修改仓库配置/正文，也不把原命令退出 2 写成通过。
 
-**当前停点**：本地专项和范围审计已通过；待精确提交/推送 main、手动触发原 workflow、确认云端完整 check/deploy、下载产物与本地/线上字节一致、线上双引擎 smoke 和 studio-v0 标签。发布与完成状态只能据实际结果补记，当前不标 Done。
+**实际提交/部署**：75 个文件精确提交为 968f31363f0c7fba59658a218c371d2ed000a630 并普通推送 main。正式 workflow_dispatch 为 [39010209782](https://github.com/hjk202/hjk202.github.io/actions/runs/39010209782)，原全部 check 与 deploy 均 success；重复 push 检查 39010207919 主动请求取消、最终 cancelled，不把取消当验证通过，完整手动发布原样运行所有步骤。实际 github-pages artifact 12092307930，ZIP digest sha256:bd833e92ae8ed59d773b3b9b64f32476bba8b20e262a96125df14ab03eb2ceb6，下载校验 digest 后安全解包。26 文件的本地/下载产物/线上 SHA-256 全相同；普通无版本参数的 search-index.json 也匹配，Think count 2。证据 run-39010209782.json、artifact.json、local-manifest.json、release-comparison.json；没有上传 Studio、Key 或验收密文。
+
+**线上未完成项**：真实 Chromium 九个正常路径、404、两篇文章导航/搜索/刷新/公式、未配置私人入口均通过，0 pageerror/失败请求。Windows WebKit 路径与操作都能完成，但快速点击文章/Home 稳定产生两条 access-control pageerror；online-smoke-third.log / online-smoke-diagnostic.log、online-webkit-diagnostic.json 保留全部错误，没有过滤后签收。前两次 smoke 还分别暴露脚本未等待异步搜索结果、误向未配置时应隐藏的 Vault 表单填值，按已有契约修正脚本后，真实 WebKit 错误仍存在，不混淆为这些脚本问题或云端失败。
+
+src/shell/vault/runtime.ts 的公开链接标 data-astro-reload，goTo 在锁定态用 location.assign；现有 ClientRouter 又默认启用悬停预取。独立浏览器诊断对照中，同一组快速导航启用预取产生 3 条 pageerror/3 次 low-priority fetch；仅在测试 context 给链接加 data-astro-prefetch=false 后，导航正常、0 预取/0 pageerror。prefetch-diagnostic.json 明确 diagnosticOnly，不是网站已修复或正式验收。Astro [官方 Prefetch 配置](https://docs.astro.build/en/guides/prefetch/#using-with-view-transitions)支持 prefetch:false；[Playwright #43120](https://github.com/microsoft/playwright/issues/43120)亦记录文档替换期同源请求的类似 WebKit 现象，仅作机制参考，不据此过滤实际错误。
+
+**补充授权/当前范围**：作者于 2026-10-17 明确批准最小修复并重新验收、部署。v0.3 保持 In Progress，仅增加 astro.config.mjs 的 prefetch:false、公开悬停/快速导航行为回归与必要文档，原全部发布门槛及线上双引擎 0 pageerror 标准保持；不改导航/Vault 协议或 UI，不升级依赖，不进入 Phase 5/6。全部验证、实际再部署/产物比对与线上通过后才创建 studio-v0 并标 Done。原网站及 Key/两篇原文保护，桌面服务保持。新增证据放 .cache/studio-v0-prefetch/，初始 207 文件/原有 PLAN、README 未提交改动已快照。
+
+
+**补充修复本地结果（2026-10-17）**：公开运行仅 astro.config.mjs 增加 prefetch:false（附解释注释），tests/e2e/acceptance.spec.ts 增加实际悬停与快速点击的网络/导航/pageerror 回归。对真实旧下载产物运行新 WebKit 用例，明确因悬停提前请求 /think/ 而失败（control-old-artifact.log，预期负对照，不当成功）；修复后根/base 完整 E2E 各 76/76，WebKit 根/base 新回归各 1/1、mobile 16/16、private 29/29，所有错误原样断言。
+
+本轮重新实际运行 lint/typecheck/test/build，均退出 0；Astro 168 files 零诊断，Studio tsc 通过，100 tests 中 99 passed/1 既有 Windows 普通文件 symlink 权限 skipped，根 10 HTML 页/26 文件。完整 Studio 双引擎 37 passed/1 既有 WebKit 无 CDP IME skipped，预览使用新配置但原 CRUD/AI/Agent 及隔离边界保持。原 extension/content/design/mobile/session 发布专项全部退出 0，第五私人会话两引擎各 3/3；root/base release/Vault 边界检查通过。除配置、该回归与三份文档外，其余 202 文件 SHA-256 完全不变，包括作者两篇正文、AGENTS、Studio 全部实现、package/lock 与已完成验收历史。
+
+证据统一 .cache/studio-v0-prefetch/：lint.log/typecheck.log/unit.log/build.log/base-build.log/root-e2e.log/base-e2e.log/root-webkit-regression.log/base-webkit-regression.log/webkit-mobile.log/webkit-private.log/studio-browser.log、extension/content/design/mobile/session-{build,chromium,webkit}.log、release-boundary.log/vault-boundary.log/audit.json。既有 .cache/studio-v0/ 首次发布/错误/诊断证据保留。当前仍待新源精确提交/推送、完整 workflow_dispatch 再部署、实际新产物与线上哈希/双引擎无覆盖 smoke、studio-v0 标签，v0.3 暂不标 Done，不把本地修复或诊断对照当线上通过。
