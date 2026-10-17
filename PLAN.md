@@ -23,12 +23,12 @@
 
 | 项目 | 现状 |
 | --- | --- |
-| 本次任务 | 用户指定 N1 随记列表收起，随后授权测试通过后提交/推送/部署；完成线上验证后停止，等待作者检查 |
+| 本次任务 | N1 随记四行预览已提交/推送/部署，完整本地/云端及双引擎线上验证通过；已完成，停止等待作者检查 |
 | 已完成 | **Phase 1–4 全部 Done**；公开设计 D1–D8 与内室 V1–V5 完成 |
-| 当前 milestone | N1 In Progress；Studio M0–M6、v0.1/v0.2/v0.3 全部 Done，Phase 5/6 仍延后 |
-| 最近已核验线上产品源 | `224eea0884eaed4673f89c6c919e5b5a0c38b4e7`（26 文件三方哈希一致，线上 Chromium/WebKit 无 pageerror） |
-| 最近发布 | [Actions 39012527756](https://github.com/hjk202/hjk202.github.io/actions/runs/39012527756)，全部 check/deploy 成功、线上最终验收通过 |
-| 访问地址 | [正式网站](https://hjk202.github.io/)；[v0 发布入口](https://hjk202.github.io/?v=224eea0) |
+| 当前 milestone | 无；N1 Done，Studio M0–M6、v0.1/v0.2/v0.3 全部 Done，Phase 5/6 仍延后 |
+| 最近已核验线上产品源 | `2a8ff37da0c2ad322e155eedd2a6ee09fa8f74e3`（26 文件三方哈希一致，线上 Chromium/WebKit 无 pageerror/失败请求） |
+| 最近发布 | [Actions 39016722251](https://github.com/hjk202/hjk202.github.io/actions/runs/39016722251)，全部 check/deploy 成功、随记及全站线上验证通过 |
+| 访问地址 | [正式网站](https://hjk202.github.io/)；[随记预览验收入口](https://hjk202.github.io/think/?v=2a8ff37) |
 | 私人数据状态 | 本地/产物/线上均无验收密文，真实 Vault 未配置；私人功能完整，入口显示未配置提示 |
 | 后续阶段 | Phase 5 按用户决定延后，方案保留为储备；Phase 6 仍延后，均不影响当前可用状态 |
 | Studio | 独立本地作者工具路线，Windows PC、同仓库、Think 优先；不是访客网站新模块，也不重启 Phase 5/6，详见 [6.8](#studio-plan) |
@@ -1495,7 +1495,7 @@ src/shell/vault/runtime.ts 的公开链接标 data-astro-reload，goTo 在锁定
 限制如实保留：1 个既有 Windows 普通文件 symlink 权限子项、1 个既有 WebKit CDP IME 子项跳过，均没有当作通过；DPAPI/快捷方式原生测试与本次 WebKit 导航实际通过。未新增真人输入法候选窗/手机/其他 OS Studio 验收，不改变既有 Phase 4 作者反馈，不承诺 AI 质量或同用户恶意进程隔离。v0.3 全部当前标准满足、标 Done；M0–M6 与 v0.1/v0.2 Done 保持，Studio v0 基线收尾完成，Phase 5/6 未开始，完成本轮授权后停止。
 
 <a id="notes-n1"></a>
-### 9.19 N1 — 随记列表预览（2026-10-17，In Progress）
+### 9.19 N1 — 随记列表预览（2026-10-17，Done）
 
 **授权 / Scope**：用户明确要求随记只展示前几行、点击查看余文；作为独立小单元执行。Think 公开列表从完整正文改为最多四行的正文纯文字预览，标题及“阅读全文”进入既有详情。私人列表本来仅展示摘要/链接，保持；不改变文章内容、数据字段、计数/搜索、Studio、其他模块，不开启 Phase 5/6。用户随后明确授权测试通过后提交/推送/部署，完成线上验证后停止，等待作者检查。
 
@@ -1505,10 +1505,18 @@ src/shell/vault/runtime.ts 的公开链接标 data-astro-reload，goTo 在锁定
 - [x] 列表预览最多四行，没有整篇正文或隐藏交互元素；长随记不撑页面，短随记正常。
 - [x] 标题/阅读全文可点、键盘 Enter 可用，完整详情及返回/刷新/搜索/计数保持。
 - [x] 作者原文、其他模块/Studio/Vault 不改；根/base、桌面/窄屏、明暗与 Chromium/WebKit 检查通过。
-- [ ] 提交/推送准确候选，完整 Actions check/deploy 成功，同产物线上核对与随记 smoke 通过。
+- [x] 提交/推送准确候选，完整 Actions check/deploy 成功，同产物线上核对与随记 smoke 通过。
 
 **Verification**：lint、typecheck、test、build；根路径完整 E2E；base 随记/Think 导航与相关回归；WebKit 随记/窄屏 smoke；相关 Studio note 公开预览与 design fixture 回归；页面 pageerror/失败请求为 0，截图检查。按追加授权完成完整发布门槛、实际 Actions、产物/线上比对与双引擎线上 smoke 后标 Done；手机由作者之后检查，不冒充本轮真机验证。
 
 **本地记录**：lint/typecheck（170 文件 0 诊断，含 Studio tsc）/build（10 HTML 页）退出 0，unit 101 passed / 1 既有 Windows symlink skipped；根/base E2E 各 77 passed，WebKit Think/导航/私人相关 7 passed，WebKit mobile 16 passed，design fixture 5 passed，Studio 相关公开预览/保存/隐藏/删除 × 两种 base × 两引擎 4 passed。320/375/1280px、明暗、四行实测/44px 入口/键盘与点击/全文结尾/返回刷新通过，已查看手机宽度截图。证据 `.cache/n1-*.log`、`.cache/n1-*-results/`；完整发布专项记录随后补齐。
 
 初次类型/构建发现 Astro 7 `compiledContent()` 返回 Promise，已在构建期 await 后重跑通过；无修改业务契约。首轮 sandbox 中既有网络/硬链接检查被 EACCES/EPERM 拒绝，获工具权限后原测试完整通过；mobile 脚本首轮未设置已安装浏览器目录，按实际 `PLAYWRIGHT_BROWSERS_PATH` 重跑，不改测试规则或安装依赖掩盖失败。原失败日志保留可用部分，未把失败写成通过。
+
+**完整发布专项**：WebKit private 29 passed、真实第五私人 adapter/session Chromium/WebKit 各 3 passed，既有 extension/content/design/mobile 隔离构建与 4–7 模块两引擎移动测量、release/Vault 边界均退出 0；正式产物未配置密文，不包含 Studio、作者源或 fixture。10 个获准文件精确提交为 `2a8ff37da0c2ad322e155eedd2a6ee09fa8f74e3` 并普通推送；原文、依赖、Core/Shell/Studio 实现与 AGENTS 保持不变。
+
+**实际发布 / 线上 Verification**：[手动 Actions 39016722251](https://github.com/hjk202/hjk202.github.io/actions/runs/39016722251) 对该 SHA 执行全部原有检查，check/deploy 均 success；重复 push 检查 39016709506 仅取消去重，不替代或跳过手动运行。实际 github-pages artifact `12094799425`，ZIP digest `sha256:6c902e4c716e0a0c8a6b660bdf415bde23f1266244d87ff04d4ec3855d1c8aca`，下载摘要校验及安全解包通过。受测本地 dist / 实际下载产物 / 线上 **26 文件逐项 SHA-256 相同**。
+
+真实线上 Chromium/WebKit 各检查 9 个正常路由及 404；320/375/1280px 明暗下预览最多四行且内容实际溢出被收起、无隐藏链接/媒体/标题，阅读全文键盘 Enter 与点击进入完整末段，返回/刷新/Spotlight/文章公式正常，未配置私人入口仍正确。两引擎均 0 pageerror、0 failed request，已查看线上手机宽度截图。证据 `.cache/n1-release/` 中 run/dispatch/artifact/local-manifest/release-comparison/online-smoke/scope-check JSON 与截图；本地证据见 `.cache/n1-*.log` 和对应 results。
+
+N1 全部 Done Criteria/Verification 满足、标 Done；手机真人检查留给作者，本轮不冒充 OPPO 复验。最终仅更新完成记录/简报，文档检查后保存 Git，不为纯文档重复部署或移动 studio-v0/v0 标签；Phase 5/6 不启动，完成后停止。
