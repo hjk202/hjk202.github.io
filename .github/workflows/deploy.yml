@@ -1,4 +1,5 @@
 name: Verify and publish Personal Space
+run-name: ${{ github.event_name == 'workflow_dispatch' && format('Studio {0} {1}', inputs.studio_request, inputs.expected_sha) || github.workflow }}
 
 on:
   push:
@@ -6,6 +7,16 @@ on:
   pull_request:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      expected_sha:
+        description: Exact approved main commit SHA
+        required: true
+        type: string
+      studio_request:
+        description: Studio publication request UUID, or manual
+        required: true
+        default: manual
+        type: string
 
 permissions:
   contents: read
@@ -23,7 +34,24 @@ jobs:
   check:
     name: Verify static candidate
     runs-on: ubuntu-24.04
+    outputs:
+      checked_sha: ${{ steps.identity.outputs.sha }}
     steps:
+      - name: Guard the exact approved publication SHA
+        id: identity
+        shell: bash
+        env:
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
+          STUDIO_REQUEST: ${{ inputs.studio_request }}
+        run: |
+          set -euo pipefail
+          if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
+            [[ "$GITHUB_REF" == "refs/heads/main" ]]
+            [[ "$EXPECTED_SHA" =~ ^[a-f0-9]{40}$ ]]
+            [[ "$EXPECTED_SHA" == "$GITHUB_SHA" ]]
+            [[ "$STUDIO_REQUEST" == "manual" || "$STUDIO_REQUEST" =~ ^[a-f0-9]{8}-([a-f0-9]{4}-){3}[a-f0-9]{12}$ ]]
+          fi
+          echo "sha=$GITHUB_SHA" >> "$GITHUB_OUTPUT"
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
@@ -75,6 +103,9 @@ jobs:
         run: |
           node tests/verify-release.mjs
           node --experimental-strip-types tests/verify-vault-release.mjs
+          node scripts/release/record.mjs
+          node tests/verify-release.mjs
+          node --experimental-strip-types tests/verify-vault-release.mjs
       - name: Upload only the checked dist for manual publication
         if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' }}
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
@@ -93,6 +124,17 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - name: Recheck approved SHA before deployment
+        shell: bash
+        env:
+          APPROVED_SHA: ${{ inputs.expected_sha }}
+          CHECKED_SHA: ${{ needs.check.outputs.checked_sha }}
+        run: |
+          set -euo pipefail
+          [[ "$APPROVED_SHA" =~ ^[a-f0-9]{40}$ ]]
+          [[ "$APPROVED_SHA" == "$GITHUB_SHA" && "$CHECKED_SHA" == "$APPROVED_SHA" ]]
+          remote_sha="$(git ls-remote --refs "https://github.com/$GITHUB_REPOSITORY.git" refs/heads/main | cut -f1)"
+          [[ "$remote_sha" == "$APPROVED_SHA" ]]
       - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
       - name: Deploy the already checked artifact
         id: deployment

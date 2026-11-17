@@ -1,0 +1,7 @@
+import fs from 'node:fs';import path from 'node:path';import {createHash}from'node:crypto';import{execFileSync}from'node:child_process';import assert from'node:assert/strict';
+import process from'node:process';import{log}from'node:console';
+// A website release receipt. No Studio code, credentials or article source is copied here.
+const root=path.resolve('dist'),source=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8',env:{...process.env,GIT_OPTIONAL_LOCKS:'0'}}).trim();assert.match(source,/^[a-f0-9]{40}$/);if(process.env.GITHUB_SHA)assert.equal(source,process.env.GITHUB_SHA);
+const files={},hash=data=>createHash('sha256').update(data).digest('hex');let total=0;
+function walk(dir){const s=fs.lstatSync(dir);assert.ok(s.isDirectory()&&!s.isSymbolicLink()&&fs.realpathSync(dir)===dir);for(const name of fs.readdirSync(dir).sort()){const p=path.join(dir,name),stat=fs.lstatSync(p),relative=path.relative(root,p).replaceAll('\\','/');assert.ok(!stat.isSymbolicLink());if(stat.isDirectory())walk(p);else{assert.ok(stat.isFile()&&stat.nlink===1&&stat.size<=32*1024*1024);if(relative==='release-manifest.json')continue;total+=stat.size;assert.ok(total<=128*1024*1024&&Object.keys(files).length<512);assert.ok(!relative.split('/').some(x=>!x||x==='.'||x==='..')&&!relative.includes('\\'));files[relative]=hash(fs.readFileSync(p));}}}
+walk(root);fs.writeFileSync(path.join(root,'release-manifest.json'),JSON.stringify({version:1,source,files})+'\n');log('Checked website release identity recorded.');
