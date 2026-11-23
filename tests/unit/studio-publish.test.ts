@@ -4,6 +4,7 @@ const value=<T>(r:EditorResult<T>):T=>{assert.ok(r.ok,JSON.stringify(r));return 
 const project=(slug:string)=>({slug,title:slug,summary:'NON_SENSITIVE_FIXTURE',published:slug==='other',sections:[{paragraphs:['NON_SENSITIVE_BODY']} ]});
 import{publicationFixture}from'../studio/publish-fixture.ts';
 import { saveThinkImage } from '../../studio/server/think/image.ts';
+import { checkFastThink } from '../../studio/server/publish/think-fast.ts';
 async function finished(publisher:ReturnType<typeof createPublisher>,id:string){let s:PublicationStatus;for(let n=0;n<1000;n++){s=value(await publisher.status(id));if(!publisher.busy())return s;await new Promise(r=>setTimeout(r,10));}throw new Error('Fixture publication did not settle');}
 test('M23 only approved Build entry reaches remote; dirty index, non-target source bytes and local branch are preserved',async t=>{
   const f=await publicationFixture(t),beforeHead=await git(f.root,['rev-parse','HEAD']);const raw=fs.readFileSync(f.buildFile,'utf8').replace('"slug":"other","title":"other"','"slug":"other","title":"USER_OTHER_DIRTY"');fs.writeFileSync(f.buildFile,raw);fs.writeFileSync(join(f.root,'unrelated.txt'),'USER_STAGED_CHANGE');await git(f.root,['add','unrelated.txt','src/modules/build/data.ts']);const index=fs.readFileSync(join(f.root,'.git/index')),source=value(f.build.listBuild());
@@ -15,6 +16,47 @@ test('M23 only approved Build entry reaches remote; dirty index, non-target sour
 });
 test('M23 direct proposal publication needs no preliminary draft source write; approved result clears inbox material',async t=>{
   const f=await publicationFixture(t),p=value(await f.intake.create({material:'---\nslug: from-proposal\ntitle: 非敏感标题\nsummary: 非敏感说明\ndate: 2026-10-31\n---\nNON_SENSITIVE_PROPOSAL_BODY',format:'markdown'}));const plan=value(await f.publisher.prepare({proposalId:p.id,expectedProposalRevision:p.revision}));assert.equal(plan.canExecute,true);assert.equal(fs.existsSync(join(f.root,'src/modules/think/content/from-proposal.md')),false);value(await f.publisher.execute(plan.id,{bindingHash:plan.bindingHash,approvePublication:true}));const s=await finished(f.publisher,plan.id);assert.equal(s.phase,'complete',JSON.stringify(s));const receipt=value(await f.intake.read(p.id));assert.equal(receipt.state,'applied');assert.ok(!fs.readFileSync(join(f.root,'inbox',p.id+'.json'),'utf8').includes('NON_SENSITIVE_PROPOSAL_BODY'));
+});
+for(const mode of ['fast','fast-artifact-fail'] as const)test('M23 '+mode+' delegates only the checked Think article and never re-uploads on verification',async t=>{
+  const f=await publicationFixture(t,mode),base=await f.gateway.head(),head=await git(f.root,['rev-parse','HEAD']);
+  fs.writeFileSync(join(f.root,'unrelated.txt'),'staged unrelated change');await git(f.root,['add','unrelated.txt']);
+  const index=fs.readFileSync(join(f.root,'.git/index'));
+  const draft=value(await f.intake.create({format:'markdown',material:'---\nslug: checked-think\ntitle: 合成文章\nsummary: 仅用于发布测试\ndate: 2026-11-23\n---\n# 非敏感样本\n\n只核对本地隔离链路。'}));
+  const plan=value(await f.publisher.prepare({proposalId:draft.id,expectedProposalRevision:draft.revision}));
+  assert.equal(plan.verification,'github-think-v1');assert.equal(await f.gateway.head(),base);
+  value(await f.publisher.execute(plan.id,{bindingHash:plan.bindingHash,approvePublication:true}));
+  const result=await finished(f.publisher,plan.id);
+  assert.equal(f.fullChecks(),0);
+  assert.equal(await git(f.bare,['diff','--name-only',base,'HEAD']),'src/modules/think/content/checked-think.md');
+  assert.equal(await git(f.root,['rev-parse','HEAD']),head);assert.deepEqual(fs.readFileSync(join(f.root,'.git/index')),index);
+  if(mode==='fast-artifact-fail'){
+    assert.equal(result.live,false);assert.equal(result.pushState,'confirmed');assert.equal(result.dispatchState,'confirmed');
+    const other=value(await f.intake.create({format:'markdown',material:'---\nslug: second-check\ntitle: 第二篇\nsummary: 隔离样本\ndate: 2026-11-23\n---\n合成发布草稿。'}));
+    const blocked=value(await f.publisher.prepare({proposalId:other.id,expectedProposalRevision:other.revision}));
+    assert.equal(blocked.canExecute,false);assert.ok(blocked.issues.some(issue=>issue.startsWith('PREVIOUS_PUBLICATION_UNCONFIRMED')));
+    assert.equal(value(await f.publisher.verifyAgain(plan.id)).live,true);
+  }
+  else assert.equal(result.live,true,JSON.stringify(result));
+  assert.equal(f.calls.push,1);assert.equal(f.calls.dispatch,1);
+});
+test('M23 lightweight check requires committed local images and routes raw HTML to the full gate', async t => {
+  const f = await publicationFixture(t, 'fast');
+  const path = 'src/modules/think/content/test-resources.md';
+  const write = (body: string) => fs.writeFileSync(join(f.root, path), `---\nslug: test-resources\ntitle: 合成测试\nsummary: 图片与语法检查\ndate: "2026-11-23"\npublished: true\n---\n${body}\n`);
+  write('<img src="https://example.invalid/raw.png">');
+  assert.equal(await checkFastThink(f.root, path, 'test-resources'), false);
+  write('![远程图片](https://example.invalid/external.png)');
+  assert.equal(await checkFastThink(f.root, path, 'test-resources'), false);
+  const png = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aJ9sAAAAASUVORK5CYII=';
+  const saved = saveThinkImage(f.root, {mime:'image/png',data:png});
+  assert.equal(saved.ok, true);
+  const image = value(saved);
+  write(`![本地图片](${image.url})`);
+  assert.equal(await checkFastThink(f.root, path, 'test-resources'), false);
+  const imagePath = `src/modules/think/content/${image.url.slice(2)}`;
+  await git(f.root, ['add', '--', imagePath]);
+  await git(f.root, ['-c', 'commit.gpgsign=false', 'commit', '-m', 'fixture: approve image']);
+  assert.equal(await checkFastThink(f.root, path, 'test-resources'), true);
 });
 test('M23 blocks a Think attachment outside the approved remote tree without writing source or pushing', async t => {
   const f = await publicationFixture(t);

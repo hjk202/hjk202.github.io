@@ -1,8 +1,9 @@
 import fs from'node:fs';import{join,resolve,dirname,relative}from'node:path';import{randomUUID}from'node:crypto';
 import type{EditorResult}from'../../contracts/result.ts';import type{ThinkAuthoring}from'../think/service.ts';import{openThinkAuthoring}from'../think/service.ts';import{createBuildAuthoring}from'../build/service.ts';import type{createIntake}from'../intake/service.ts';
 import type{PublicationPlan,PublicationSelection,PublicationStatus}from'../../contracts/publish.ts';import{canonical,ProposalStore,record,hex,idValid}from'../intake/store.ts';import{localStorePathAsync}from'../../windows/local.ts';
-import{command,git,gitSha,sha,fileBytes,safeDirectory,PublishError,catalog}from'./support.ts';import{githubGateway,PUBLISH_GIT,PUBLISH_REPOSITORY,runTitle}from'./github.ts';import type{PublicationGateway,UploadCommit,PublicationRun}from'./github.ts';import{publicationCheckers,guardPublicationAssets}from'./checks.ts';import{guardedWorkflow}from'./workflow.ts';
+import{command,git,gitSha,sha,fileBytes,safeDirectory,PublishError,catalog}from'./support.ts';import{githubGateway,PUBLISH_GIT,PUBLISH_REPOSITORY,runTitle}from'./github.ts';import type{PublicationGateway,UploadCommit,PublicationRun}from'./github.ts';import{publicationCheckers,guardPublicationAssets}from'./checks.ts';import{guardedWorkflow,supportsThinkFast}from'./workflow.ts';
 import{releaseIdentity}from'./artifact.ts';
+import{checkFastThink}from'./think-fast.ts';
 
 type Options={repositoryRoot:string;think:ThinkAuthoring;build:ReturnType<typeof createBuildAuthoring>;intake:ReturnType<typeof createIntake>;receiptDirectory?:string;gateway?:PublicationGateway;verifyCandidate?:(candidate:string)=>Promise<void>;guardAssets?:(candidate:string,selection:PublicationSelection)=>Promise<void>;timeoutMs?:number};
 /** Trusted test/startup hooks, never parsed from an HTTP request. */
@@ -24,7 +25,8 @@ export function createPublisher(options:Options){
   const storage=()=>store??=Promise.resolve().then(async()=>new ProposalStore(options.receiptDirectory??join(dirname(await localStorePathAsync()),'publications',sha(fs.realpathSync.native(root)))));
   const result=async<T>(work:()=>Promise<T>):Promise<EditorResult<T>>=>{try{if(closed)throw new PublishError('SERVICE_CLOSED','SERVICE_CLOSED');return{ok:true,value:await work()};}catch(e){return{ok:false,error:{code:e instanceof PublishError?e.code:'PUBLISH_FAILED',message:e instanceof PublishError?e.message:'PUBLICATION_FAILED',issues:[]}};}};
   function statusValue(raw:unknown):PublicationStatus{
-    const s=record(raw,['version','id','bindingHash','module','slug','repository','branch','phase','message','sourceState','commitState','pushState','dispatchState','sourceKey','sourceAfterRevision','remoteBaseSha','localHeadSha','commitSha','runId','artifactId','artifactDigest','live','fileHashes','observations','cleanupPending']);
+    const s=record(raw,['version','id','bindingHash','module','slug','repository','branch','phase','message','sourceState','commitState','pushState','dispatchState','sourceKey','sourceAfterRevision','remoteBaseSha','localHeadSha','commitSha','runId','artifactId','artifactDigest','live','fileHashes','observations','cleanupPending','verification']);
+    if(s.verification!==undefined&&(s.verification!=='github-think-v1'||s.module!=='think'))throw new PublishError('PUBLICATION_RECEIPT_INVALID');
     if(s.version!==1||!idValid(s.id)||!hex(s.bindingHash)||!['think','build'].includes(String(s.module))||typeof s.slug!=='string'||s.repository!==gateway.repository||s.branch!=='main'||!['prepared','committing','checking','saving','pushing','dispatching','deploying','verifying','complete','failed','unknown','closed'].includes(String(s.phase))||typeof s.message!=='string'||!hex(s.sourceAfterRevision)||!gitSha(s.remoteBaseSha)||!gitSha(s.localHeadSha)||typeof s.sourceKey!=='string'||typeof s.live!=='boolean'||['sourceState','commitState','pushState','dispatchState'].some(k=>!['not-started','in-flight','confirmed','unknown'].includes(String(s[k]))))throw new PublishError('PUBLICATION_RECEIPT_INVALID');
     if(s.commitSha!==undefined&&!gitSha(s.commitSha)||s.runId!==undefined&&(!Number.isSafeInteger(s.runId)||Number(s.runId)<1)||s.artifactId!==undefined&&(!Number.isSafeInteger(s.artifactId)||Number(s.artifactId)<1)||s.artifactDigest!==undefined&&(typeof s.artifactDigest!=='string'||!/^sha256:[a-f0-9]{64}$/.test(s.artifactDigest)))throw new PublishError('PUBLICATION_RECEIPT_INVALID');
     if(s.fileHashes!==undefined&&(!s.fileHashes||typeof s.fileHashes!=='object'||Array.isArray(s.fileHashes)||Object.keys(s.fileHashes).length>512||Object.values(s.fileHashes).some(v=>!hex(v))))throw new PublishError('PUBLICATION_RECEIPT_INVALID');
@@ -63,18 +65,22 @@ export function createPublisher(options:Options){
   }
   async function run(id:string,m:Memory){
     try{
-      await unchanged(m,true);const identityName=await git(root,['config','user.name']),email=await git(root,['config','user.email']);
+      // execute already checked main. Check it again after verification, before saving the source.
+      await unchanged(m);const identityName=await git(root,['config','user.name']),email=await git(root,['config','user.email']);
       if(!identityName||identityName.length>256||/[<>\r\n]/.test(identityName)||!email||email.length>256||!/^\S+@\S+$/.test(email)||/[<>\r\n]/.test(email))throw new PublishError('GIT_AUTHOR_NOT_CONFIGURED','PUBLISH_NOT_READY');
-      const epoch=Math.floor(Date.now()/1000),author={name:identityName,email,date:new Date(epoch*1000).toISOString().replace('.000Z','Z')},message=`Publish ${m.selection.module}: ${m.plan.slug}\n`;
+      const fast=m.plan.verification==='github-think-v1';
+      const epoch=Math.floor(Date.now()/1000),author={name:identityName,email,date:new Date(epoch*1000).toISOString().replace('.000Z','Z')},message=`Publish ${m.selection.module}: ${m.plan.slug}\n${fast?'\nStudio-Think-Verification: github-think-v1\n':''}`;
       let commit=m.plan.remoteBaseSha;
       await change(id,{phase:'committing',message:'正在为精确内容创建隔离提交；开发分支和暂存区保持。',commitState:'in-flight'});
       if(m.plan.remoteDiff){const raw=`tree ${m.tree}\nparent ${m.plan.remoteBaseSha}\nauthor ${identityName} <${email}> ${epoch} +0000\ncommitter ${identityName} <${email}> ${epoch} +0000\n\n${message}`;commit=await git(m.candidate,['hash-object','-t','commit','-w','--stdin'],{input:raw});if(!gitSha(commit))throw new PublishError('COMMIT_INVALID');await git(m.candidate,['update-ref','HEAD',commit,m.plan.remoteBaseSha]);}
-      await change(id,{commitSha:commit,commitState:'confirmed',phase:'checking',message:'正在检查同一冻结提交（依赖、浏览器、lint/types/test/build、完整网站与边界），可能需要数分钟。'});
-      await assetGuard(m.candidate,m.selection);continuing();await verify(m.candidate);continuing();
+      await change(id,{commitSha:commit,commitState:'confirmed',phase:'checking',message:fast?'正在核对冻结文章、已提交资源和 SHA。GitHub 将构建并检查网站。':'正在检查同一冻结提交（依赖、浏览器、lint/types/test/build、完整网站与边界），可能需要数分钟。'});
+      if(fast){if(!await checkFastThink(m.candidate,m.path,m.plan.slug))throw new PublishError('THINK_FAST_CHECK_CHANGED','PUBLISH_STALE');}
+      else {await assetGuard(m.candidate,m.selection);continuing();await verify(m.candidate);}
+      continuing();
       assertCandidate(m);if(await git(m.candidate,['rev-parse','HEAD'])!==commit||await git(m.candidate,['diff','--name-only','HEAD'])||await git(m.candidate,['diff','--cached','--name-only']))throw new PublishError('CHECKED_SOURCE_CHANGED','PUBLISH_STALE');
-      m.fileHashes=catalog(join(m.candidate,'dist'));releaseIdentity(fileBytes(join(m.candidate,'dist/release-manifest.json'),1024*1024),commit,m.fileHashes);
+      if(!fast){m.fileHashes=catalog(join(m.candidate,'dist'));releaseIdentity(fileBytes(join(m.candidate,'dist/release-manifest.json'),1024*1024),commit,m.fileHashes);}
       await unchanged(m,true);
-      await change(id,{phase:'saving',message:'检查通过，正在保存最终批准的本机源码；其他改动保留。',sourceState:'in-flight',fileHashes:m.fileHashes});
+      await change(id,{phase:'saving',message:'检查通过，正在保存最终批准的本机源码；其他改动保留。',sourceState:'in-flight',...(m.fileHashes?{fileHashes:m.fileHashes}:{})});
       if(m.selection.proposal)unwrap(await options.intake.reservePublication(m.selection.proposal.id,m.selection.proposal.revision,m.selection.proposal.candidateHash));
       let sourceRevision:string;
       if(m.selection.module==='think'){const s=m.selection,w=s.key?options.think.saveThink({key:s.key,expectedRevision:s.expectedSourceRevision,document:s.document}):options.think.createThink({document:s.document});sourceRevision=unwrap(w).revision;}
@@ -92,8 +98,10 @@ export function createPublisher(options:Options){
       const deadline=Date.now()+timeout;let r:PublicationRun|undefined;
       while(Date.now()<deadline){continuing();r=r?await gateway.inspectRun(r.id):await gateway.findRun(id,commit);if(r){if(r.head_sha!==commit||r.head_branch!=='main'||r.event!=='workflow_dispatch'||r.display_title!==runTitle(id,commit))throw new PublishError('RUN_SOURCE_MISMATCH','PUBLISH_STALE');await change(id,{runId:r.id});if(r.status==='completed')break;}await new Promise(resolve=>setTimeout(resolve,2000));}
       if(!r||r.status!=='completed')throw new PublishError('DEPLOYMENT_RESULT_UNCONFIRMED','PUBLISH_UNKNOWN');if(r.conclusion!=='success')throw new PublishError('DEPLOYMENT_FAILED');
-      await change(id,{phase:'verifying',message:'部署 run 成功；正在核对本机/下载产物/线上文件与两引擎页面。'});
-      continuing();const proof=await gateway.verify(r,m.fileHashes,m.candidate),cleanupPending=cleanup(id,m);await change(id,{phase:'complete',message:'已核验上线：获批 SHA、同一受检产物、线上文件和浏览器均匹配。'+(cleanupPending?' 自有派生检查目录未能清理，请按回执 id 核对。':''),live:true,cleanupPending,...proof});
+      await change(id,{phase:'verifying',message:'部署 run 成功；正在核对获批 SHA、下载产物、线上文件与两引擎页面。'});
+      continuing();const proof=await gateway.verify(r,m.fileHashes,fast?root:m.candidate);
+      if(fast&&!proof.fileHashes)throw new PublishError('CHECKED_ARTIFACT_MISSING');
+      const cleanupPending=cleanup(id,m);await change(id,{phase:'complete',message:'已核验上线：获批 SHA、同一受检产物、线上文件和浏览器均匹配。'+(cleanupPending?' 自有派生检查目录未能清理，请按回执 id 核对。':''),live:true,cleanupPending,...proof});
     }catch(error){
       const current=await read(id),patch:Partial<PublicationStatus>={phase:error instanceof PublishError&&error.code==='PUBLISH_STALE'?'failed':current.sourceState==='in-flight'||current.pushState==='in-flight'||current.dispatchState==='in-flight'||error instanceof PublishError&&error.code==='PUBLISH_UNKNOWN'?'unknown':'failed',message:error instanceof PublishError?error.message:'PUBLICATION_FAILED',live:false};
       for(const key of ['sourceState','commitState','pushState','dispatchState'] as const)if(current[key]==='in-flight')patch[key]='unknown';await change(id,patch);
@@ -124,7 +132,8 @@ export function createPublisher(options:Options){
         const staged=await command('git',['show',':'+path],candidate,{maxOutputBytes:16*1024*1024});fs.writeFileSync(target,staged);const mode=(await git(candidate,['ls-files','--stage','--',path])).split(' ')[0];if(mode!=='100644')throw new PublishError('UNSUPPORTED_CONTENT_MODE');
         const tree=await git(candidate,['write-tree']),baseTree=await git(candidate,['rev-parse',remoteBaseSha+'^{tree}']),blobSha=await git(candidate,['rev-parse',':'+path]);
         const remoteDiff=await git(candidate,['diff','--cached','--no-ext-diff','--no-color','--',path]),landingPath=s.module==='think'?'src/modules/think/content/'+local.fileName:'src/modules/build/data.ts',diff=localDiff(local.before,local.after,landingPath);if(Buffer.byteLength(remoteDiff)+Buffer.byteLength(diff)>1024*1024)throw new PublishError('DIFF_LIMIT','PUBLISH_TOO_LARGE');
-        const issues:string[]=[];try{if(!guardedWorkflow(fileBytes(join(candidate,'.github/workflows/deploy.yml'),1024*1024).toString('utf8'))||!fs.existsSync(join(candidate,'scripts/release/record.mjs')))issues.push('REMOTE_WORKFLOW_NOT_READY：需先另获许可发布本版 SHA 守卫和产物记录脚本；当前只能审核差异。');}catch{issues.push('REMOTE_WORKFLOW_NOT_READY');}
+        const issues:string[]=[];let fastWorkflow=false;
+        try{const workflow=fileBytes(join(candidate,'.github/workflows/deploy.yml'),1024*1024).toString('utf8');if(!guardedWorkflow(workflow)||!fs.existsSync(join(candidate,'scripts/release/record.mjs')))issues.push('REMOTE_WORKFLOW_NOT_READY：需先另获许可发布本版 SHA 守卫和产物记录脚本；当前只能审核差异。');else fastWorkflow=supportsThinkFast(workflow)&&fs.existsSync(join(candidate,'scripts/release/check-think.mjs'));}catch{issues.push('REMOTE_WORKFLOW_NOT_READY');}
         const githubIssue=gateway.readinessIssue?await gateway.readinessIssue():!await gateway.writeAvailable()?'GITHUB_WRITE_UNAVAILABLE：本机 gh 需要现有仓库写入和 Actions 权限。':undefined;
         if(githubIssue)issues.push(githubIssue);
         if(s.module==='think' && s.document.body.includes('./assets/')){
@@ -140,11 +149,14 @@ export function createPublisher(options:Options){
             break;
           }
         }
-        const store=await storage();for(const entry of store.list()){const status=await read(entry.id);if(!complete.has(status.phase)&&status.phase!=='prepared')issues.push('PREVIOUS_PUBLICATION_UNCONFIRMED：先核对旧发布记录，禁止盲重试。');}
-        const slug=s.module==='think'?s.document.metadata.slug:s.project.slug,bindingHash=sha(canonical([s,local.expectedRevision,sha(local.after),remoteBaseSha,tree,localHeadSha,indexHash,gateway.repository,'main']));
-        const plan:PublicationPlan={id,bindingHash,module:s.module,slug,repository:gateway.repository,branch:'main',site:gateway.site,remoteBaseSha,localHeadSha,remoteDiff,localDiff:diff,canExecute:issues.length===0,issues};
+        const store=await storage();for(const entry of store.list()){const status=await read(entry.id);if(!complete.has(status.phase)&&status.phase!=='prepared'||status.phase==='failed'&&status.pushState==='confirmed')issues.push('PREVIOUS_PUBLICATION_UNCONFIRMED：先核对旧发布记录，禁止盲重试。');}
+        const slug=s.module==='think'?s.document.metadata.slug:s.project.slug;
+        const fast=issues.length===0&&s.module==='think'&&fastWorkflow&&names.length===1&&await checkFastThink(candidate,path,slug).catch(()=>false);
+        const verification=fast?{verification:'github-think-v1' as const}:{};
+        const bindingHash=sha(canonical([s,local.expectedRevision,sha(local.after),remoteBaseSha,tree,localHeadSha,indexHash,gateway.repository,'main',verification]));
+        const plan:PublicationPlan={id,bindingHash,module:s.module,slug,repository:gateway.repository,branch:'main',site:gateway.site,remoteBaseSha,localHeadSha,remoteDiff,localDiff:diff,canExecute:issues.length===0,issues,...verification};
         const memory:Memory={plan,selection:s,input:structuredClone(input),candidate,identity,local,remote,path,tree,baseTree,blobSha,indexPath,indexHash};await unchanged(memory,true);
-        const status:PublicationStatus={version:1,id,bindingHash,module:s.module,slug,repository:gateway.repository,branch:'main',phase:'prepared',message:plan.canExecute?'等待本人批准精确差异。':'尚不满足执行条件；没有提交或部署。',sourceState:'not-started',commitState:'not-started',pushState:'not-started',dispatchState:'not-started',sourceKey:local.key,sourceAfterRevision:sha(local.after),remoteBaseSha,localHeadSha,live:false};store.write(id,status,null);plans.set(id,memory);return plan;
+        const status:PublicationStatus={version:1,id,bindingHash,module:s.module,slug,repository:gateway.repository,branch:'main',phase:'prepared',message:plan.canExecute?'等待本人批准精确差异。':'尚不满足执行条件；没有提交或部署。',sourceState:'not-started',commitState:'not-started',pushState:'not-started',dispatchState:'not-started',sourceKey:local.key,sourceAfterRevision:sha(local.after),remoteBaseSha,localHeadSha,live:false,...verification};store.write(id,status,null);plans.set(id,memory);return plan;
       }finally{if(disposable&&!plans.has(disposable.id))cleanup(disposable.id,disposable);preparing=false;}
     }),
     execute:(id:string,input:unknown)=>result(async()=>{
@@ -156,8 +168,8 @@ export function createPublisher(options:Options){
     list:()=>result(async()=>{const s=await storage();return Promise.all(s.list().map(e=>read(e.id)));}),
     reconcile:(id:string)=>result(async()=>{const s=await read(id);if(active||preparing)throw new PublishError('PUBLICATION_BUSY','PUBLISH_BUSY');const observations=['REMOTE_HEAD '+await gateway.head()];if(s.commitSha){const r=s.runId?await gateway.inspectRun(s.runId):await gateway.findRun(id,s.commitSha);if(r){if(r.head_sha!==s.commitSha||r.display_title!==runTitle(id,s.commitSha)||r.head_branch!=='main'||r.event!=='workflow_dispatch')throw new PublishError('RUN_SOURCE_MISMATCH','PUBLISH_STALE');observations.push(`RUN ${r.id} ${r.status} ${r.conclusion??'pending'}`);await change(id,{runId:r.id});}}return change(id,{observations});}),
     verifyAgain:(id:string)=>result(async()=>{
-      if(active||preparing)throw new PublishError('PUBLICATION_BUSY','PUBLISH_BUSY');const s=await read(id);if(!s.runId||!s.commitSha||!s.fileHashes||s.sourceState!=='confirmed'||s.commitState!=='confirmed')throw new PublishError('NO_CHECKED_RUN','PUBLISH_NOT_READY');preparing=true;
-      try{const run=await gateway.inspectRun(s.runId);if(run.head_sha!==s.commitSha||run.display_title!==runTitle(id,s.commitSha)||run.head_branch!=='main'||run.event!=='workflow_dispatch')throw new PublishError('RUN_SOURCE_MISMATCH','PUBLISH_STALE');const proof=await gateway.verify(run,s.fileHashes,root);return change(id,{...proof,pushState:'confirmed',dispatchState:'confirmed',phase:'complete',live:true,message:'只重跑安全核对，未重复提交/上传/触发部署；获批产物与当前线上核验匹配。'});}finally{preparing=false;}
+      if(active||preparing)throw new PublishError('PUBLICATION_BUSY','PUBLISH_BUSY');const s=await read(id);if(!s.runId||!s.commitSha||(!s.fileHashes&&s.verification!=='github-think-v1')||s.sourceState!=='confirmed'||s.commitState!=='confirmed')throw new PublishError('NO_CHECKED_RUN','PUBLISH_NOT_READY');preparing=true;
+      try{const run=await gateway.inspectRun(s.runId);if(run.head_sha!==s.commitSha||run.display_title!==runTitle(id,s.commitSha)||run.head_branch!=='main'||run.event!=='workflow_dispatch')throw new PublishError('RUN_SOURCE_MISMATCH','PUBLISH_STALE');const proof=await gateway.verify(run,s.fileHashes,root);if(!s.fileHashes&&!proof.fileHashes)throw new PublishError('CHECKED_ARTIFACT_MISSING');return change(id,{...proof,pushState:'confirmed',dispatchState:'confirmed',phase:'complete',live:true,message:'只重跑安全核对，未重复提交/上传/触发部署；获批产物与当前线上核验匹配。'});}finally{preparing=false;}
     }),
     closeRecord:(id:string,input:unknown)=>result(async()=>{if(active||preparing)throw new PublishError('PUBLICATION_BUSY','PUBLISH_BUSY');const a=record(input,['expectedStatusRevision','acknowledgeUnverified']),s=await read(id);if(a.expectedStatusRevision!==s.revision||a.acknowledgeUnverified!==true||s.phase==='complete')throw new PublishError('RECEIPT_CHANGED','PUBLISH_STALE');const m=plans.get(id),cleanupPending=m?cleanup(id,m):s.cleanupPending;plans.delete(id);return change(id,{phase:'closed',message:'本人已核对并结束此记录，未认证为已上线；不重试任何 Git 或部署副作用。',live:false,...(cleanupPending===undefined?{}:{cleanupPending})});}),
     remove:(id:string,input:unknown)=>result(async()=>{if(active||preparing)throw new PublishError('PUBLICATION_BUSY','PUBLISH_BUSY');const a=record(input,['expectedStatusRevision']),s=await read(id);if(a.expectedStatusRevision!==s.revision||!complete.has(s.phase))throw new PublishError('RECEIPT_NOT_SETTLED','PUBLISH_STALE');(await storage()).remove(id,s.revision!);plans.delete(id);return{removed:true};}),

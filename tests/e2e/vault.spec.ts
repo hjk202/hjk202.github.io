@@ -1,3 +1,4 @@
+import { thinkCount } from './public-counts.ts';
 import { test,expect } from '@playwright/test';
 import { encryptVault } from '../../src/core/vault/crypto.ts';
 const password='phase4-nonsensitive-acceptance';
@@ -63,11 +64,11 @@ test('center stays visually quiet during long press; cancelled gestures and keyb
   await expect(panel(page).getByRole('status')).toHaveText('尚未配置私人内容。');await page.keyboard.press('Escape');await expect(panel(page)).not.toBeVisible();await expect(center).toBeFocused();
   await center.press('Enter');await expect(panel(page)).toBeVisible();await page.getByRole('button',{name:'关闭私人空间'}).click();expect(await panel(page).evaluate(element=>(element as HTMLDialogElement).open)).toBe(false);await expect(center).toBeFocused();
 });
-test('wrong password remains locked; real decryption unlocks, clear inputs, navigates and actively locks',async({page})=>{
+test('wrong password remains locked; real decryption unlocks, clear inputs, navigates and actively locks',async({page,request})=>{
   await configured(page);await open(page);const input=page.getByLabel('私人空间口令',{exact:true});
   await expect(input).toBeFocused();await input.fill('wrong-passphrase');await page.evaluate(()=>document.dispatchEvent(new Event('astro:page-load')));await expect(input).toHaveValue('wrong-passphrase');await expect(panel(page)).toBeVisible();await page.getByRole('button',{name:'解锁',exact:true}).click();await expect(panel(page).getByRole('status')).toHaveText('口令或内容校验失败。');await expect(page.locator('html')).not.toHaveAttribute('data-vault-unlocked');await expect(input).toHaveValue('');
   await input.fill(password);await input.press('Enter');await expect(panel(page)).not.toBeVisible();await expect(page.locator('html')).toHaveAttribute('data-vault-unlocked','');await expect(input).toHaveValue('');
-  await page.getByRole('link',{name:'Think, 2 entries',exact:true}).click();await expect(page.locator('.thought-heading h1')).toHaveText('想法不必一开始就有答案。');await expect(page.locator('html')).toHaveAttribute('data-vault-unlocked','');
+  await page.getByRole('link',{name:`Think, ${await thinkCount(request)} entries`,exact:true}).click();await expect(page.locator('.thought-heading h1')).toHaveText('想法不必一开始就有答案。');await expect(page.locator('html')).toHaveAttribute('data-vault-unlocked','');
   await page.getByRole('button',{name:'锁定私人空间'}).click();await expect(page.locator('html')).not.toHaveAttribute('data-vault-unlocked');await expect(page.getByRole('link',{name:'Home',exact:true})).toBeFocused();expect(await page.evaluate(()=>localStorage.length+sessionStorage.length)).toBe(0);
 });
 test('dialog focus, reduced motion and Spotlight exclusivity stay coherent',async({page})=>{

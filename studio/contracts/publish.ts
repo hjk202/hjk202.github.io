@@ -15,6 +15,7 @@ export interface PublicationStatus{
   sourceKey:string;sourceAfterRevision:string;remoteBaseSha:string;localHeadSha:string;
   commitSha?:string;runId?:number;artifactId?:number;artifactDigest?:string;
   live:boolean;fileHashes?:Record<string,string>;observations?:string[];
+  verification?:'github-think-v1';
   cleanupPending?:boolean;
   /** Computed from receipt bytes, not persisted. */
   revision?:string;
@@ -22,4 +23,5 @@ export interface PublicationStatus{
 export interface PublicationPlan{
   id:string;bindingHash:string;module:'think'|'build';slug:string;repository:string;branch:'main';site:string;
   remoteBaseSha:string;localHeadSha:string;remoteDiff:string;localDiff:string;canExecute:boolean;issues:string[];
+  verification?:'github-think-v1';
 }

@@ -20,12 +20,14 @@ export function thinkPublication(request: ReturnType<typeof writingRequest>, get
     report.hidden = !requestFailed && (!status || reviewing || status.phase === 'closed');
     if (requestFailed) state.textContent = '发布状态待核对，请先读取记录。';
     else if (status) {
-      state.textContent = status.live ? '已上线' : active(status.phase) && !uncertain ? '正在发布…' :
+      state.textContent = status.live ? '已上线' : active(status.phase) && !uncertain ?
+        status.phase === 'deploying' ? '已推送 · 正在部署' : status.phase === 'verifying' ? '正在核对线上产物' :
+          status.phase === 'dispatching' ? '已推送 · 正在请求部署' : '正在准备发布…' :
         status.pushState === 'confirmed' ? '已推送，部署待核对' : status.sourceState === 'confirmed' ? '源码已保存，发布未确认' : '发布未完成，内容保留';
       get('writing-publication-detail').textContent = [status.message, ...(status.observations ?? [])].join('\n');
     }
     button('writing-publication-check').hidden = !status || !uncertain && !['unknown', 'failed'].includes(status.phase);
-    button('writing-publication-verify').hidden = !status?.runId || !status.fileHashes || status.live;
+    button('writing-publication-verify').hidden = !status?.runId || (!status.fileHashes&&status.verification!=='github-think-v1') || status.live;
     button('writing-publication-end').hidden = !status || status.live || !uncertain && !['unknown','failed','prepared'].includes(status.phase);
     for (const id of ['check', 'verify', 'end']) button('writing-publication-' + id).disabled = busy || !!status && active(status.phase) && !uncertain;
     notify();
@@ -104,7 +106,7 @@ export function thinkPublication(request: ReturnType<typeof writingRequest>, get
         const plan = await request<PublicationPlan>('POST', 'publish/prepare', reference, undefined, 300_000);
         approved = plan;
         status = await request<PublicationStatus>('GET', 'publish/' + plan.id);
-        get('writing-publish-target').textContent = title + ' → ' + plan.site;
+        get('writing-publish-target').textContent = title + ' → ' + plan.site + (plan.verification ? ' · 单篇 Think，GitHub 构建和验证' : '');
         get('writing-publish-diff').textContent = plan.remoteDiff || '网站内容无差异。确认后仍会检查并部署这一版本。';
         get('writing-publish-local').textContent = plan.localDiff || '本机源码无变化。';
         get('writing-publish-issues').textContent = plan.issues.join('\n');

@@ -1,4 +1,4 @@
-import{command,git,gitSha,sha,PublishError,publicPath}from'./support.ts';import{pagesFiles,sameCatalog,releaseIdentity}from'./artifact.ts';
+import{command,git,gitSha,sha,PublishError,publicPath}from'./support.ts';import{artifactCatalog,pagesFiles,sameCatalog,releaseIdentity}from'./artifact.ts';
 import{allowedThinkFileName}from'../think/files.ts';
 export const PUBLISH_REPOSITORY='hjk202/hjk202.github.io',PUBLISH_SITE='https://hjk202.github.io/',PUBLISH_GIT='https://github.com/hjk202/hjk202.github.io.git';
 export type UploadCommit={id:string;sha:string;tree:string;baseTree:string;baseSha:string;blobSha:string;path:string;bytes:Buffer;author:{name:string;email:string;date:string};message:string};
@@ -8,7 +8,7 @@ export interface PublicationGateway{
   head():Promise<string>;fetch(candidate:string,sha:string):Promise<void>;writeAvailable():Promise<boolean>;
   readinessIssue?():Promise<string | undefined>;
   push(packet:UploadCommit):Promise<void>;dispatch(id:string,sha:string):Promise<void>;findRun(id:string,sha:string):Promise<PublicationRun|undefined>;inspectRun(runId:number):Promise<PublicationRun>;
-  verify(run:PublicationRun,expected:Record<string,string>,candidate:string):Promise<{artifactId:number;artifactDigest:string}>;
+  verify(run:PublicationRun,expected:Record<string,string>|undefined,candidate:string):Promise<{artifactId:number;artifactDigest:string;fileHashes?:Record<string,string>}>;
 }
 export const runTitle=(id:string,sha:string)=>`Studio ${id} ${sha}`;
 type Json=Record<string,unknown>;
@@ -63,11 +63,16 @@ export function githubGateway(root:string,onlineSmoke:(candidate:string)=>Promis
       const current=await inspectRun(r.id);if(current.head_sha!==r.head_sha||current.display_title!==r.display_title||current.head_branch!=='main'||current.event!=='workflow_dispatch'||current.status!=='completed'||current.conclusion!=='success')throw new PublishError('DEPLOYMENT_NOT_SUCCESSFUL');
       const list=await api(`${endpoint}/actions/runs/${r.id}/artifacts`);if(!Array.isArray(list.artifacts))throw new PublishError('ARTIFACT_MISSING');const artifacts=list.artifacts.filter((a:Json)=>a.name==='github-pages'&&a.expired===false);if(artifacts.length!==1)throw new PublishError('ARTIFACT_AMBIGUOUS');const a=artifacts[0] as Json,id=a.id,digest=a.digest;
       if(!Number.isSafeInteger(id)||Number(id)<1||typeof digest!=='string'||!/^sha256:[a-f0-9]{64}$/.test(digest)||(a.workflow_run as Json|undefined)?.head_sha!==r.head_sha)throw new PublishError('ARTIFACT_IDENTITY_INVALID');
-      const zip=testing?await testing.archive(Number(id)):await command('gh',['api','--hostname','github.com',`${endpoint}/actions/artifacts/${id}/zip`],root,{maxOutputBytes:128*1024*1024});if('sha256:'+sha(zip)!==digest)throw new PublishError('ARTIFACT_DIGEST_MISMATCH');sameCatalog(pagesFiles(zip),expected);
+      const zip=testing?await testing.archive(Number(id)):await command('gh',['api','--hostname','github.com',`${endpoint}/actions/artifacts/${id}/zip`],root,{maxOutputBytes:128*1024*1024});if('sha256:'+sha(zip)!==digest)throw new PublishError('ARTIFACT_DIGEST_MISMATCH');
+      const files=pagesFiles(zip), delegated=expected===undefined;
+      if(expected)sameCatalog(files,expected);else expected=artifactCatalog(files);
+      const recorded=files.get('release-manifest.json');
+      if(!recorded)throw new PublishError('RELEASE_IDENTITY_INVALID');
+      releaseIdentity(recorded,r.head_sha,expected);
       const manifest=await bounded(PUBLISH_SITE+'release-manifest.json?studio='+encodeURIComponent(String(r.id)),1024*1024);if(sha(manifest)!==expected['release-manifest.json'])throw new PublishError('ONLINE_SOURCE_MISMATCH');releaseIdentity(manifest,r.head_sha,expected);
       // Independent hashes of every served file, then actual browser behavior. No redirects or credentials.
-      const queue=Object.keys(expected);await Promise.all(Array.from({length:4},async()=>{while(queue.length){const path=queue.shift()!;publicPath(path);const data=await bounded(PUBLISH_SITE+path.split('/').map(encodeURIComponent).join('/')+'?studio='+r.id);if(sha(data)!==expected[path])throw new PublishError('ONLINE_FILE_MISMATCH');}}));
-      await onlineSmoke(candidate);return{artifactId:Number(id),artifactDigest:digest};
+      const queue=Object.keys(expected).filter(path=>path!=='release-manifest.json'), hashes=expected;await Promise.all(Array.from({length:4},async()=>{while(queue.length){const path=queue.shift()!;publicPath(path);const data=await bounded(PUBLISH_SITE+path.split('/').map(encodeURIComponent).join('/')+'?studio='+r.id);if(sha(data)!==hashes[path])throw new PublishError('ONLINE_FILE_MISMATCH');}}));
+      await onlineSmoke(candidate);return{artifactId:Number(id),artifactDigest:digest,...(delegated?{fileHashes:hashes}:{})};
     },
   };
 }

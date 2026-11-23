@@ -28,6 +28,7 @@ test('M23 live proof requires exact run, immutable artifact, release identity, e
   const transport:GitHubTestTransport={api:async path=>path.endsWith('/artifacts')?{artifacts:[{name:'github-pages',expired:false,id:9,digest:'sha256:'+sha(mode==='digest'?Buffer.from('different'):archive),workflow_run:{head_sha:source}}]}:{...run,...(mode==='run'?{head_sha:sha1('f')}:{})},archive:async()=>archive,publicFile:async url=>mode==='online'?Buffer.from('STALE'):url.includes('release-manifest.json')?manifest:html};
   const gateway=githubGateway('.',async()=>{smokes++;if(mode==='browser')throw Error('PAGEERROR');},transport);
   assert.deepEqual(await gateway.verify(run,expected,'.'),{artifactId:9,artifactDigest:'sha256:'+sha(archive)});assert.equal(smokes,1);
+  assert.deepEqual(await gateway.verify(run,undefined,'.'),{artifactId:9,artifactDigest:'sha256:'+sha(archive),fileHashes:expected});
   for(const failure of['run','digest','online','browser']){mode=failure;await assert.rejects(gateway.verify(run,expected,'.'));}
   mode='';await assert.rejects(gateway.verify(run,{...expected,'index.html':sha('OTHER')},'.'));assert.throws(()=>releaseIdentity(manifest,sha1('f'),expected));
 });

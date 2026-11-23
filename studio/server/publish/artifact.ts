@@ -25,7 +25,8 @@ export function tarFiles(tar:Buffer):Map<string,Buffer>{
     if(kind!==0&&kind!==48)throw new PublishError('PAGES_TAR_TYPE');publicPath(normalized);if(files.has(normalized)||files.size>=512||(total+=size)>MAX)throw new PublishError('PAGES_TAR_LIMIT');files.set(normalized,content);
   }throw new PublishError('PAGES_TAR_TRUNCATED');
 }
-export function sameCatalog(files:Map<string,Buffer>,expected:Record<string,string>){const actual=Object.fromEntries([...files].sort(([a],[b])=>a.localeCompare(b)).map(([name,bytes])=>[name,sha(bytes)]));const keys=Object.keys(expected).sort();if(JSON.stringify(Object.keys(actual).sort())!==JSON.stringify(keys)||keys.some(key=>actual[key]!==expected[key]))throw new PublishError('CHECKED_ARTIFACT_MISMATCH');}
+export function artifactCatalog(files:Map<string,Buffer>){return Object.fromEntries([...files].sort(([a],[b])=>a.localeCompare(b)).map(([name,bytes])=>[name,sha(bytes)]));}
+export function sameCatalog(files:Map<string,Buffer>,expected:Record<string,string>){const actual=artifactCatalog(files);const keys=Object.keys(expected).sort();if(JSON.stringify(Object.keys(actual).sort())!==JSON.stringify(keys)||keys.some(key=>actual[key]!==expected[key]))throw new PublishError('CHECKED_ARTIFACT_MISMATCH');}
 export function releaseIdentity(bytes:Buffer,source:string,expected:Record<string,string>){
   let value;try{value=JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(bytes));}catch{throw new PublishError('RELEASE_IDENTITY_INVALID');}
   if(!value||Object.keys(value).sort().join()!=='files,source,version'||value.version!==1||value.source!==source||!value.files||typeof value.files!=='object'||Array.isArray(value.files))throw new PublishError('RELEASE_IDENTITY_INVALID');

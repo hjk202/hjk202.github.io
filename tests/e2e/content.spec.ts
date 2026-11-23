@@ -1,3 +1,4 @@
+import { thinkCount } from './public-counts.ts';
 import { test, expect } from '@playwright/test';
 import type { Page, TestInfo } from '@playwright/test';
 
@@ -24,9 +25,10 @@ async function reviewBackground(page: Page, info: TestInfo, name: string) {
   await page.setViewportSize({ width: 1280, height: 800 });
 }
 
-test('Me real profile is reachable from Compass and Spotlight', async ({ page }, info) => {
+test('Me real profile is reachable from Compass and Spotlight', async ({ page, request }, info) => {
+  const count = await thinkCount(request);
   await page.goto('./');
-  await page.getByRole('link', { name: 'Me, average count 1.33 across other modules', exact: true }).click();
+  await page.getByRole('link', { name: `Me, average count ${Number(((count + 2) / 3).toFixed(2))} across other modules`, exact: true }).click();
   await expect(page.locator('h1')).toHaveText('韩江恺');
   await expect(page.locator('main')).toContainText('南京大学计算机科学与技术专业本科生');
   await expect(page.locator('.demo-label')).toHaveCount(0);

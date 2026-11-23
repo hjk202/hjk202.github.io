@@ -1,6 +1,10 @@
 import fs from 'node:fs';import {join,relative,resolve}from'node:path';import{createHash}from'node:crypto';import{spawn}from'node:child_process';
 import type{EditorErrorCode}from'../../contracts/result.ts';
 export class PublishError extends Error{readonly code:EditorErrorCode;constructor(reason:string,code:EditorErrorCode='PUBLISH_FAILED'){super(reason);this.code=code;}}
+export class PublishCommandError extends PublishError {
+  readonly exitCode:number|null;readonly output:Buffer;
+  constructor(reason:string,exitCode:number|null,output:Buffer){super(reason);this.exitCode=exitCode;this.output=output;}
+}
 export const sha=(value:string|Uint8Array)=>createHash('sha256').update(value).digest('hex');
 export const gitSha=(value:unknown):value is string=>typeof value==='string'&&/^[a-f0-9]{40}$/.test(value);
 export function safeDirectory(path:string,create=false){path=resolve(path);if(!fs.existsSync(path)&&create)fs.mkdirSync(path);const s=fs.lstatSync(path);if(!s.isDirectory()||s.isSymbolicLink()||relative(path,fs.realpathSync.native(path))!=='')throw new PublishError('UNSAFE_DIRECTORY');return s;}
@@ -23,7 +27,7 @@ export function command(executable:string,args:string[],cwd:string,options:{inpu
     const timer=setTimeout(stop,options.timeout??120000);
     const collect=(data:Buffer)=>{size+=data.length;if(size>(options.maxOutputBytes??4*1024*1024))stop();else chunks.push(data);};
     child.stdout.on('data',collect);child.stderr.on('data',()=>{});child.on('error',()=>{clearTimeout(timer);reject(new PublishError('COMMAND_UNAVAILABLE','PUBLISH_NOT_READY'));});
-    child.once('close',code=>{clearTimeout(timer);if(failed||!((options.allowedExit??[0]).includes(code??-1)))reject(new PublishError(failed?'COMMAND_TIMEOUT':'COMMAND_FAILED'));else resolveCommand(Buffer.concat(chunks));});
+    child.once('close',code=>{clearTimeout(timer);const output=Buffer.concat(chunks);if(failed||!((options.allowedExit??[0]).includes(code??-1)))reject(new PublishCommandError(failed?'COMMAND_TIMEOUT':'COMMAND_FAILED',code,output));else resolveCommand(output);});
     child.stdin.on('error',()=>{});child.stdin.end(options.input??'');
   });
 }

@@ -1,18 +1,20 @@
+import { thinkCount } from './public-counts.ts';
 import { test, expect } from '@playwright/test';
 
 for (const theme of ['light', 'dark'] as const) {
   for (const viewport of [{ width: 1280, height: 720 }, { width: 1440, height: 900 }, { width: 375, height: 667 }]) {
-    test(`${theme} ${viewport.width}×${viewport.height}: readable entrance and usable search`, async ({ page }, info) => {
+    test(`${theme} ${viewport.width}×${viewport.height}: readable entrance and usable search`, async ({ page, request }, info) => {
+      const count = await thinkCount(request);
       await page.emulateMedia({ colorScheme: theme });
       await page.setViewportSize(viewport);
       await page.goto('./');
       const dimensions = await page.evaluate(() => ({ width: innerWidth, scrollWidth: document.documentElement.scrollWidth, height: innerHeight, scrollHeight: document.documentElement.scrollHeight }));
       expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.width);
       expect(dimensions.scrollHeight).toBeLessThanOrEqual(dimensions.height + 1);
-      await expect(page.getByRole('link', { name: 'Think, 2 entries' })).toBeVisible();
+      await expect(page.getByRole('link', { name: `Think, ${count} entries` })).toBeVisible();
       await page.screenshot({ path: info.outputPath('home.png'), animations: 'disabled' });
-      await page.getByRole('link', { name: 'Think, 2 entries' }).hover();
-      await expect(page.locator('[data-compass-count]')).toHaveText('2 entries');
+      await page.getByRole('link', { name: `Think, ${count} entries` }).hover();
+      await expect(page.locator('[data-compass-count]')).toHaveText(`${count} entries`);
       await page.getByRole('button', { name: 'Search my space', exact: true }).click();
       await expect(page.getByRole('combobox')).toBeFocused();
       const bounds = await page.getByRole('dialog').boundingBox();

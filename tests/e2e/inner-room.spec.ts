@@ -1,3 +1,4 @@
+import { thinkCount } from './public-counts.ts';
 import { test, expect, type Page } from '@playwright/test';
 import { encryptVault } from '../../src/core/vault/crypto.ts';
 import { allVaultFixture, vaultPassword, articleId } from '../fixtures/vault.ts';
@@ -42,19 +43,19 @@ for (const colorScheme of ['light', 'dark'] as const) {
 
 const modules = [
   { id: 'me', private: '.private-profile', public: '.profile-story', text: '从一个问题', link: /^Me, average/ },
-  { id: 'think', private: '.private-thoughts', public: '.thought-reading', text: '我为什么越来越喜欢从底层理解一个东西', link: 'Think, 4 entries' },
+  { id: 'think', private: '.private-thoughts', public: '.thought-reading', text: '我为什么越来越喜欢从底层理解一个东西', link: null },
   { id: 'keep', private: '.private-bookmarks', public: '.keep-directory > .bookmark-group', text: 'The Missing Semester', link: 'Keep, 2 entries' },
   { id: 'build', private: '.private-projects', public: '.project-directory > .project-entries', text: 'NEMU', link: 'Build, 2 entries' },
 ];
 
-for (const module of modules) test(`inner ${module.id}: private first, public intact, responsive and clean on lock`, async ({ page }, info) => {
+for (const module of modules) test(`inner ${module.id}: private first, public intact, responsive and clean on lock`, async ({ page, request }, info) => {
   const errors: string[] = [];
   page.on('pageerror', error => errors.push(error.message));
   await page.goto(`./${module.id}/`);
   const publicText = await page.locator(module.public).textContent();
   await page.goto('./');
   await unlock(page);
-  await page.getByRole('link', { name: module.link, exact: true }).click();
+  await page.getByRole('link', { name: module.link ?? `Think, ${(await thinkCount(request)) + 2} entries`, exact: true }).click();
   await expect(page.locator(module.private)).toBeVisible();
   await expect(page.locator(module.public)).toContainText(module.text);
   // Compare complete public text, not only the title, to catch missing content.

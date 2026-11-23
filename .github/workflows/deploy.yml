@@ -53,46 +53,98 @@ jobs:
           fi
           echo "sha=$GITHUB_SHA" >> "$GITHUB_OUTPUT"
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 2
+      - name: Classify an exact single-article Studio change
+        id: think_scope
+        shell: bash
+        env:
+          EVENT_BEFORE: ${{ github.event.before }}
+          STUDIO_REQUEST: ${{ inputs.studio_request }}
+          EVENT_FORCED: ${{ github.event.forced }}
+        run: |
+          set -euo pipefail
+          # STUDIO_THINK_FAST_V1: both events recompute the scope from Git.
+          # The push is scope-only; the approved dispatch builds and verifies once.
+          if [[ "$GITHUB_EVENT_NAME" != "push" && "$GITHUB_EVENT_NAME" != "workflow_dispatch" ]] ||
+             [[ "$GITHUB_REF" != "refs/heads/main" || "${STUDIO_REQUEST:-}" == "manual" || "${EVENT_FORCED:-}" == "true" ]]; then exit 0; fi
+          parent="$(git cat-file commit HEAD | sed -n '/^$/q; s/^parent //p')" || exit 0
+          [[ "$parent" =~ ^[a-f0-9]{40}$ ]] || exit 0
+          if [[ "$GITHUB_EVENT_NAME" == "push" && ( "${EVENT_BEFORE:-}" != "$parent" || "${EVENT_FORCED:-}" != "false" ) ]]; then exit 0; fi
+          diff_file="$(mktemp)" || exit 0
+          trap 'rm -f -- "$diff_file"' EXIT
+          git diff-tree --no-commit-id --no-renames --name-status -r -z "$parent" HEAD > "$diff_file" || exit 0
+          mapfile -d '' -t diff < "$diff_file" || exit 0
+          [[ "${#diff[@]}" == 2 && "${diff[0]}" =~ ^[AM]$ ]] || exit 0
+          [[ "${diff[1]}" =~ ^src/modules/think/content/([a-z0-9]+(-[a-z0-9]+)*)\.md$ ]] || exit 0
+          slug="${BASH_REMATCH[1]}"
+          expected="$(printf 'Publish think: %s\n\nStudio-Think-Verification: github-think-v1' "$slug")"
+          [[ "$(git log -1 --format=%B)" == "$expected" ]] || exit 0
+          [[ "$(git ls-tree HEAD -- "${diff[1]}" | cut -d ' ' -f 1)" == "100644" ]] || exit 0
+          if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
+            echo 'push_only=true' >> "$GITHUB_OUTPUT"
+          else
+            echo "article=${diff[1]}" >> "$GITHUB_OUTPUT"
+          fi
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        if: steps.think_scope.outputs.push_only != 'true'
         with:
           node-version-file: .node-version
           cache: npm
       - name: Use the project npm version
+        if: steps.think_scope.outputs.push_only != 'true'
         run: npm install --global npm@10.9.8
       - name: Install locked dependencies
+        if: steps.think_scope.outputs.push_only != 'true'
         run: npm ci
+      - name: Verify approved Think contents and resources
+        if: steps.think_scope.outputs.article != ''
+        env:
+          APPROVED_ARTICLE: ${{ steps.think_scope.outputs.article }}
+        run: node --experimental-strip-types scripts/release/check-think.mjs "$APPROVED_ARTICLE"
       - name: Lint
+        if: steps.think_scope.outputs.push_only != 'true'
         run: npm run lint
       - name: Typecheck
+        if: steps.think_scope.outputs.push_only != 'true'
         run: npm run typecheck
       - name: Unit tests
+        if: steps.think_scope.outputs.push_only != 'true'
         run: npm run test
       - name: Build the publishable artifact
+        if: steps.think_scope.outputs.push_only != 'true'
         run: npm run build
       - name: Install test browsers
+        if: steps.think_scope.outputs.push_only != 'true'
         run: npx playwright install --with-deps chromium webkit
       - name: Verify the actual root artifact
+        if: steps.think_scope.outputs.push_only != 'true'
         run: npm run test:e2e
       - name: Verify WebKit mobile interactions
+        if: steps.think_scope.outputs.push_only != 'true'
         run: npm run test:e2e
         env:
           E2E_BROWSER: webkit
           E2E_MOBILE: '1'
       - name: Verify WebKit private interactions
+        if: steps.think_scope.outputs.push_only != 'true'
         run: npm run test:e2e -- --grep "Vault|private|Unlock|opening and reopening"
         env:
           E2E_BROWSER: webkit
       - name: Verify isolated real private adapter and session
+        if: steps.think_scope.outputs.push_only != 'true'
         run: |
           node tests/verify-vault-session.mjs
           E2E_DIST="$(cat .cache/vault-session-output.txt)" E2E_SESSION_PROBE=1 npm run test:e2e
       - name: Verify isolated extension and content contracts
+        if: steps.think_scope.outputs.push_only != 'true'
         run: |
           npm run test:extension
           node tests/verify-content.mjs
           node tests/verify-design.mjs
           node tests/verify-mobile.mjs
       - name: Verify a project base without rebuilding dist
+        if: steps.think_scope.outputs.push_only != 'true'
         run: |
           npm run build -- --base /personal-space/ --outDir .cache/base-dist
           npm run test:e2e
@@ -100,6 +152,7 @@ jobs:
           E2E_BASE_PATH: /personal-space/
           E2E_DIST: .cache/base-dist
       - name: Record the checked root artifact
+        if: steps.think_scope.outputs.push_only != 'true'
         run: |
           node tests/verify-release.mjs
           node --experimental-strip-types tests/verify-vault-release.mjs

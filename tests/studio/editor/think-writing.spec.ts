@@ -410,10 +410,10 @@ test('cooperative close can save an unstructured draft; an externally changed ar
   await expect(page.locator('#writing-message')).toContainText('源版本已变化');
 });
 
-base('Think publish reviews the exact candidate once, cancels without source writes, and uses M23 to verify the approved result', async ({ page }) => {
+for (const mode of ['success', 'fast'] as const) base(`Think publish (${mode}) reviews the exact candidate once, cancels without source writes, and verifies the approved result`, async ({ page }) => {
   base.setTimeout(120_000);
   const cleanups: (() => void | Promise<void>)[] = [];
-  const repo = await publicationFixture({ after: fn => cleanups.push(fn) });
+  const repo = await publicationFixture({ after: fn => cleanups.push(fn) }, mode);
   const session = await repo.startHttp();
   const file = join(repo.root, content, 'confirmed.md');
   const errors: string[] = [];
@@ -430,6 +430,7 @@ base('Think publish reviews the exact candidate once, cancels without source wri
     repo.gateway.writeAvailable = async () => true;
     await publish.click();
     await expect(page.locator('#writing-publish-diff')).toContainText('明确授权的非敏感正文。', { timeout: 35_000 });
+    if (mode === 'fast') await expect(page.locator('#writing-publish-target')).toContainText('GitHub 构建和验证');
     expect(fs.existsSync(file)).toBe(false); expect(repo.calls.push).toBe(0);
     await page.locator('#writing-publish-cancel').click();
     await expect(page.locator('#writing-publish-review')).toBeHidden();
@@ -440,6 +441,7 @@ base('Think publish reviews the exact candidate once, cancels without source wri
     await sourceSaved(page);
     expect(fs.readFileSync(file, 'utf8')).toContain('published: true');
     expect(repo.calls).toEqual({ push: 1, dispatch: 1, verify: 1 });
+    expect(repo.fullChecks()).toBe(mode === 'fast' ? 0 : 1);
     expect(errors).toEqual([]);
   } finally { for (const cleanup of cleanups) await cleanup(); }
 });

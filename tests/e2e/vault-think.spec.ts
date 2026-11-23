@@ -1,3 +1,4 @@
+import { thinkCount } from './public-counts.ts';
 import { test,expect } from '@playwright/test';
 import { readFileSync,readdirSync } from 'node:fs';
 import { join } from 'node:path';
@@ -8,9 +9,9 @@ async function setup(page:import('@playwright/test').Page) {
   await page.route('**/vault/bundle.json',route=>route.fulfill({json:envelope}));
   await page.goto('./');await page.locator('[data-vault-entrance]').press('Enter');await page.getByLabel('私人空间口令',{exact:true}).fill(vaultPassword);await page.getByRole('button',{name:'解锁',exact:true}).click();await expect(page.locator('html')).toHaveAttribute('data-vault-unlocked','');await expect(page.locator('[data-vault-dialog]')).not.toBeVisible();
 }
-test('Think private list/detail/back/lock preserves public article and safely renders code, raw HTML and encrypted images',async({page},info)=>{
+test('Think private list/detail/back/lock preserves public article and safely renders code, raw HTML and encrypted images',async({page,request},info)=>{
   const requests:string[]=[];page.on('request',request=>requests.push(request.url()));await setup(page);
-  await page.getByRole('link',{name:'Think, 4 entries',exact:true}).click();await expect(page.locator('.vault-view')).toContainText('安全验收样本：私人文章');
+  await page.getByRole('link',{name:`Think, ${(await thinkCount(request))+2} entries`,exact:true}).click();await expect(page.locator('.vault-view')).toContainText('安全验收样本：私人文章');
   await page.getByRole('link',{name:'安全验收样本：私人文章',exact:true}).click();await expect(page).toHaveURL(new RegExp(`#vault=${articleId}$`));await expect(page.locator('.vault-view h1')).toHaveText('安全验收样本：私人文章');
   await expect(page.locator('.think-private-article pre code')).toContainText('<script>window.vaultInjected = true</script>');
   expect(await page.evaluate(()=>(window as unknown as {vaultInjected?:boolean}).vaultInjected)).toBeUndefined();
@@ -24,14 +25,14 @@ test('Think private list/detail/back/lock preserves public article and safely re
   await page.getByRole('button',{name:'锁定私人空间'}).click();await expect(page.locator('.vault-view')).toHaveCount(0);expect(await page.locator('body').innerText()).not.toContain('安全验收样本');
   expect(await page.evaluate(async url=>{try{await fetch(url!);return false;}catch{return true;}},blob)).toBe(true);
 });
-test('private deep link/refresh stays neutral until unlock; missing target and lock restore safe public state',async({page,baseURL})=>{
+test('private deep link/refresh stays neutral until unlock; missing target and lock restore safe public state',async({page,baseURL,request})=>{
   const url=new URL(`think/#vault=${articleId}`,baseURL!).href;await page.goto(url);await expect(page.locator('.vault-view')).toContainText('需要解锁');expect(await page.locator('body').innerText()).not.toContain('安全验收样本');
   await setup(page);await page.goto(url);await expect(page.locator('html')).not.toHaveAttribute('data-vault-unlocked');await expect(page.locator('.vault-view')).toContainText('需要解锁');
   await page.getByRole('button',{name:'解锁私人空间',exact:true}).click();await page.getByLabel('私人空间口令',{exact:true}).fill(vaultPassword);await page.getByRole('button',{name:'解锁',exact:true}).click();await expect(page.locator('.vault-view h1')).toHaveText('安全验收样本：私人文章');
   await page.getByRole('button',{name:'锁定私人空间'}).click();await expect(page).toHaveURL(/think\/$/);await expect(page.locator('.thought-heading h1')).toHaveText('想法不必一开始就有答案。');
   await page.evaluate(()=>{location.hash='vault='+ 'f'.repeat(32);});await expect(page.locator('.vault-view')).toContainText('需要解锁');await page.getByRole('button',{name:'解锁私人空间',exact:true}).click();await page.getByLabel('私人空间口令',{exact:true}).fill(vaultPassword);await page.getByRole('button',{name:'解锁',exact:true}).click();await expect(page.locator('.vault-view')).toContainText('不存在或已移除');await page.getByRole('button',{name:'锁定私人空间'}).click();
   await page.getByRole('link',{name:'Home',exact:true}).click();await expect(page.locator('[data-compass]')).toBeVisible();await page.locator('[data-vault-entrance]').press('Enter');await page.getByLabel('私人空间口令',{exact:true}).fill(vaultPassword);await page.getByRole('button',{name:'解锁',exact:true}).click();await expect(page.locator('html')).toHaveAttribute('data-vault-unlocked','');
-  await page.getByRole('link',{name:'Think, 4 entries',exact:true}).click();await page.getByRole('link',{name:'安全验收样本：私人文章',exact:true}).click();await expect(page.locator('.vault-view h1')).toHaveText('安全验收样本：私人文章');await page.reload();await expect(page.locator('.vault-view')).toContainText('需要解锁');
+  await page.getByRole('link',{name:`Think, ${(await thinkCount(request))+2} entries`,exact:true}).click();await page.getByRole('link',{name:'安全验收样本：私人文章',exact:true}).click();await expect(page.locator('.vault-view h1')).toHaveText('安全验收样本：私人文章');await page.reload();await expect(page.locator('.vault-view')).toContainText('需要解锁');
 });
 test('undeclared private asset fails before opening the session and static production has no fixture plaintext',async({page})=>{
   const envelope=await encryptVault({...thinkVaultFixture,assets:{}},vaultPassword);await page.route('**/vault/bundle.json',route=>route.fulfill({json:envelope}));await page.goto('./');await page.locator('[data-vault-entrance]').press('Enter');await page.getByLabel('私人空间口令',{exact:true}).fill(vaultPassword);await page.getByRole('button',{name:'解锁',exact:true}).click();await expect(page.locator('#vault-status')).toHaveText('口令或内容校验失败。');await expect(page.locator('html')).not.toHaveAttribute('data-vault-unlocked');
