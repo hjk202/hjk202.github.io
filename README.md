@@ -1,6 +1,6 @@
 # Personal Space
 
-韩江恺的个人数字空间：Me 个人介绍、Think 文章与随记、Build 项目档案、Keep 收藏。Personal Space Studio 是同仓库中的 Windows 本地 Think 作者工具。
+韩江恺的个人数字空间：Me 个人介绍、Think 文章与随记、Build 项目档案、Keep 收藏。Personal Space Studio 是同仓库中的 Windows 本地作者工具；后续主线聚焦文章/项目的自动录入、审核与一键发布，现有手动编辑作为精调与备用。
 
 **网站：[hjk202.github.io](https://hjk202.github.io/)** · 最近核验线上源：`dcc5d82`（2026-10-17，文档整理后重新验收发布）。网站面向访客，Studio 只在本机运行。
 
@@ -29,6 +29,7 @@
 │   ├── server/           HTTP API、Think 读写、预览与 AI
 │   ├── contracts/        数据与接口契约
 │   ├── adapters/agent/   Node/JSON-lines Agent adapter
+│   ├── desktop/          Windows WinForms / WebView2 薄窗口
 │   └── windows/          桌面启动、停止与凭据配置
 ├── tests/                网站与 Studio 测试、非敏感样本
 ├── scripts/              维护脚本
@@ -43,25 +44,37 @@ VS Code 兼容编辑器的文件树已配置隐藏 `node_modules/`、`.astro/`�
 
 ## 日常使用
 
-Windows 推荐双击桌面 **Personal Space Studio**，结束前先保存，再用 **Stop Personal Space Studio** 停止。已保存的 AI Key 会从仓库外的 Windows 加密配置加载，日常无需重新配置。
+Studio 启动图标已换为原创蓝发 Q 版头像，App 窗口图标在正常退出重开后更新。图标与旧入口显示问题见 [维护手册](./MAINTENANCE.md#studio-windows)。
 
-以下命令均在仓库根运行；新环境按 `.node-version` 准备 Node，再执行一次 `npm.cmd ci`。
+桌面使用 **Personal Space Studio** 图标打开，重复点击激活已有窗口。点窗口 X，处理未保存内容后关闭后台。已有 AI Key 自动从 Windows 加密存储加载。备用停止与故障恢复见 [Studio 手册](./MAINTENANCE.md#studio-windows)。
+
+正式 App 的 AI 配置加载已恢复：原加密文件误存于 Codex 的 Windows 隔离目录，现已复用到桌面 App 的用户存储，原 Key 无须重录。作者从蓝发图标重开后，正式后台确认已配置，非敏感润色实测返回 200，见 [本次修复记录](./PLAN.md#studio-m8-credential-recovery-record)。
+
+平时直接双击蓝发图标。首次打开缺少运行包时，图标会先自动准备，再打开 Studio。已经准备好的版本会直接启动。以下命令均在仓库根运行。新环境先按 `.node-version` 安装 Node 并执行 `npm.cmd ci`。开发更新或手动修复运行包时，正常退出后可用 `npm.cmd run studio:prepare`。真实 App 启动耗时仍待人工验收。
 
 | 操作 | 命令 |
 | --- | --- |
-| 启动 / 复用 Studio 并打开浏览器 | `npm.cmd run studio:open` |
-| 停止桌面方式启动的 Studio | `npm.cmd run studio:stop` |
-| 首次配置或更换 AI Key | `npm.cmd run studio:configure` |
+| 开发更新或手动修复运行包 | `npm.cmd run studio:prepare` |
+| 启动 / 激活 Studio App | `npm.cmd run studio:open` |
+| 请求 App 协同退出 | `npm.cmd run studio:stop` |
+| 选择 AI 服务或更换 Key | `npm.cmd run studio:configure -- -Provider gemini` 或 `npm.cmd run studio:configure -- -Provider bailian`，配置后重开 App |
 | 网站开发预览 | `npm.cmd run dev` |
 | 构建网站 / 查看已构建网站 | `npm.cmd run build` / `npm.cmd run preview` |
 
-Studio 支持文章编辑、校验、隔离预览和 AI 文本建议；建议经人工采纳后仍须保存。**保存 ≠ published ≠ Git 提交 ≠ 推送 ≠ 部署。** 操作详情见 [Studio 手册](./MAINTENANCE.md#editor)，[AI 配置](./MAINTENANCE.md#studio-ai)、[Agent 调用](./MAINTENANCE.md#studio-agent)也在其中。
+Studio 默认打开 Think 的 Markdown 写作台。选文章或直接写，可选「AI 整理」，切换到当前段落的快速预览，再保存或确认发布。写作区支持粘贴或拖入图片、代码围栏快捷键和 LaTeX 公式。底栏显示本机累计写作时长。内容选择器也能恢复本机原稿，并进入仍使用既有界面的 Build、Keep、Me。私人资料库从维护入口打开。见[工作台使用方法](./MAINTENANCE.md#studio-writing-workbench)。AI 修改逐项勾选，应用后可撤销；未修改的 Markdown 预览切回无需重渲染。[性能与发布验证记录](./PLAN.md#studio-think-performance)。
+
+录入支持公开 Think/Build 的文字、Markdown 和项目报告，经人工审核后保存或进入发布。发布提供精确差异与最终确认。私人资料库使用仓库外的加密文件，可从库内另行准备网站更新。**保存 ≠ published ≠ Git 提交 ≠ 推送 ≠ 部署。** 见[统一手动验收](./MAINTENANCE.md#studio-mainline-manual)、[私人手册](./MAINTENANCE.md#studio-private)、[AI 配置](./MAINTENANCE.md#studio-ai)和[Agent 调用](./MAINTENANCE.md#studio-agent)。
 
 ## 当前进度与待检查事项
 
 - **网站 Phase 1–4 已完成并正式发布**；Phase 5/6 仍延后，不影响日常使用。
 - **Studio M0–M6 与 v0 已完成**；基线标签 [studio-v0](https://github.com/hjk202/hjk202.github.io/tree/studio-v0) 指向 `224eea0`，后续网站更新不移动该标签。完整验收与平台限制见 [PLAN](./PLAN.md#studio-v0)。
+- **Studio M9–M15 实现与自动验证完成，统一人工待验**：四个公开/私人模块、密文候选交付与外部备份恢复已接入，真实内容源保持。请按[统一人工验收清单](./MAINTENANCE.md#studio-batch-manual)检查 App 启停、中文编辑、四模块保存/预览、私人锁定和交付取消；M8 原生专项也在清单中。收到反馈前不标 Done，范围与证据见 [扩展计划](./PLAN.md#studio-next-plan)。
+- **Studio M17 已完成，M18 原生操作单独待验**：M18 实现及自动验证保持，选择器/协同关闭仍按[手动步骤](./MAINTENANCE.md#studio-m18-manual)检查，未标 Done，不再阻塞公开主线。旧专项待验保留。
+- **Studio Markdown 写作闭环**先交付 Think，使用 CodeMirror 6 源码模式。Build、Keep、Me 的转换按后续批次实施。[范围与验收](./PLAN.md#studio-think-writing)
+- **Think v1.0 封版**：没有 slug 的原稿可应用 AI 修改并留在本机。Gemini 已通过真实 WebView2 候选审核。GitHub 发布工作流已在远端；正式交付等待提交、推送和部署各自授权。[封版记录](./PLAN.md#studio-think-v1-freeze)
+- **主线批量实施、人工最后统一验收**：M16.3 准备/运行分离已实现并通过自动验证，真实 App/性能待验。Think/Build 文字、Markdown 和结构化报告录入审核已实现、自动验证通过。M20 显式百炼整理通过模拟与浏览器验证，真实整理效果待统一验收。M23 精确差异、最终批准、固定发布协调与失败恢复通过隔离验证，真实发布仍待验。M21/M22 按作者确认保持延期，旧专项状态保持。远端工作流守卫已单独获批安装；文章真实一键发布仍未执行，需另行批准。
 - **随记四行预览 N1 已发布并通过线上验证**；仍待你检查手机效果。[查看效果](https://hjk202.github.io/think/?v=2a8ff37)，[验收记录](./PLAN.md#notes-n1)。
 - **真实私人资料尚未配置**；私人功能已完成，入口提示未配置属正常行为。维护步骤见 [私人内容操作](./MAINTENANCE.md#private-operations)。
 
-目录与文档整理已测试、提交并正式发布，现有功能和目录结构保持；结果见 [PLAN 发布记录](./PLAN.md#docs-release)。后续开发仍需明确授权。
+最近发布见 [PLAN 发布记录](./PLAN.md#docs-release)。M8 正式 App AI 恢复见 [修复记录](./PLAN.md#studio-m8-credential-recovery-record)；M15 人工待验仍保留。启动旧目标及未达结论见 [M16.2 记录](./PLAN.md#studio-m16-2-manual-review)，准备/运行分离见 [M16.3](./PLAN.md#studio-m16-3)；本批保留已有未提交工作，不控制桌面、不实际提交、推送或发布。

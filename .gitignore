@@ -2,6 +2,10 @@ node_modules/
 dist/
 .astro/
 .cache/
+studio/desktop/bin/
+studio/desktop/obj/
+tests/studio/desktop/bin/
+tests/studio/desktop/obj/
 test-results/
 playwright-report/
 .env

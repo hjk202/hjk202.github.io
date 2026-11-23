@@ -1,3 +1,4 @@
+import { reveal, clickDisclosed } from '../workbench-controls.ts';
 import fs from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 import { test as base, expect } from '@playwright/test';
@@ -33,12 +34,32 @@ const test = base.extend<{ repo: Repository }>({
   },
 });
 const source = (slug: string, body = '\nSOURCE_BODY\n') => `---\n# preserve comment\nslug: ${slug}\n---\n${body}`;
+
+for (const [timezoneId, first, next] of [['America/Los_Angeles', '2026-10-23', '2026-10-24'], ['Asia/Tokyo', '2026-10-24', '2026-10-25']] as const) {
+  test.describe(`local new-article date in ${timezoneId}`, () => {
+    test.use({ timezoneId });
+    test('defaults when created, remains editable, and never backfills an existing source', async ({ page, repo }) => {
+      const original = source('undated'); fs.writeFileSync(join(repo.content, 'undated.md'), original);
+      await page.clock.setFixedTime(new Date('2026-10-24T00:30:00Z'));
+      await page.goto(repo.session.origin+'/#think'); await expect(page.locator('#ai-service')).toBeHidden();
+      await page.getByRole('button', { name: '新建文章', exact: true }).click();
+      await expect(page.locator('#date')).toHaveValue(first);
+      await page.locator('#date').fill('2020-02-29'); await page.locator('#slug').fill('dated'); await page.locator('#save').click(); await saved(page);
+      expect(parseFrontmatter(fs.readFileSync(join(repo.content, 'dated.md'), 'utf8')).frontmatter.date).toBe('2020-02-29');
+      await page.clock.setFixedTime(new Date('2026-10-24T23:30:00Z'));
+      await expect(page.locator('#date')).toHaveValue('2020-02-29');
+      await article(page, 'undated').click(); await expect(page.locator('#date')).toHaveValue('');
+      await page.locator('#save').click(); await saved(page); expect(fs.readFileSync(join(repo.content, 'undated.md'), 'utf8')).toBe(original);
+      await page.getByRole('button', { name: '新建文章', exact: true }).click(); await expect(page.locator('#date')).toHaveValue(next);
+    });
+  });
+}
 const article = (page: Page, name: string) => page.locator('#documents button').filter({ hasText: name });
 const message = (page: Page) => page.locator('#message');
 const saved = async (page: Page) => { await expect(page.locator('#save-state')).toHaveText('已保存（本地源码）'); await expect(page.locator('#save')).toBeEnabled(); };
 async function create(page: Page, slug: string) {
   await page.getByRole('button', { name: '新建文章', exact: true }).click();
-  await page.getByLabel('Slug', { exact: true }).fill(slug);
+  await page.locator('#editor').getByLabel('Slug', { exact: true }).fill(slug);
   await page.getByRole('button', { name: '保存', exact: true }).click();
   await saved(page);
 }
@@ -62,17 +83,23 @@ async function hold(page: Page, predicate: (route: Route) => boolean) {
 }
 
 test('empty list → draft → validation → published note → delete; all changes stay in source', async ({ page, repo }, info) => {
-  await page.goto(repo.session.origin);
+  await page.goto(repo.session.origin+'/#think');
   await expect(page.locator('#list-message')).toContainText('当前列表为空');
   await expect(page.locator('#studio-session')).toHaveCount(0);
   expect(await page.evaluate(() => [localStorage.length, sessionStorage.length])).toEqual([0, 0]);
   expect(await page.context().cookies()).toEqual([]);
   await page.getByRole('button', { name: '新建文章', exact: true }).click();
-  await page.getByRole('button', { name: '校验', exact: true }).click();
+  await page.locator('#think-properties > summary').click();
+  await expect(page.locator('#slug')).toBeHidden();
+  await page.locator('#save').click();
+  await expect(page.locator('#issues')).toBeVisible();
+  await expect(page.locator('#slug')).toBeVisible();
+  expect(fs.readdirSync(repo.content)).toEqual([]);
+  await clickDisclosed(page, 'think-actions', '#validate');
   await expect(page.locator('#issues')).toContainText('INVALID_SLUG');
   await expect(page.locator('#slug')).toHaveAttribute('aria-invalid', 'true');
-  await page.getByLabel('Slug', { exact: true }).fill('new-note');
-  await page.getByRole('button', { name: '校验', exact: true }).click();
+  await page.locator('#editor').getByLabel('Slug', { exact: true }).fill('new-note');
+  await clickDisclosed(page, 'think-actions', '#validate');
   await expect(page.locator('#validation-state')).toHaveText('可保存 · 尚未公开就绪');
   expect(fs.readdirSync(repo.content)).toEqual([]);
   await page.getByRole('button', { name: '保存', exact: true }).click();
@@ -80,34 +107,34 @@ test('empty list → draft → validation → published note → delete; all cha
   await expect(page.locator('#slug')).toHaveJSProperty('readOnly', true);
   await expect(page.locator('#filename')).toHaveText('new-note.md');
   expect(fs.readFileSync(join(repo.content, 'new-note.md'), 'utf8')).toContain('published: false');
-  await page.getByLabel('标题', { exact: true }).fill('中文标题');
-  await page.getByLabel('摘要', { exact: true }).fill('手动确认的非敏感摘要');
-  await page.getByLabel('日期', { exact: true }).fill('2026-02-30');
-  await page.getByLabel('内容类型', { exact: true }).selectOption('note');
-  await page.getByLabel('候选公开状态', { exact: true }).selectOption('true');
-  await page.getByLabel('Markdown 正文', { exact: true }).fill('\n## 中文正文\n\n<img src="https://example.invalid/no" onerror="window.__studioXss=true">\n');
+  await page.locator('#editor').getByLabel('标题', { exact: true }).fill('中文标题');
+  await page.locator('#editor').getByLabel('摘要', { exact: true }).fill('手动确认的非敏感摘要');
+  await page.locator('#editor').getByLabel('日期', { exact: true }).fill('2026-02-30');
+  await page.locator('#editor').getByLabel('内容类型', { exact: true }).selectOption('note');
+  await page.locator('#editor').getByLabel('候选公开状态', { exact: true }).selectOption('true');
+  await page.locator('#editor').getByLabel('Markdown 正文', { exact: true }).fill('\n## 中文正文\n\n<img src="https://example.invalid/no" onerror="window.__studioXss=true">\n');
   await page.getByRole('button', { name: '保存', exact: true }).click();
   await expect(page.locator('#issues')).toContainText('INVALID_DATE');
   await expect(page.locator('#save-state')).toHaveText('未保存修改');
   expect(fs.readFileSync(join(repo.content, 'new-note.md'), 'utf8')).not.toContain('中文标题');
-  await page.getByLabel('日期', { exact: true }).fill('2026-10-16');
-  await page.getByRole('button', { name: '校验', exact: true }).click();
+  await page.locator('#editor').getByLabel('日期', { exact: true }).fill('2026-10-16');
+  await clickDisclosed(page, 'think-actions', '#validate');
   await expect(page.locator('#validation-state')).toHaveText('可保存 · 公开就绪');
   await page.getByRole('button', { name: '保存', exact: true }).click();
   await saved(page);
   await expect(page.locator('#source-state')).toContainText('源文件：published');
   expect(parseFrontmatter(fs.readFileSync(join(repo.content, 'new-note.md'), 'utf8')).frontmatter.kind).toBe('note');
   expect(await page.evaluate(() => Object.hasOwn(window, '__studioXss'))).toBe(false);
-  await page.locator('#filter').selectOption('draft');
+  await reveal(page, 'think-list-options'); await page.locator('#filter').selectOption('draft');
   await expect(page.locator('#documents button')).toHaveCount(0);
-  await page.locator('#filter').selectOption('published');
+  await reveal(page, 'think-list-options'); await page.locator('#filter').selectOption('published');
   await expect(article(page, '中文标题')).toHaveCount(1);
   await page.screenshot({ path: info.outputPath('editor.png'), fullPage: true });
   page.once('dialog', dialog => dialog.dismiss());
-  await page.getByRole('button', { name: '删除文章', exact: true }).click();
+  await clickDisclosed(page, 'think-actions', '#delete');
   expect(fs.existsSync(join(repo.content, 'new-note.md'))).toBe(true);
   page.once('dialog', dialog => dialog.accept());
-  await page.getByRole('button', { name: '删除文章', exact: true }).click();
+  await clickDisclosed(page, 'think-actions', '#delete');
   await expect(page.locator('#editor')).toBeHidden();
   await expect(page.locator('#documents button')).toHaveCount(0);
   expect(fs.readdirSync(repo.content)).toEqual([]);
@@ -116,7 +143,7 @@ test('empty list → draft → validation → published note → delete; all cha
 test('existing omitted fields/comments survive no-op and body-only saves; unsafe sources are read-only', async ({ page, repo }) => {
   const original = source('old-url');
   fs.writeFileSync(join(repo.content, 'different-file.md'), original);
-  await page.goto(repo.session.origin);
+  await page.goto(repo.session.origin+'/#think');
   await article(page, 'old-url').click();
   await expect(page.locator('#slug')).toHaveJSProperty('readOnly', true);
   await expect(page.locator('#published')).toHaveValue('');
@@ -124,13 +151,13 @@ test('existing omitted fields/comments survive no-op and body-only saves; unsafe
   await page.getByRole('button', { name: '保存', exact: true }).click();
   await saved(page);
   expect(fs.readFileSync(join(repo.content, 'different-file.md'), 'utf8')).toBe(original);
-  await page.getByLabel('Markdown 正文', { exact: true }).fill('\nBODY_ONLY_CHANGE  \n');
+  await page.locator('#editor').getByLabel('Markdown 正文', { exact: true }).fill('\nBODY_ONLY_CHANGE  \n');
   await page.getByRole('button', { name: '保存', exact: true }).click();
   await saved(page);
   expect(fs.readFileSync(join(repo.content, 'different-file.md'), 'utf8')).toBe(source('old-url', '\nBODY_ONLY_CHANGE  \n'));
   expect(fs.existsSync(join(repo.content, 'old-url.md'))).toBe(false);
   fs.writeFileSync(join(repo.content, 'bad.md'), '---\nslug: bad\nunknown: must-not-be-dropped\n---\n');
-  await page.locator('#refresh').click();
+  await reveal(page, 'think-list-options'); await page.locator('#refresh').click();
   await article(page, 'bad.md').click();
   await expect(page.locator('#body')).toBeDisabled();
   await expect(page.locator('#title')).toBeDisabled();
@@ -141,14 +168,14 @@ test('existing omitted fields/comments survive no-op and body-only saves; unsafe
 test('unsaved navigation/new/reload prompts cancel safely, keyboard save and tab refresh guards work', async ({ page, repo }) => {
   fs.writeFileSync(join(repo.content, 'a.md'), source('article-a'));
   fs.writeFileSync(join(repo.content, 'b.md'), source('article-b'));
-  await page.goto(repo.session.origin);
+  await page.goto(repo.session.origin+'/#think');
   await article(page, 'article-a').click();
-  await page.getByLabel('Markdown 正文', { exact: true }).fill('UNSAVED_BUFFER');
-  for (const action of [() => article(page, 'article-b').click(), () => page.locator('#new').click(), () => page.locator('#reload').click()]) {
+  await page.locator('#editor').getByLabel('Markdown 正文', { exact: true }).fill('UNSAVED_BUFFER');
+  for (const action of [() => article(page, 'article-b').click(), () => page.locator('#new').click(), () => clickDisclosed(page, 'think-actions', '#reload')]) {
     page.once('dialog', dialog => dialog.dismiss()); await action();
     await expect(page.locator('#body')).toHaveValue('UNSAVED_BUFFER');
   }
-  await page.locator('#refresh').click();
+  await reveal(page, 'think-list-options'); await page.locator('#refresh').click();
   await expect(page.locator('#list-message')).toContainText('2 项');
   await expect(page.locator('#body')).toHaveValue('UNSAVED_BUFFER');
   const reloadCancelled = new Promise<void>(resolve => page.once('dialog', async dialog => { expect(dialog.type()).toBe('beforeunload'); await dialog.dismiss(); resolve(); }));
@@ -175,19 +202,19 @@ test('unsaved navigation/new/reload prompts cancel safely, keyboard save and tab
 
 test('two tabs and external edits conflict without overwrite/retry; manual re-read is explicit', async ({ page, repo }) => {
   fs.writeFileSync(join(repo.content, 'a.md'), source('conflict'));
-  await page.goto(repo.session.origin); await article(page, 'conflict').click();
+  await page.goto(repo.session.origin+'/#think'); await article(page, 'conflict').click();
   const second = await page.context().newPage();
   const errors: string[] = []; second.on('pageerror', error => errors.push(error.message));
-  await second.goto(repo.session.origin); await article(second, 'conflict').click();
+  await second.goto(repo.session.origin+'/#think'); await article(second, 'conflict').click();
   await page.locator('#body').fill('TAB_ONE'); await page.locator('#save').click(); await saved(page);
   await second.locator('#body').fill('TAB_TWO_BUFFER'); await second.locator('#save').click();
   await expect(message(second)).toContainText('REVISION_CONFLICT');
   await expect(second.locator('#body')).toHaveValue('TAB_TWO_BUFFER');
   await expect(second.locator('#save')).toBeDisabled();
   expect(fs.readFileSync(join(repo.content, 'a.md'), 'utf8')).toContain('TAB_ONE');
-  second.once('dialog', dialog => dialog.dismiss()); await second.locator('#reload').click();
+  second.once('dialog', dialog => dialog.dismiss()); await clickDisclosed(second, 'think-actions', '#reload');
   await expect(second.locator('#body')).toHaveValue('TAB_TWO_BUFFER');
-  second.once('dialog', dialog => dialog.accept()); await second.locator('#reload').click();
+  second.once('dialog', dialog => dialog.accept()); await clickDisclosed(second, 'think-actions', '#reload');
   await expect(second.locator('#body')).toHaveValue('TAB_ONE');
   await second.locator('#body').fill('AFTER_EXTERNAL');
   fs.appendFileSync(join(repo.content, 'a.md'), '\nEXTERNAL_BYTES\n');
@@ -202,7 +229,7 @@ test('two tabs and external edits conflict without overwrite/retry; manual re-re
 test('late reads, list filters, validation and save responses cannot overwrite newer input', async ({ page, repo }) => {
   fs.writeFileSync(join(repo.content, 'a.md'), source('read-a'));
   fs.writeFileSync(join(repo.content, 'b.md'), source('read-b'));
-  await page.goto(repo.session.origin);
+  await page.goto(repo.session.origin+'/#think');
   const aKey = keyOf('a.md');
   const read = await hold(page, route => route.request().url().endsWith('/documents/' + aKey));
   try {
@@ -213,7 +240,7 @@ test('late reads, list filters, validation and save responses cannot overwrite n
   await expect(page.locator('#slug')).toHaveValue('read-b');
   const validation = await hold(page, route => route.request().url().endsWith('/validate'));
   try {
-    await page.locator('#validate').click(); await validation.ready;
+    await clickDisclosed(page, 'think-actions', '#validate'); await validation.ready;
     await page.locator('#title').fill('NEWER_TITLE');
   } finally { await validation.done(); }
   await expect(message(page)).toContainText('旧报告未应用');
@@ -232,8 +259,8 @@ test('late reads, list filters, validation and save responses cannot overwrite n
   await page.locator('#save').click(); await saved(page);
   const filtering = await hold(page, route => route.request().url().endsWith('?status=draft'));
   try {
-    await page.locator('#filter').selectOption('draft'); await filtering.ready;
-    await page.locator('#filter').selectOption('published');
+    await reveal(page, 'think-list-options'); await page.locator('#filter').selectOption('draft'); await filtering.ready;
+    await reveal(page, 'think-list-options'); await page.locator('#filter').selectOption('published');
     await expect(page.locator('#documents button')).toHaveCount(0);
   } finally { await filtering.done(); }
   await expect(page.locator('#documents button')).toHaveCount(0);
@@ -241,10 +268,10 @@ test('late reads, list filters, validation and save responses cannot overwrite n
 });
 
 test('write failure, stopped service and invalidated session preserve the buffer and never auto-retry', async ({ page, repo }) => {
-  await page.goto(repo.session.origin); await create(page, 'failure');
+  await page.goto(repo.session.origin+'/#think'); await create(page, 'failure');
   await page.locator('#body').fill('DO_NOT_LOSE_BUFFER');
   await repo.restart();
-  await page.locator('#refresh').click();
+  await reveal(page, 'think-list-options'); await page.locator('#refresh').click();
   await expect(page.locator('#list-message')).toContainText('UNAUTHORIZED');
   await expect(page.locator('#save')).toBeDisabled();
   await expect(page.locator('#body')).toHaveValue('DO_NOT_LOSE_BUFFER');
@@ -271,7 +298,7 @@ test('write failure, stopped service and invalidated session preserve the buffer
   await page.locator('#body').press('Control+s');
   await repo.restart();
   // Existing tab has an expired token: refresh the list must not silently re-pair or erase text.
-  await page.locator('#refresh').click();
+  await reveal(page, 'think-list-options'); await page.locator('#refresh').click();
   await expect(page.locator('#list-message')).toContainText('UNAUTHORIZED');
   await expect(page.locator('#body')).toHaveValue('DO_NOT_LOSE_BUFFER');
   expect(fs.readFileSync(join(repo.content, 'failure.md'), 'utf8')).not.toContain('DO_NOT_LOSE_BUFFER');
@@ -279,7 +306,7 @@ test('write failure, stopped service and invalidated session preserve the buffer
 
 test('Chromium browser IME protocol composes Chinese without implicit save; keyboard save follows composition', async ({ page, repo }, info) => {
   test.skip(info.project.name !== 'chromium', 'WebKit has no CDP IME protocol; real browser IME composition is verified in Windows Chromium.');
-  await page.goto(repo.session.origin); await create(page, 'ime');
+  await page.goto(repo.session.origin+'/#think'); await create(page, 'ime');
   const cdp = await page.context().newCDPSession(page);
   await page.locator('#body').focus();
   await cdp.send('Input.imeSetComposition', { text: '中文输入', selectionStart: 4, selectionEnd: 4 });

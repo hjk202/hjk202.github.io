@@ -8,6 +8,8 @@ import { validateThinkDocument } from './validation.ts';
 interface Entry { summary: ThinkSummary; source?: ThinkSourceFile; document?: ThinkDocument }
 interface Snapshot { entries: Entry[]; names: string[] }
 export interface ThinkAuthoring {
+  /** Internal readonly publication projection, never served as a raw-source HTTP endpoint. */
+  preparePublication?(input:unknown):EditorResult<{key:string;fileName:string;expectedRevision:string|null;before:string|null;after:string;document:ThinkDocument}>;
   listThink(input?: unknown): EditorResult<ThinkSummary[]>;
   readThink(input: unknown): EditorResult<ThinkReadResult>;
   createThink(input: unknown): EditorResult<ThinkWriteResult>;
@@ -135,6 +137,14 @@ export function openThinkAuthoring(repositoryRoot = fileURLToPath(new URL('../..
     return snapshot;
   };
   const service: ThinkAuthoring = {
+    preparePublication:input=>run(()=>{
+      const args=request(input,['key','expectedRevision','document']),key=args.key===undefined?undefined:identifier(args.key),snapshot=scan();
+      const original=key===undefined?undefined:expected(snapshot,key,identifier(args.expectedRevision));
+      requireValid(validateThinkDocument(args.document));const supplied=args.document as ThinkDocument;if(supplied.metadata.published!==true)throw new ThinkFileError('INVALID_REQUEST');
+      const document:ThinkDocument=original?structuredClone(supplied):{...supplied,metadata:{kind:'article',...supplied.metadata}};
+      requireValid(validate(snapshot,document,key));const serialized=serializeThinkDocument(document,original?.source.bytes.toString('utf8'));if(!serialized.ok)throw new ThinkFileError(serialized.error.code);
+      const fileName=original?.source.fileName??document.metadata.slug+'.md';return{key:key??keyOf(fileName),fileName,expectedRevision:original?.summary.revision??null,before:original?.source.bytes.toString('utf8')??null,after:serialized.value,document};
+    }),
     listThink: (input = {}) => run(() => {
       const args = request(input, ['status']);
       if (args.status !== undefined && (typeof args.status !== 'string' || !['all', 'draft', 'published'].includes(args.status))) throw new ThinkFileError('INVALID_REQUEST');

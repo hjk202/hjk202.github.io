@@ -11,5 +11,5 @@
     "skipLibCheck": true,
     "types": ["node"]
   },
-  "include": ["contracts/**/*.ts", "server/**/*.ts", "web/**/*.ts", "adapters/**/*.ts", "windows/**/*.ts", "vite.config.ts", "../tests/unit/studio-*.test.ts", "../tests/studio/**/*.ts"]
+  "include": ["contracts/**/*.ts", "server/**/*.ts", "private/**/*.ts", "adapters/**/*.ts", "windows/**/*.ts", "vite.config.ts", "../tests/unit/studio-*.test.ts", "../tests/studio/**/*.ts"]
 }

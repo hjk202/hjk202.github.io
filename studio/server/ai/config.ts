@@ -1,4 +1,5 @@
 import process from 'node:process';
+import { GEMINI_BASE, GEMINI_MODEL } from '../../contracts/ai.ts';
 
 export type BailianConfig = { state: 'ready'; endpoint: string; apiKey: string } | { state: 'missing' | 'invalid' };
 
@@ -14,4 +15,12 @@ export function readBailianConfig(environment: NodeJS.ProcessEnv = process.env):
       || !/^\/compatible-mode\/v1\/?$/.test(url.pathname)) return { state: 'invalid' };
     return { state: 'ready', apiKey, endpoint: url.origin + '/compatible-mode/v1/chat/completions' };
   } catch { return { state: 'invalid' }; }
+}
+
+export function readAiConfig(environment: NodeJS.ProcessEnv = process.env) {
+  if (environment.STUDIO_AI_PROVIDER !== 'gemini') return readBailianConfig(environment);
+  const apiKey = environment.GEMINI_API_KEY;
+  if (!apiKey) return { state: 'missing' as const };
+  if (!/^[A-Za-z0-9._-]{1,512}$/.test(apiKey)) return { state: 'invalid' as const };
+  return { state: 'ready' as const, apiKey, endpoint: GEMINI_BASE + '/models/' + GEMINI_MODEL + ':generateContent' };
 }

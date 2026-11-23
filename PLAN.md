@@ -1,6 +1,6 @@
 # Personal Space · 需求、设计与实施计划
 
-更新：2026-10-17。本文是产品需求、目标架构、风格设计、分阶段实施及验收状态的 **source of truth**；执行守则见 [AGENTS.md](./AGENTS.md)，所有者简报见 [README.md](./README.md)，完整内容维护与未来写作接口参考见 [MAINTENANCE.md](./MAINTENANCE.md)。
+更新：2026-11-12。本文是产品需求、目标架构、风格设计、分阶段实施及验收状态的 **source of truth**；执行守则见 [AGENTS.md](./AGENTS.md)，所有者简报见 [README.md](./README.md)，完整内容维护与未来写作接口参考见 [MAINTENANCE.md](./MAINTENANCE.md)。
 
 此前按用户要求合并原需求书、设计稿、架构/内容/加密/维护/发布指南；随后用户明确要求一份完整内容维护手册，现维护以上四份文档。README 是项目入口，AGENTS 约束 AI 执行；本文集中保存产品与阶段依据、完成记录和验收证据，维护手册集中记录实际字段、操作、已实现 Studio 接口及未来扩展参考，不另立需求来源或启动未来功能。旧文档及完整历史验证记录可从整理前提交 `6202827` 读取，例如 `git show 6202827:NEED.md`；不再以旧文档作为并行依据。
 
@@ -15,6 +15,9 @@
 - [Phase 路线与 milestone](#roadmap)
 - [Phase 5 评估与实施草案](#phase-5-plan)
 - [Personal Space Studio 架构与 milestone](#studio-plan)
+- [Studio M7–M15：App 使用方式与内容管理扩展](#studio-next-plan)
+- [Studio M16.1–M23：启动、工作台与资料录入审核](#studio-authoring-plan)
+- [Studio 写作体验升级](#studio-writing-workbench)、[Markdown 写作闭环](#studio-think-writing)、[Think 快速预览和时间](#studio-think-preview-time)与[Think 稳定化](#studio-think-stability)
 - [验证流程](#verification)
 - [发布与回退](#release)
 - [完成记录与风险](#records)
@@ -24,15 +27,15 @@
 
 | 项目 | 现状 |
 | --- | --- |
-| 本次任务 | 文档整理的测试、提交与正式发布已完成；结果见 [9.21](#docs-release)。保留单一 Git 和现有目录，N1 手机反馈仍待作者，完成后停止 |
+| 本次任务 | 2026-10-31 当前主线至 M23 已实现/自动验证，实际 App/性能、新 AI 及真实发布统一待验。保留已有改动，不控制桌面、不实际提交/推送/发布 |
 | 已完成 | **Phase 1–4 全部 Done**；公开设计 D1–D8 与内室 V1–V5 完成 |
-| 当前 milestone | 无；N1 Done，Studio M0–M6、v0.1/v0.2/v0.3 全部 Done，Phase 5/6 仍延后 |
+| 当前 milestone | M16.3 Auto verified / Awaiting unified acceptance。M19.1 Auto verified / Awaiting unified acceptance。M19.2 Auto verified / Awaiting unified acceptance。M20 Auto verified / Awaiting real AI and unified acceptance。M23 Auto verified / Awaiting real publication and unified acceptance。M17 Done，M18 Awaiting author acceptance（原生待验，不标 Done）。M16.2、M21/M22 Deferred，旧专项待验不变 |
 | 最近已核验线上产品源 | `dcc5d826631935d20ef8378056c46617bb8e3513`（26 文件三方哈希一致，线上 Chromium/WebKit 无 pageerror/失败请求；公开内容与 N1 相同） |
-| 最近发布 | [Actions 39019825142](https://github.com/hjk202/hjk202.github.io/actions/runs/39019825142)，完整 check/deploy 成功；本轮仅整理文档与编辑器视图，线上全站验证通过 |
+| 最近发布 | [Actions 39019825142](https://github.com/hjk202/hjk202.github.io/actions/runs/39019825142)，完整 check/deploy 成功；该次整理文档与编辑器视图后，线上全站验证通过；本轮 M8 未发布 |
 | 访问地址 | [正式网站](https://hjk202.github.io/)；[随记预览验收入口](https://hjk202.github.io/think/?v=2a8ff37) |
 | 私人数据状态 | 本地/产物/线上均无验收密文，真实 Vault 未配置；私人功能完整，入口显示未配置提示 |
 | 后续阶段 | Phase 5 按用户决定延后，方案保留为储备；Phase 6 仍延后，均不影响当前可用状态 |
-| Studio | 独立本地作者工具路线，Windows PC、同仓库、Think 优先；不是访客网站新模块，也不重启 Phase 5/6，详见 [6.8](#studio-plan) |
+| Studio | 现有能力与待验状态见 [6.10](#studio-next-plan)；新路线见 [6.11](#studio-authoring-plan)，M16.1/M17 Done、M18 原生待验；新主线及延期范围见 6.11，不重启网站 Phase 5/6 |
 
 2026-10-15 用户澄清要求完成 Phase 4 及以前全部工作，并明确表示“我都检查过了，没有问题”。手机复验据此记通过；此前 Closed 是误解收尾意图的历史停点。本次已完成原 4.8 的样本清理、完整复验及最终发布，全部标准满足，标 Done 并停止；Phase 5/6 未开始。
 
@@ -643,6 +646,8 @@ Deferred 表示用户决定延后，不是已实现、失败或当前待办。�
 
 **Non-goals**：Build/Keep/Me 编辑器、私人 Vault 编辑、素材上传/自动清理、已有文章 slug 修改/文件改名；云端/远程访问、账号/OAuth、多人协作、多设备同步、手机/iPad、Mac/树莓派部署、数据库 CMS/PostgreSQL/Redis、Docker 微服务、Electron/Tauri/PWA、插件/通用 workflow/Agent 框架；自动 Git commit/push/部署。首版不实现 AI/MCP；不增加无明确必要的 WebSocket，不大规模重构 Astro。
 
+以上是 M0–M4 的首版边界，不回写其完成历史。用户现已认可 [M7–M15 扩展规划](#studio-next-plan)：仅在未来对应单元获准实施时增加 Windows 薄窗口、其他公开模块和私人编辑；Electron/Tauri/PWA、云服务、自动 Git/部署等仍不进入新路线。本轮认可与入档不构成实施授权。
+
 这里的首版为已完成的 M0–M4；M5 加入百炼文本建议，2026-10-17 已核验真实五项调用与真实浏览器采纳，公共验收已完成，M5 Done，记录见 9.15；M6 轻量 Agent adapter 已完成，仍不实现 MCP 或其他非目标。
 
 当前真实链路及复用边界：
@@ -739,7 +744,7 @@ tests/
 
 严格拒绝 API 新增未知字段/错误类型。旧文件的损坏 YAML、未知字段、重复 slug 必须在列表诊断中出现；不能默默丢弃字段或当空文档覆盖，不支持的源保持不可编辑。无法可靠识别完整集合时，阻止可能制造重复的写入，交由作者在现有源码维护流程修复。
 
-序列化保留正文、未改字段及注释；无修改保存保持原始字节，显示默认值不等于补写源字段。日期写为带引号字符串，不用字符串拼接生成可执行 TS/JS/MDX。新文档默认 published:false、显式 kind，日期由作者确认；正文不自动 trim、润色或格式化。
+序列化保留正文、未改字段及注释；无修改保存保持原始字节，显示默认值不等于补写源字段。日期写为带引号字符串，不用字符串拼接生成可执行 TS/JS/MDX。新文档默认 published:false、显式 kind；Web 新建默认本机当天日期且可修改，API/Agent 不擅自补日期，旧文章不补写；正文不自动 trim、润色或格式化。
 
 结果采用 `{ok:true,value}` 或 `{ok:false,error:{code,message,issues?}}`；issue 含 field/code/message/severity，不依赖解析英文异常文本生成机器错误码。建议 HTTP 映射：
 
@@ -966,6 +971,564 @@ Web 只把当前 Markdown 正文快照送给后端，明确显示发送范围与
 | v0.2 Windows 本机启动 | Done | Key 用当前用户 DPAPI 加密保存在仓库外；一次录入后复用；桌面快捷方式启动/复用服务并打开浏览器，提供停止/重新配置方式 | 不存明文 Key、不做账号/云同步/后台开机常驻/MCP，不把 localhost 服务部署公网 | studio/windows/ 启动/配置脚本及必要本地进程管理、Windows 协议测试；本地密文→可信启动内存/子进程配置→原 HTTP | 共同门槛；真实 DPAPI 保存/加载/坏密文/无配置/更新、快捷方式实际目标、首次/重复启动、停止/重启/浏览器与新提示词非敏感真实调用；Key 不进 args/日志/Git，原内容不变 | 同用户程序不是安全隔离；首次保存需要作者本机安全录入，不能从旧进程窃取；通过后进入 v0.3 |
 | v0.3 v0 基线提交与正式部署 | Done | 审阅并提交当前 Studio/文档/授权文章，推送 main，手动触发原 workflow，核对实际公开产物与线上，创建 studio-v0 基线；补充获准关闭 Astro 隐式预取及行为回归 | 不移动历史 v0、不夹带凭据、无强推、不把 Studio/本地配置上传 Pages | 现有 release/Vault 检查、Git、固定 GitHub Actions 与验收记录 | lint/typecheck/unit/build/默认 E2E 与原发布专项；云端检查/deploy 成功，源 SHA/下载 artifact/本地与线上哈希/受影响页面一致，浏览器无异常 | 不从本地通过推断已部署；保留实际 run/commit/tag 和限制，完成本授权后停止 |
 
+<a id="studio-next-plan"></a>
+### 6.10 Studio M7–M15 — App 使用方式与内容管理扩展（批量实施，最终统一人工验收）
+
+**授权与状态**：2026-10-17 路线规划入档，记录见 [9.22](#studio-next-planning-record)。M7 经作者真实双击反馈于 2026-10-18 标 **Done**；随后作者单独授权 M8。M8 已实现 App 与协同关闭；作者于 2026-10-23 对日常手动清单反馈“ok了”，专项缺口仍为 **Awaiting unified acceptance**。2026-10-23 作者补充授权单个启动图标、默认可编辑日期、正式 AI 配置排查修复及验证/文档；不再控制桌面，实际 App 操作仍待作者反馈。M9–M15 现已由作者于 2026-10-23 明确批量授权，按下面的自动验证门槛顺序实施。保留全部已有未提交改动，不提交/推送/发布；M0–M6、v0、N1 历史及已发布源保持，不重启网站 Phase 5/6。
+
+#### 6.10.1 现状、目标与架构
+
+作者反馈桌面启动/停止入口不可用并已删除。M7 实测复现：原 host/API 均已退出，相关三份会话/锁文件仍在，命名管道不通；旧 open/stop 均退出 1、DESKTOP_UNAVAILABLE。现已按严格归属条件恢复退出残留并重建入口；自动验证与真实目标调用通过，作者已确认真实双击启停、重复启动、重开及 AI 配置保留。证据见 [9.23](#studio-m7-record)，不把旧 v0 验收当作本次通过。
+
+| 代码证据 | 当前行为 / 规划影响 |
+| --- | --- |
+| [Open.ps1](./studio/windows/Open.ps1)、[app.ts](./studio/windows/app.ts)、[desktop](./studio/desktop/PersonalSpaceStudio.csproj) | 快捷目标保持，Launcher 改为 App 单实例启动/激活；WinForms/WebView2 只承载原 Web，生成物留在忽略缓存 |
+| [desktop.ts](./studio/windows/desktop.ts)、[main.ts](./studio/server/main.ts) | 后台 host/HTTP 子进程以认证管道及 IPC 协作；M7 增加退出残留核对、等待真实停机、宿主丢失时自有 API 关闭、输入/产物哈希匹配复用 Web；不接管手动终端服务 |
+| [web/main.ts](./studio/web/main.ts)、[web/desktop.ts](./studio/web/desktop.ts) | App 有限退出消息处理保存/放弃/取消及进行中操作；独立浏览器仍只用 beforeunload，不借标签页卸载停止服务 |
+| [HTTP](./studio/server/http.ts)、[契约](./studio/contracts/think.ts) | 四个公开模块各有自有 DTO、校验与固定源 adapter；AI/现有 stdio Agent 仍仅 Think；私人端点尚未实施 |
+| [Keep](./src/modules/keep/data.ts)、[Me](./src/modules/me/data.ts)、[Build](./src/modules/build/data.ts) | 内容是各自受模型包装的 TypeScript 数据表达式，不是 Markdown，不能照搬 Think 文件 serializer |
+| [Vault operations](./scripts/vault/operations.mjs)、各模块 vault.schema/server/client | 已有完整加密、校验和展示；真实源仍由作者在仓库外维护，缺的是作者管理界面，不是重做加密协议 |
+
+目标仍是一个 Git、现有根 Astro 网站与 `studio/`，不搬到 website/、不拆仓库、不建数据库。新增 App 只负责窗口和生命周期，业务与文件操作仍在各自服务/adapter：
+
+```text
+桌面 Studio 图标 → Windows 薄窗口 → 现有 Web 界面
+                                      ↓ 同源 HTTP
+终端 / 现有 Agent adapter ───────→ Authoring API → 各模块自己的服务/文件 adapter
+                                                   ↓
+                                        原 Markdown / 各模块 data.ts
+
+未来私人模式：可信本机选择密文主文件 → 内存解密/完整包校验/模块编辑/受控预览
+                                      ↓ 重新加密
+                           受限密文文件 adapter → 仓库外主文件
+                                      ↓ M15 显式交付
+                            固定 public/vault/bundle.json
+```
+
+M8 采用 **WinForms + WebView2 最小 Windows 宿主**，复用现有 Web/API；这是对首版“无桌面原生 App”的有限扩展，不引入 Electron/Tauri/PWA。宿主目标 net8.0-windows/x64，SDK 8.0.404 / latestPatch、WebView2 包精确 1.0.4258.31 并锁定还原；需 .NET 8 Desktop Runtime 和 WebView2 Evergreen Runtime，装有 Edge 不代替检测。窗口先处理缓冲，再等待自有 API 清理，不靠 unload 请求承诺退出。依据：[微软 Runtime 分发](https://learn.microsoft.com/en-us/microsoft-edge/webview2/concepts/distribution)、[FormClosing](https://learn.microsoft.com/en-us/dotnet/api/system.windows.forms.form.formclosing)、[WebView2 安全建议](https://learn.microsoft.com/en-us/microsoft-edge/webview2/concepts/security)。实际验证与待验边界见 [9.24](#studio-m8-record)。
+
+日常默认一个图标：双击启动，重复点击激活已有窗口；“退出 Studio”和窗口 X 走同一协同关闭流程。未保存时提供保存并退出/放弃并退出/取消；保存失败或结果未确认时不清空缓冲、不自动重试。预览/AI 可取消，进行中写入须先确认结果；正常退出后停止本次 App 拥有的服务并释放锁。保留备用停止方式；不默认托盘常驻或开机启动。
+
+服务归属必须明确：App 只自动停止自己启动并确认身份的实例；终端启动的已有服务不被默默接管或杀死。Agent 仍可使用独立 HTTP 模式，退出 stdio 不停止服务；App 所有的 API 在窗口退出后会结束，活动 Agent 请求须有明确中断/写入结果未知语义，不能把断线当回滚。不得按进程名批量结束 node.exe，不新增远程 shutdown/通用 shell 端点。
+
+#### 6.10.2 Source of truth、接口与安全边界
+
+- **公开内容**：Think 继续维护 `src/modules/think/content/*.md`；Keep/Me/Build 继续维护各自 data.ts。Web/窗口不直接读写源文件；业务接口不接收任意路径、源码执行指令或终端命令。仅复用现有模型、校验、错误 envelope 形状、认证和 revision 原则，不建立 UniversalContent，也不让其他模块依赖 Think DTO。
+- **TS 维护**：只用 AST 识别当前受支持的 `publicBookmarks([...])`、`publicProfile({...或null})`、`publicProjects([...])` 数据表达式；不得 eval/import 不可信候选或正则覆盖整文件。无法安全识别/保留的结构或注释应阻断并给出诊断，不改成空集合。无修改往返保持字节，编辑只触及受管理表达式，其他 imports/外围代码保持；未编辑字段、草稿、条目和数组顺序保持。不可只读公开过滤后的结果再保存，否则会丢草稿。
+- **冲突与写入**：三份 data.ts 分别以完整源文件原始字节计算 revision，保存/删除/清空带 expectedRevision；同文件不同条目也要冲突，不做强制覆盖或隐式合并。各模块独立验证候选全体、重复 slug/分类/关联，先校验后受限原子替换。公开状态、保存、Git 与部署分开，已有 slug 首版保持；不迁移为 JSON/数据库以绕过 AST。
+- **公开预览**：逐模块复用其真实 Astro 模板，在受限派生副本构建并投影为禁脚本预览；不能把其他模型伪装为 Think，不能为预览先保存源或改 published。仅按实际重复最小复用预览设施，不预建通用编译/插件框架。私人正文永不进入此构建、public 或 `.cache/studio/`。
+- **私人源**：M12 先以非敏感样本评估仓库外加密主文件作为唯一作者源，内存解密编辑，保存重新加密；网站 bundle 是派生交付物。若采用，作者须在本机确认旧外部 JSON 的迁移及备份，不并行维护两份可编辑原本；M12 通过前现有仓库外 JSON/CLI 流程不变。文件选择通过可信本机入口生成受限句柄，密文文件 adapter 绑定该文件并验证 revision，不向网页/Agent 开放任意文件路径。
+- **私人会话**：复用现有 Vault 协议、KDF/AES 参数、随机盐/IV/AAD、限额、模块 schema 和关联校验。口令与明文只在受控本机编辑内存，不进入后台 HTTP API、宿主通用消息、聊天、源码、Git、public、缓存、CI、参数、环境、日志或浏览器持久化；加密文件 adapter 仅接收密文。Vault 口令不沿用 AI Key 的 DPAPI 记住机制；真实资料不用于代理验收。默认不接 AI/Agent，不能从当前 Think 写权限推导私人或新模块权限。
+- **完整包与交付**：始终保留未编辑模块、稳定 id、资产与关联；只编辑一篇不能覆盖整包。锁定/退出/取消清理 DOM、Blob、预览与引用；不承诺同用户恶意程序/操作系统内存取证隔离。正式包替换先在本机内存完成全模块/资产/Build 关联校验，再加密；后端密文结构校验不能冒充明文业务校验。M15 的显式密文替换仍不等于 Git 提交或网站发布。
+
+`studio/desktop/` 是 M8 的薄宿主，`studio/windows/` 管启动/凭据/进程协作，`studio/contracts/desktop.ts` 定义有限退出消息。`studio/server/{keep,me,build}/` 与各自契约/面板由 M9–M11 分别接入；M12–M15 的纯内存核心位于 `studio/private/`，密文文件/交付 adapter 位于 `studio/server/private/`。不把作者业务放进 src/core、不建立插件注册表。Node 共用根 package/lock，宿主有独立 csproj/packages.lock.json；宿主、NuGet、profile 与构建收据只在 `.cache/studio/`，不进入 dist/public。
+
+#### 6.10.3 顺序、状态与共同验收
+
+| 单元 | 状态 | 交付目标 | 依赖 / 下一边界 |
+| --- | --- | --- | --- |
+| [M7](#studio-m7) | Done | 恢复可靠启停、快捷入口和启动诊断 | 自动验证与作者桌面验收通过；M8 须另行授权 |
+| [M8](#studio-m8) | Awaiting unified acceptance | 单图标 Windows App 与协同退出 | 日常手动操作作者确认；原生专项保留最终验收 |
+| [M9](#studio-m9) | Auto verified / Awaiting unified acceptance | Keep 公开编辑器 | M8、原作者 API/预览；下一项 M10 |
+| [M10](#studio-m10) | Auto verified / Awaiting unified acceptance | Me 公开编辑器 | M9；下一项 M11 |
+| [M11](#studio-m11) | Auto verified / Awaiting unified acceptance | Build 公开编辑器 | M10；下一项 M12 |
+| [M12](#studio-m12) | Auto verified / Awaiting unified acceptance | 私人安全设计与隔离原型 | M11；安全与唯一源自动门槛已通过 |
+| [M13](#studio-m13) | Auto verified / Awaiting unified acceptance | 私人 Think 编辑器 | M12；自动门槛已通过，下一项 M14.1 |
+| [M14.1](#studio-m14-1) | Auto verified / Awaiting unified acceptance | 私人 Keep | M13；自动门槛已通过，下一项 M14.2 |
+| [M14.2](#studio-m14-2) | Auto verified / Awaiting unified acceptance | 私人 Me | M14.1；自动门槛已通过，下一项 M14.3 |
+| [M14.3](#studio-m14-3) | Auto verified / Awaiting unified acceptance | 私人 Build | M14.2；自动门槛已通过，下一项 M15 |
+| [M15](#studio-m15) | Auto verified / Awaiting unified acceptance | 密文交付与整体验收 | 自动门槛已通过，人工清单待反馈；停止，不自动发布 |
+
+M14 是三个独立实施单元，不能一次默认完成全部。以上是交付顺序，服务本身仍不依赖某个窗口/UI；若要调整顺序、技术方案或源格式，先明确新授权，不修改计划绕过前置失败。
+
+**共同 Verification（下称 G）**：每个实现单元实际运行 `npm.cmd run lint`、`typecheck`、`test`、`build`，及受影响 Studio 浏览器交互/网站 smoke；涉及路由、加载、预览或发布输入时复验根/base 和对应 Chromium/WebKit 行为。逐项记录命令/退出码、失败处理、截图与源哈希保护，不过滤真实 pageerror、不用构建替代交互。原发布全门槛只在另获发布授权时执行，不把本路线当上线许可。窗口与启停须真实 Windows 桌面操作，口令/加密只用非敏感隔离 fixture；用户反馈、工具或平台条件未满足的验收项保持待验，不写 Done。本次批量授权下，每项自动与安全验证通过、证据入档后继续下一个已授权单元；真实 App 人工项目统一最后验收，不将待验项标 Done。安全原型若出现未解决技术阻断，不进入依赖阶段。
+
+**共同 Non-goals**：无新数据库、云/远程/多端/手机、账号协作、Electron/Tauri/PWA、MCP、素材上传/自动清理、自动 Git/部署；不重构公开网站、不搬目录、不改变公开/私人展示协议、不升级无关依赖。公开模块不引入私人编辑，私人模块不开放 AI/Agent 或新增资产编辑器；M12 可识别风险，不可为通过原型降低安全参数。
+
+<a id="studio-m7"></a>
+#### 6.10.4 M7 — 可靠启停与故障恢复（Done）
+
+**实施授权（2026-10-17）**：作者明确指定仅实施 M7、重建可用桌面快捷入口、完成本项验证并同步文档；保留此前未提交的三份规划文档，不进入 M8，不提交、推送或发布。后续 Pending 单元不因本条获得授权，已完成的规划记录保留为历史。
+
+- **Goal / Scope**：先复现实际桌面失败，核对真实桌面位置、快捷目标、Node/依赖、冷启动构建、就绪/超时、端口与锁状态；修复启动/停止/错误提示并恢复可用快捷入口。正常重开复用匹配源码/锁文件的已构建界面，缺失/过期才做固定构建或给出明确更新步骤，不盲目复用旧 UI。
+- **Non-goals**：除共同排除项外，不做 App 窗口、其他内容模块、自动抢锁/批量清缓存、强杀进程、自动安装系统依赖；不改 AI 配置格式或索取现有 Key。
+- **Files**：`studio/windows/{Open,Stop,Install-Shortcuts,Launcher}.ps1`、desktop.ts、desktop-state.ts、web-build.ts；`studio/server/main.ts` 仅增加可信父 IPC 断开时关闭自有服务；`tests/unit/studio-windows.test.ts`、非敏感集成验证与三份文档。不改网站/作者模型、根依赖、local.ts 凭据格式，不创建 desktop/。
+- **接口 / 数据流**：明确可信启动控制的 status/stop、实例归属、就绪和脱敏失败分类，沿用命名管道/IPC，不新增内容 HTTP shutdown。图标 → 启动检查/必要构建 → 本次 host/API 就绪 → 浏览器；备用停止 → 身份核对 → 正常 close/释放本实例锁。
+- **Done Criteria**：实际失败已复现并有证据或明确诊断结论，快捷入口可重建且不覆盖别人的图标；首次/重复启动、停止/重开可用，保存的 AI 配置保持；端口被占/依赖缺失/旧会话能解释和恢复。只有确认旧实例身份及已退出后才处理其残留，不凭 PID 或文件存在强删。
+- **Verification**：G；真实桌面双击和备用停止、连续启停、路径含空格/中文、原终端服务共存、占端口/活锁/已退出残留/坏状态/构建失败/缺依赖；分别记录冷/热启动和构建次数。检查锁释放、原文/凭据不变、日志不含正文/token/Key。
+- **风险 / 下一边界**：快捷入口修复不等于 App 已实现，普通标签页关闭仍不负责停服务；PID 重用、并发启动和更新中断不能误伤别的实例。通过后仅为 M8 提供可独立验证的可信启动/停止/状态能力。
+
+**验收完成与停点（2026-10-18）**：实现、自动检查与真实快捷目标调用通过后，作者补充确认手动双击启动、重复启动、停止、重开正常，AI 配置保留；M7 的 Done Criteria 与 Verification 已满足，标 Done。此前桌面自动化超时由作者实际操作反馈补齐，不冒称代理完成了双击。完整记录见 [9.23](#studio-m7-record)；不进入 M8，不提交、推送或发布。
+
+<a id="studio-m8"></a>
+#### 6.10.5 M8 — Windows App 窗口与协同关闭（Awaiting unified acceptance）
+
+**实施授权（2026-10-18）**：作者明确指定仅 M8 的 Windows App 窗口与协同关闭、验证和文档；保留 M7 与其他已有未提交工作，不进入 M9，不提交、推送或发布。前置 M7 Done；本机已发现 .NET SDK 8.0.404 与 WebView2 Runtime，具体构建/运行和作者反馈须实际验收后记录，不能仅以安装目录存在标 Done。
+
+**补充授权（2026-10-23，当前 In Progress）**：作者明确要求一起优化三点：桌面只保留一个启动图标（正常 X/菜单退出停止自有后台，备用停止仅保留命令）；新文章默认本机当天日期且可修改、已有源不补写日期；排查正式 App 的 AI 配置加载，修复入口差异并显示可操作诊断。只做这三项与验证/文档，不控制桌面，不进入 M9，不提交、推送或发布。此条取代本项“保留备用停止桌面入口”的旧展示约定，不删除底层安全停止能力。
+
+**入口外观补充（2026-10-23）**：作者报告仍看到启动/Stop 两个图标并要求可爱的蓝发二次元形象；本项内核对项目快捷文件、生成原创透明 PNG/多尺寸 ICO，用于启动快捷方式、exe 与窗口，不改公开网站图标。不控制桌面、不强清图标缓存；不存在或无法证实归属的桌面对象不强删，实际显示由作者确认。
+
+- **Goal / Scope**：最小 WebView2 宿主承载现有 Web，单图标/单实例/重复激活；窗口 X 与显式退出统一处理未保存内容、进行中写入、预览/AI 取消及本实例服务关闭。桌面只保留启动图标，备用停止保留命令行；新文章默认本机日期且可修改，启动条件、AI 状态和缺 Runtime/SDK 有清晰说明。
+- **Non-goals**：不重写 UI/API，不做托盘常驻、开机自启、商店/MSIX/更新平台、跨平台框架或业务文件读写桥；不默认接管终端启动的服务。
+- **Files**：`studio/desktop/` 宿主与锁文件；`studio/windows/{app,app-build,desktop,local}.ts`、Launcher.ps1、Install-Shortcuts.ps1；`studio/server/main.ts` 启动配置；`studio/contracts/desktop.ts`、`studio/web/{desktop,main}.ts`、index.html 与退出样式；`tests/{unit,studio}` 中的生命周期、桥契约与浏览器用例，`.gitignore` 及三份文档。
+- **接口 / 数据流**：宿主 → 原 M7 控制能力 → API → Web；只增加有限的退出请求/取消/就绪状态消息，业务仍走原 HTTP。消息限定受信任顶层 Studio origin 与已知类型，预览/任意导航不能访问 native 能力；不公开 fs/shell/路径/token。宿主关闭先保留窗口等待 Web 处理，再等待自有服务清理；父窗口异常退出的子进程处理须实测。
+- **AI 启动边界（2026-10-23 修复）**：Node host 构建后向 API 的私有 Node IPC 发送严格 `studio:start` 与指定的 localCredentialStore；API 直接调用既有 DPAPI 读取，再创建 AI 服务。Key 不经 fork 环境，也不进入 native 协议；测试不指定存储时保留显式环境含义、不自动读取真实存储。坏消息/坏配置或启动中父进程失联均失败并清理自有服务；HTTP/Agent 接口不变。
+- **Done Criteria**：双击正常打开无终端窗口，重复激活不启第二服务；取消退出保持全部缓冲与服务，保存失败不丢文；放弃/保存并退出均正常释放本实例端口/锁。窗口不加载任意外站，App 退出不误停手动服务；活动 Agent 断线不被解释为保存回滚。
+- **Verification**：G，加锁定宿主项目的实际 build/测试（命令随 M8 项目配置确定）；真实 WebView2 桌面操作、作者本机使用确认；X/菜单退出/未保存取消/保存失败或响应未知/AI与预览运行中退出、重复启动、宿主/子进程异常、重开与中文输入。复验原 CSP/token/CSRF/sandbox、桥越权/外部导航、AI 配置保留。未实测窗口或未取得对应反馈时保持待验。
+- **风险 / 下一边界**：新增 Windows 构建链和 Runtime 条件，不预设当前环境已就绪；崩溃不承诺内存草稿恢复，不能以强杀代替正常关闭。M8 交付本机 App，下一项 M9 只增加 Keep，不改变服务与 UI 解耦。
+
+**当前验收停点（2026-10-23）**：三项补充、图标与此前两次启动定位尝试保留在 [9.25](#studio-m8-refine-record)–[9.28](#studio-m8-known-folder-record)。现已用实际双击诊断与文件句柄证明：同路径的文件 IO 被 Codex 打包应用隔离存储重定向，Known Folder 仅统一路径不足以解决。已一次性复用原 DPAPI 密文；作者正常重开后的正式 App 后台 available:true，真实非敏感润色返回 200，见 [9.29](#studio-m8-credential-recovery-record)。M8 改为 Awaiting unified acceptance，AI 加载恢复不替代其余 native 验收；此前主进程异常后的最终取消/退出未签收，历史保留在 [9.24](#studio-m8-record)。不再控制桌面，原剩余 native 专项仍按 [手动清单](./MAINTENANCE.md#studio-m8-manual) 等待对应反馈；不进入 M9。
+
+<a id="studio-m9"></a>
+#### 6.10.6 M9 — Keep 公开编辑器（Auto verified / Awaiting unified acceptance）
+
+- **Goal / Scope**：列表/新建/读写/确认删除、类别/来源链接/说明/kind/公开状态、模块校验与隔离预览；从原始 AST 读取包含草稿的完整集合，数组顺序保留。
+- **Non-goals**：不抓取来源网页、图标/缩略图或新增排序系统，不做 Me/Build/私人编辑，不迁移 data.ts、不改已有 slug。
+- **Files**：未来 contracts/keep.ts、server/keep/、Web Keep 面板与测试；复用 [bookmarks.ts](./src/modules/keep/bookmarks.ts)、原 Keep 页面/样式；生产 data.ts 只由未来作者明确保存时修改，验收用副本。
+- **接口 / 数据流**：规划 `/api/authoring/v1/keep` 下 list/read/create/save/delete/validate/preview，使用 Bookmark 自有 DTO、受限 key 与完整文件 revision；具体请求结构在该项实施时锁定，不改 Think 契约。表单 → Keep API/AST adapter → 原 data.ts；预览候选 → 派生副本 → 原 Keep Astro → 受控投影。
+- **Done Criteria**：字段/分类一致性/http(s) URL/重复 slug/草稿诊断正确；编辑与预览不丢原条目、草稿或未知于当前面板的已支持字段，不读公开过滤结果后覆盖源。坏/不支持 AST 拒绝写入，旧 revision 阻断整文件保存，未保存预览不改源/根 dist。
+- **Verification**：G；AST 正反例、注释与无修改字节往返、多条目/草稿保留、同文件不同条目冲突/删除/原子失败/路径越权；双引擎表单/取消/预览/断线，网站根/base 分类、详情、外链、搜索与计数。
+- **风险 / 下一边界**：TS 为可执行源码，受支持字面量范围须明确，不为兼容动态表达式执行代码；整文件冲突需要重读核对。到 M10 才增加 Profile，重复的安全代码仅按实际需要最小复用。
+
+<a id="studio-m10"></a>
+#### 6.10.7 M10 — Me 公开编辑器（Auto verified / Awaiting unified acceptance）
+
+- **Goal / Scope**：编辑唯一 Profile 的姓名、介绍、段落、链接与公开状态，明确确认清空为 null，校验和隔离预览；保持单例而非文章列表。
+- **Non-goals**：不引入第二份 Profile、slug、多人资料或私人 Me，不改变 Me 的真实资料 count 与 Compass 平均规则。
+- **Files**：未来 contracts/me.ts、server/me/、Web Me 面板及测试；复用 [profile.ts](./src/modules/me/profile.ts)、原 Me 页面；仍以 me/data.ts 为唯一公开源。
+- **接口 / 数据流**：规划 `/api/authoring/v1/me` 的 readProfile/saveProfile/clearProfile/validateProfile/previewProfile；clear/save 必带完整文件 expectedRevision，null 与取消公开分开。单例表单 → 自有 DTO/AST adapter → 原 source；预览只改派生候选。
+- **Done Criteria**：已支持字段完整保留，null/草稿/公开与确认清空各有独立语义；无隐式创建/删除，错类型/链接和旧 revision 阻断；保存后原网站/搜索/计数保持契约。
+- **Verification**：G；单例空态、null 往返、字段/链接负例、文件冲突/原子失败与 AST 保护；双引擎编辑/放弃/清空确认/隔离预览，根/base Me、Spotlight 和 Compass smoke。
+- **风险 / 下一边界**：不能套用文章 CRUD 导致空资料被自动补造；复用 M9 的已证明读写设施但不引入通用内容模型。下一项 M11 单独处理 Build 嵌套字段。
+
+<a id="studio-m11"></a>
+#### 6.10.8 M11 — Build 公开编辑器（Auto verified / Awaiting unified acceptance）
+
+- **Goal / Scope**：项目基本字段、sections、代码段、关键词/链接、status、milestones、updates、issues 的分步表单和完整往返；列表/新建/保存/确认删除、校验与真实隔离预览。
+- **Non-goals**：不改项目数据格式、既有 slug 或公共模型，不增加仓库抓取/自动成果生成/进度百分比，不编辑私人补充记录。
+- **Files**：未来 contracts/build.ts、server/build/、Web Build 面板及测试；复用 [projects.ts](./src/modules/build/projects.ts) 和 Build 页面/样式，输入仍为 build/data.ts。
+- **接口 / 数据流**：规划 `/api/authoring/v1/build` 的 list/read/create/save/delete/validate/preview，Project DTO 与整文件 revision；复杂表单 → 全量候选校验/AST adapter → 原 source，派生预览使用原模块布局，不把 sections 转成另一套 Markdown 正文。
+- **Done Criteria**：嵌套已支持字段、代码换行、稳定顺序与未编辑记录保留，更新日期/状态/问题规则正确；冲突不覆盖。已有公开项目删除须考虑私人 supplements.publicSlug：如正式 Vault 存在而无法核对关联，应明确阻断待作者本机核对，不偷偷解密或假称安全。
+- **Verification**：G；嵌套/省略/空数组/代码/日期/状态/链接/AST 正反例、不同项目整文件冲突、完整保留及原子失败；双引擎分步编辑/预览/删除；根/base 项目导航、更新排序/隐藏空区块、搜索/计数；关联未知时的阻断使用非敏感 fixture。
+- **风险 / 下一边界**：复杂表单最易丢未显示字段；密文存在不能证明无私人关联。到此三个公开模块分别可用且 Think 回归保持，再单独授权 M12，不能顺手实现私人解密。
+
+<a id="studio-m12"></a>
+#### 6.10.9 M12 — 私人安全设计与隔离原型（Auto verified / Awaiting unified acceptance）
+
+- **Goal / Scope**：用非敏感完整包明确加密主文件唯一源、旧 JSON 迁移选择、可信文件句柄/密文原子保存与 revision、内存解密/校验/预览、锁定/退出和交付边界；小原型验证可行性，不提供真实私人编辑器。
+- **Non-goals**：不读取/导入用户真实私人文件或口令、不自动迁移资料，不在 HTTP/Agent/AI 暴露私人能力；不更改加密协议、降低参数、持久化口令或发明新密码算法。
+- **Files**：拟定最小私人纯契约/内存核心、可信密文 adapter 和非敏感 tests/fixtures，具体目录由本项结论锁定；复用 src/core/vault 纯密码代码、各模块 vault.schema/client 及必要公开 Build 关联快照，不把 Node operations.mjs 导入 Web。
+- **接口 / 数据流**：候选边界为受限密文 open/read/save(expectedRevision)、本地纯 validatePrivatePayload/encrypt/decrypt/lock；名称与传输在本项锁定，不能先塞通用 HTTP API。受信任选择 → 密文 → 本机内存解密/完整业务校验 → 重新加密 → 同一仓库外文件；后台与宿主文件 adapter 只接密文/受限句柄。
+- **Done Criteria**：源/迁移/备份方案明确，未证明的安全点列出阻断；Node/browser 协议互通，全模块/资产/Build 关联校验可用，完整包保留；非敏感 canary 不出现在缓存/日志/网络/构建/持久化/宿主通用消息。错误与锁定不带明文，口令不持久化；无法满足则不进入 M13。
+- **Verification**：G；非敏感测试包的错误口令、篡改/KDF/限额/schema/资产/关联负例、文件句柄越权/冲突/写失败、锁定/退出/迟到异步结果、WebView2 桥与用户数据目录/缓存排查；在本机内存重验候选，不能只检验 envelope。将 Runtime/OS 限制和不承诺本机恶意程序隔离写清。
+- **风险 / 下一边界**：加密保存和发布副本容易被误当两份可编辑原本；纯模块 schema 不等于所有关系校验。通过后输出稳定的内存完整包与密文存储边界给 M13，现有 JSON/CLI 维护在显式迁移前仍有效。
+
+**本项锁定的原型边界（2026-10-23）**：私人完整 payload 只留在 Studio 私人内存会话；沿用四个 vault.schema、全包资产与最新公开 Build 关联校验，校验不把归一化结果覆盖未编辑原数据。复用原 Web Crypto，不持久化口令。仓库外密文主文件是唯一作者源，正式 bundle 仅交付副本。旧 JSON 不自动迁移：作者继续在仓库外使用既有 CLI 完成加密，验证后显式选择该密文作为主文件，并保留加密备份；本路线不增加明文导入或持久化接口，也不让 JSON 与密文同时成为可编辑源。文件由可信本机选择器授权为一个受限句柄，前端只拿句柄，不传路径；backend 仅读写结构合法密文，整文件 revision、受限原子替换与旧密文备份。独立 HTTP/Agent/AI 默认没有文件选择和私人明文能力。原型先用非敏感数据验证原生选择/桥边界、Node/browser 互通及 WebView2 内存/缓存行为；不提供真实私人内容编辑，不降低参数。
+
+
+<a id="studio-m13"></a>
+#### 6.10.10 M13 — 私人 Think 编辑器（Auto verified / Awaiting unified acceptance）
+
+- **Goal / Scope**：在已验证私人会话中打开/创建完整包，管理私人 Think 的列表、新建、编辑、确认删除、模块校验、受控预览和加密主文件保存；保留其他模块与资产。
+- **Non-goals**：不编辑其他私人模块或资产，不导入真实资料作为验收，不接 AI/Agent，不替换正式网站 bundle，不通过公开 Astro 预览或添加 published/公开 slug。
+- **Files**：按 M12 确定的私人内存核心/存储边界、Web 私人 Think 面板与隔离测试，复用 Think vault.schema/client/受控渲染；不修改公开 Markdown 模型。
+- **接口 / 数据流**：解密后的完整 payload 持于私人会话，私人 Think adapter 用原稳定 id 产生候选；校验全包及资产 → 内存预览 / 重新加密 → 带 expectedRevision 保存仓库外主文件。正文/口令不走原 Think HTTP；无单条目覆盖整包接口。
+- **Done Criteria**：只改目标条目，其他模块/id/资产原样保留；坏源拒绝、旧密文 revision 冲突、保存失败保留内存候选；锁定/退出清理预览及引用，取消退出不丢内容。公开源/根 dist/正式 bundle 不变。
+- **Verification**：G；私人与公开 Think DTO 混用负例、非敏感完整包增改删/读回、拒绝 published/公开草稿字段、其他模块/资产保留、迟到解密/预览、锁定/关闭、磁盘/网络/日志 canary；真实 Windows App 交互与 Node/browser 加密互通，不以 mock 加密签收。
+- **风险 / 下一边界**：私人正文语法沿用受控规则，不能假定等同公开 Markdown/HTML；退出或崩溃不承诺草稿恢复。只在本项全通过后授权 M14.1，不顺带做正式密文交付。
+
+#### 6.10.11 M14 — 其他私人模块（分三个独立单元）
+
+<a id="studio-m14-1"></a>
+##### M14.1 — 私人 Keep（Auto verified / Awaiting unified acceptance）
+
+- **Goal / Scope / Non-goals**：仅新增私人收藏的模块表单/增改删、校验和受控预览；复用 M13 完整包会话，不改公开 Keep、私人其他模块或资产，不接 AI/Agent/发布。
+- **Files / 接口 / 数据流**：M12 确定的私人 Keep adapter、Web 面板/测试；复用 keep/vault.schema.ts 与 vault.client.ts 的自有模型/id。私人收藏候选 → 全包校验/内存预览 → 原加密保存能力，不走公开 Bookmark/TS 文件 API。
+- **Done Criteria / Verification**：G；原字段/类别/URL/稳定 id 及非法输入覆盖，增改删与锁定/退出实际交互通过，整包未编辑模块/资产与密文 revision 冲突验证，公开源/正式包不变。
+- **风险 / 下一边界**：不能把公开 Bookmark DTO 当私人记录而增加 published/slug；验证通过只进入另获授权的 M14.2，共享层只复用已存在的私人会话。
+
+<a id="studio-m14-2"></a>
+##### M14.2 — 私人 Me（Auto verified / Awaiting unified acceptance）
+
+- **Goal / Scope / Non-goals**：仅编辑既有私人 Me 模型的 paragraphs/links 及其受控预览；保留公开 Me，不制造 name/description 或第二份公开 Profile，不实现私人 Build/新资产或其他扩展。
+- **Files / 接口 / 数据流**：私人 Me adapter、Web 面板/测试，复用 me/vault.schema.ts 与 vault.client.ts；模块候选 → 完整 payload 校验 → 内存预览/重新加密保存，不直接写 me/data.ts。
+- **Done Criteria / Verification**：G；真实支持的字段、空态/取消/确认清空/非法值、锁定/退出及冲突通过；其他模块、id/资产与公开输入不变，不用公开 Profile 的 null/published 语义覆盖私人模型。
+- **风险 / 下一边界**：私人介绍与公开资料字段不必相同，不能靠同名自动合并或迁移；通过后再授权 M14.3。
+
+<a id="studio-m14-3"></a>
+##### M14.3 — 私人 Build（Auto verified / Awaiting unified acceptance）
+
+- **Goal / Scope / Non-goals**：仅支持现有私人独立 projects 与公开项目 supplements、嵌套记录及受控预览；不新增公共项目/改公开 slug，不编辑资产，不自动公开私人补充。
+- **Files / 接口 / 数据流**：私人 Build adapter、Web 面板/测试，复用 build/vault.schema.ts、vault.client.ts 及 server 关联规则的安全共享部分；候选 + 当前公开 Build 只读快照 → 完整关联校验 → 内存预览/重新加密保存。
+- **Done Criteria / Verification**：G；两类记录、稳定 id、嵌套字段/状态/日期、重复/缺失 publicSlug 与资产负例；公开项目在编辑中变化时重验关联，不用过期快照签收；其他模块、公开源和正式包保持，锁定/退出/冲突通过。
+- **风险 / 下一边界**：schema 通过不代表补充目标仍存在，公开文件 revision 变化须使相关校验失效；三个 M14 子项全部通过后才可授权 M15。
+
+**原模型核对**：build/vault.schema.ts 与 vault.server.ts 允许不同 id 的多条 supplements 关联同一个 publicSlug；本项沿用该规则，不增加 publicSlug 唯一限制。重复校验覆盖项目/补充的 id 冲突、合法同目标记录保留、目标缺失与编辑中公开源变化，不用公开项目 DTO 覆盖私人模型。
+
+<a id="studio-m15"></a>
+#### 6.10.12 M15 — 密文交付与整体验收（Auto verified / Awaiting unified acceptance）
+
+- **Goal / Scope**：区分加密主文件保存、密文候选导出、正式 bundle 显式替换；提供备份、候选身份/版本检查及恢复路径；完成 App、公开/私人编辑与现有网站兼容的整体验收。
+- **Non-goals**：不新增自动 Git commit/push/deploy、GitHub 凭据、通用发布 adapter、真实资料录入、云备份/同步或任意输出路径。测试可以验证发布候选，但不构成实际网站发布许可。
+- **Files**：按 M12 锁定的受限密文交付能力/私有 Web 会话与确认界面、集成测试及手册；复用现有 envelope/crypto/backup/restore 思路，唯一仓库目标为固定 public/vault/bundle.json。真实正式包只在未来作者明确选择交付时修改，验收仍用隔离 fixture。
+- **接口 / 数据流**：完整候选在作者本机内存重验模块/资产及最新公开关联 → 重新加密 → 仓库外候选/备份 → 显式确认及目标 expectedRevision → 固定正式 bundle 原子替换。后端只处理密文、限额/身份/结构，不接口令或假称已复验明文；主文件与交付副本不能双向编辑。Git/部署仍由作者按既有流程另行授权。
+- **Done Criteria**：源版本/关联变化使候选失效；用户能区分保存与交付，取消/写失败保留旧包，显式恢复可验证；全部四模块与资产兼容原网站解锁/搜索/计数/锁定，公开内容保持完整；从点击图标到退出的操作闭环通过，所需作者本机反馈齐全。
+- **Verification**：G；完整包两端互通、导出/确认/取消/备份/恢复/冲突/失败、受限路径/密文版本与关联负例；隔离网站根/base×两引擎四模块公开/私人、导航/后台/锁定/数据清理，App 正常/异常退出复验。使用现有 release/Vault 边界验证候选无明文、凭据、Studio 或测试文字；未获发布授权不执行 Git/Actions。
+- **风险 / 下一边界**：替换正式 bundle 已形成待发布改动，须清楚显示但不能自动上线；旧加密备份仍用旧口令，不能承诺远程销毁旧版本。M7–M15 全部必需项与真实验收满足后才能宣布本路线完成，到此停止，无下一自动实施项。
+
+**实现边界**：`PrivateDelivery` 只协调仓库外新候选、主文件目录中的旧正式包密文备份与固定 bundle，复用 `CipherFiles` 的 SHA-256、文件身份、受限路径和原子写入。可信启动注入 `createPrivateDelivery`，native export 选择不替换主文件句柄；HTTP 仅新增 status/export/replace，契约见[维护手册](./MAINTENANCE.md#studio-private-delivery)。浏览器先重验完整包、当前主文件口令/内容与公开关联，再重新加密；后台只核验密文结构及各文件/关联版本。候选能力只在当前会话有效，修改或锁定需重新导出。旧正式密文备份在仓库外，不污染 public；结果未知禁止自动重试，可只读 SHA 核对。跨文件检查不承诺同权限外部进程的 OS 事务隔离。
+
+**验收发现的最小兼容修复**：完整 WebKit 回归暴露既有 Compass SVG 的 Tab 可达性与 movementX/Y 为零的问题；仅补显式 tabindex 和坐标变化判断，保持现有导航/统计/返回清理契约。Spotlight 动画测试在页面内记录真实 CSS 动画中点，保留模态与结束焦点断言，避免测试端往返耗时错过完整关闭动画；产品动画时限保持。失败证据、修复后复验及唯一网站源码改动集中记入 M15 收尾记录，不重构网站或扩大为新功能。
+
+**当前批量授权（2026-10-23）**：作者明确要求 M9–M15 连续实施，并确认“同意，人工验收最后统一进行”。M14 三子项仍分别实现与验证；每阶段自动门槛及安全验证通过后继续，不因人工待验停住下一项，也不将未验收项标 Done。M8 日常清单收到“ok了”反馈，原生专项仍待最终统一验收；最多一个实施单元 In Progress。仅使用非敏感隔离数据，不导入真实私人资料，不操作桌面，不提交、推送或发布；各项技术风险若无法满足则记录具体阻断。
+
+<a id="studio-authoring-plan"></a>
+### 6.11 Studio — 日常启动优先、Think/Build 自动录入审核与一键发布（批量实施，最终统一人工验收）
+
+**当前批量授权（2026-10-31）**：作者明确要求继续后续计划至 M23、完成后一次性人工验收。按现有主线 M16.3 → M19.1 → M19.2 → M20 → M23 分项实施，每项自动验证通过后继续；真实 App、性能、远程 AI 与真实发布的必需反馈单列待验，不标 Done，不再以人工反馈串行阻塞本批已授权的下一项。作者已明确确认 M21/M22 保持延期，不在本批恢复。保留已有工作，不控制桌面，不实际提交、推送或发布；实现发布能力不等于获准对真实仓库执行发布。
+M18 的实现和自动验证保持，其状态从 In Progress 归为 **Awaiting author acceptance**，只记录原生选择器/协同关闭待作者反馈，不标 Done，也不因新主线取消验收；它移出公开录入发布的串行前置。共享启停、凭据、关闭和安全回归仍是新主线的必需门槛。M16.2 的失败数值、原目标与 Deferred 状态保留；新启动架构不能用改名或改计时口径把原目标写成已达标。
+
+此前规划依据见 [9.48](#studio-focus-plan-record)。M16.3 已实现准备/运行分离，自动验证见 [9.49](#studio-m16-3-record)，真实 App/性能待统一验收；录入和发布按本批范围逐项实施，不将计划按钮冒充交付。
+
+以下为此前授权/验收背景，不代表当前执行顺序；当前主线与状态以 6.11.6 为准。
+
+**授权与停点（2026-10-30）**：作者认可本节方案，明确本轮仅整理 PLAN 并同步 README、MAINTENANCE，不开始实现，不控制桌面，不提交、推送或发布。以下目录、接口、界面和流程均为目标设计，不代表已经存在。顺序、依赖和 Pending 不构成实施授权；后续须明确指定单元或批量范围。作者“功能上似乎没什么问题”的反馈不替代原专项验收，M8 与 M9–M15 的既有状态、范围及 9.1–9.38 历史保持。
+
+**M16.1 实施授权（2026-10-30）**：作者单独授权启动基线与反馈及验证/文档；不进入 M16.2、不控制桌面、不提交/推送/发布。上段是规划入档时的历史停点；其余单元没有实施授权。原先等待真实基线及目标的停点见 9.40–9.41；本轮收尾按下述确认执行，不将隔离后端样本冒充真实窗口指标。
+
+**手动基线确认（2026-10-30）**：在 manual 目录核实 6 份独立有效普通冷启后，作者明确选择“就这六次就够了吧”，据此将本机工程基线样本数由原计划至少 10 次改为 6 次，不要求补测，也不凑足十次。作者已确认启动、重复激活、关闭重开、AI 配置正常。诊断完成时刻与人工正常反馈共同作为验收依据，未收集双击到可见/可编辑的秒表数值，也未收集真实首次准备/源码更新/激活耗时；这些未测值不纳入基线或性能结论，不冒称真实首次准备已计时。M16.1 已收尾，[记录](#studio-m16-1-acceptance)保留统计、原条件调整及限制，9.40–9.42 历史不回写。
+
+**M16.2 已有实施与验收（2026-10-30）**：作者此前单独授权优化启动关键路径；实现/自动验证见 9.43，随后六次正式 App 检查见[9.44](#studio-m16-2-manual-review)。普通编辑已延迟 Markdown/AST 重依赖，安全/凭据/退出合同保持；实测 editor-ready p50 2261ms 未达 1844ms，其余三项门槛通过。作者现决定余项以后再做、继续下一阶段，当前记 Deferred，保留目标及失败证据、不标 Done；不再要求重复测同一版。M17 的本轮授权与依赖例外见下方，不沿用旧验收停点阻塞已明确获准的下一项。
+
+#### 6.11.1 目标与真实源码依据
+
+产品主线收敛为 **文章/项目的审核发布助手**：快速打开 → 放入一份文字或 Markdown/项目报告 → 自动整理并填写 Think/Build 字段 → 本人核对事实、补缺项和预览 → 保存草稿/修订，或一次精确批准后发布。日常以自动录入为主，原手动表单作为精调与备用入口；不要求作者日常逐字段从头录入。没有依据的贡献、成果、日期不自动补造。
+
+保持一个 Git、现有目录、Windows 薄宿主、本机 Authoring API 和真实内容源。复用已实现的 service、校验、序列化、冲突、预览与文件保护。主线不迁移前端框架、不另建 CMS，不开启网站 Phase 5/6。录入审核是自动录入流程的入口。发布能力见 M23 实际合同，工作区当前入口与布局见[写作体验升级](#studio-writing-workbench)。
+
+| 已核对的代码 | 对规划的约束 |
+| --- | --- |
+| `studio/windows/desktop.ts`、`app.ts` | 当前宿主准备、Web 准备、后端和凭据依次就绪后才显示 App；首次可见和首屏可编辑是两个指标 |
+| `studio/windows/app-build.ts`、`web-build.ts` | 已有指纹缓存，不是每次重编译；命中时仍做 SDK 探测、源及产物校验，失效才 restore/build 或 Vite build |
+| `studio/windows/local.ts`、`studio/server/main.ts` | 定位存储与读取配置分别调用 PowerShell，当前在 API 启动前读取 AI 配置；分段包含导入/IPC 等成本，不能视为纯 DPAPI 耗时，减少开销仍须保留后端凭据隔离 |
+| `studio/server/http.ts`、`source-preview.ts`、`source-expression.ts` | 预览服务对象仍保留原生命周期；M16.2 将 Markdown 编译器延至首次合法预览、TypeScript AST 延至首次 data.ts 解析。普通打开不执行整站 Astro build；模块 SourceFiles 原有部分惰性创建未冒称为新优化 |
+| `studio/web/private.ts`、`workbench.ts`、`styles.css` | M17/M18 已统一面板并将资料库本机保存与网站更新分开；选择前锁定，隐藏仅保留非敏感选择事务，写入未知需核对。此能力保留，原生验收未齐，不继续扩展 |
+| `studio/contracts/think.ts`、`build.ts`、`src/modules/build/projects.ts` | 已有 ThinkDocument 与 Project；项目已有章节、代码、阶段、进展、问题，无须 UniversalContent |
+| `studio/server/build/service.ts` | Build 草稿也做完整业务校验，revision 覆盖整份 data.ts；不完整提案不能先写入源文件 |
+| `studio/contracts/ai.ts`、`studio/server/ai/suggest.ts` | 现有五种 Think 文本建议输入/输出各 32 KiB、输出最多 4096 tokens，不具备项目字段提取能力 |
+| `studio/adapters/agent/client.ts`、`.github/workflows/deploy.yml` | 现 Agent 默认只读、写入仅 Think 且保护 published；push 只检查，正式部署需 workflow_dispatch |
+
+#### 6.11.2 目标架构与目录边界
+
+```text
+更新准备（开发/更新时） → 校验并准备兼容的宿主 / Web / backend 版本 → 就绪产物与收据
+日常启动               → 验证就绪产物 → 尽早显示窗口 / 本机 Authoring API
+
+拟定主入口：导入材料 / 待审核 → Think 或 Build 专属候选 → 本人审核
+              ↑                  ↑                        ├─ 保存草稿/修订 → 原模块 service
+         文字 / UTF-8 MD      确定性解析或百炼整理           └─ 审核并发布 → M23 固定发布协调
+                                                                  ↓
+                                                       真实 Markdown / data.ts
+                                                                  ↓
+                                                       固定 Git / 受检 Pages 产物
+
+现有手动编辑：精调与备用入口，继续调用相同模块 service
+Keep / Me / 私人资料库：现有次级工具保留，私人不进入上述公开流程
+Pi Skill / DOCX 等：主线完成后另行授权的输入适配，不阻塞首版发布
+```
+
+- **源与客户端**：Markdown、各模块 data.ts 继续为公开 source of truth；仓库外加密主文件继续是私人作者源。UI 不直接操作文件系统；Web、以后 Agent/其他客户端均复用 Authoring API，不把业务写死在表单或 Skill，不建立正文同步镜像。
+- **提案是审核对象**：共同 envelope 只复用 id、来源、诊断、状态和版本等流程字段；ThinkProposal 与 BuildProposal 各持模块专属候选，完整验证后才成为合法 ThinkDocument / Project。未完成候选可缺项，但不得伪装为合法源 DTO；不建立 UniversalContent、通用工作流或插件框架。
+- **实际位置**：M16.3 在 studio/windows/ 增加 prepare/prepared/run/runtime-build，复用 studio/desktop/ 薄宿主和派生缓存。M19.1/19.2 增加 studio/contracts/proposal.ts、studio/server/intake/ 和 Web intake。M20 扩展现 studio/server/ai/organize.ts。M23 增加 studio/server/publish/、contracts/publish.ts、web/publish.ts、scripts/release/record.mjs 及固定 workflow 接点。M21 的 studio/skills/personal-space-intake/、薄 Agent 客户端和 M22 的文档提取器保持延期，不预建占位目录或按钮。
+- **保留职责**：模块 service/validation/序列化/原子写入/预览继续复用，提案不自行重写 Markdown/data.ts。Node 仍共用根 package/lock，Studio 不进入访客网站 runtime、public 或 Pages 产物；就绪版本也是可重建程序产物，不是内容源或数据库。
+- **输入与审核**：首版只接一份文字或 UTF-8 MD/项目报告、一个 Think/Build 目标。类型识别可以给建议，实际类型/已有目标由本人确认；不按标题自动覆盖。M19 先打通确定性结构化报告与审核，普通材料在 M20 才可显式自动整理。Keep/Me 不扩录入/AI/Agent 权限。新建“保存草稿”固定 draft，已有修订保留 published；发布态变化只在 M23 的明确最终批准中展示和处理。
+- **私人边界**：私人不进公开收件箱、远程 AI、Pi/Agent 或公开预览构建，不纳入本轮 M23 发布自动化。现加密参数、全包保留、锁定、备份与 M18 待验保持。拟公开材料也可能含未发布信息，远程整理前展示本份选中材料与发送范围；点击对应“自动整理”动作才发送，不逐字段重复询问、不默认外传。
+
+#### 6.11.3 日常启动与默认工作台
+
+**当前实测依据**：此前六次 native/Web 缓存命中的宿主内 editor-ready p50 为 2261ms，原 1844ms 目标未达，见 9.44。作者本次反馈后读取的最新诊断为 updated-or-recovery，native/Web 都 changed：宿主准备 4637ms、Web 准备 1204ms、backend-start→api-ready 2591ms、API→编辑器握手 1200ms，另有起始 21ms，宿主总计 9653ms。此为一份源码变化后的重建记录，不能当普通冷启分布，也未包含 PowerShell 启动器和先前导入等双击全链路成本；固定副本见本轮文档记录。现有证据指向重建及串行准备，未证明功能数量是主因。
+
+**M16.3 已实现架构，真实性能待验**：把“准备更新”和“日常运行”分开。准备端在明确开发/更新动作中检查源码、锁定依赖及 SDK，构建并验证兼容的一套宿主/Web/backend 与依赖身份，成功后才供下一次启动使用。日常端只消费完整就绪版本、校验实际产物/身份和单实例归属，不在打开路径执行 dotnet SDK 探测、restore/build、Vite/npm 或全源码指纹遍历，不依赖 NuGet 网络。缺失/损坏/版本不匹配时明确提示需准备及失败原因，不静默运行半套新旧混合版本，不在每次双击中隐藏编译。
+
+保留既有安全和可信启动边界，不仅信 mtime 或删 hash/链接/所有权检查。准备失败不能替换此前完整有效版本；若沿用旧版必须显示其版本及待更新事实，不能让当前新后端搭配旧 Web。更新与运行共用既有启动/实例归属协调，不强停窗口、不覆盖运行中缓冲；只在明确完成准备后、正常重开时切换。原单桌面图标、重复激活、窗口 X/菜单协同关闭与停止自有后台保持，不以退出后常驻来提速。
+
+窗口应在 API/AI 等准备完成前尽早显示真实状态，编辑就绪只在列表和输入确实可用后确认；不靠早发 ready 报快。AI 自动读取原 Known Folder/DPAPI 存储，按实际依赖与 API/窗口准备解耦，准备中/失败/未配置分别显示，不要求重录 Key，也不将 Key 交给窗口。预览、私人及次级编辑能力按需初始化，使用时仍运行原完整校验；锁定与安全清理不能延迟。
+
+**工作台主线**：保留 M17 的系统中文字体、浅色中性背景、低饱和蓝色操作、统一焦点/错误与 PC 缩放布局。M19.1 首先增加真正可用的文章导入与待审核入口；M19.2 再增加项目。主要视图展示材料、候选、来源/缺项和预览，原表单为精调；已有 Keep/Me/私人入口放次级工具而非删除。M20 增加显式自动整理，M23 到位才出现发布及准确状态，不提前放未实现的设置/导入/发布占位，不改访客 Home/Compass/Spotlight。
+
+M18 的资料库/网站更新向导只保留现实现与待验清单，技术详情和三种密文身份不合并；不为主线引入记住口令、私人 AI、Agent 或自动部署。它不阻塞公开主线，但共享生命周期、安全及已有未验风险在受影响实现中必须回归。
+
+#### 6.11.4 资料、提案、事实与审核合同（已实现，实际 App 待统一验收）
+
+1. 选择文章/项目，粘贴文字或明确选择 UTF-8 Markdown；结构化报告确定性识别，普通材料到 M20 才可显式请求百炼整理。不会默默再调用一次模型。材料中的代码、链接、仓库说明及提示词都只是数据，不执行、不授予工具/路径/发布权限。
+2. 形成模块候选、缺项、警告与逐字段来源依据。报告需区分项目功能、本人贡献、已完成、计划及未知事项；代码存在不证明本人完成，个人经历、成果、日期、性能数字无依据就待确认。引用材料片段/段落位置，Git 来源按可得的文件及提交标识，不让模型凭空制造出处。
+3. 审核页并列材料/成稿/字段，可进入原模块表单精调、校验和预览。未知字段、错误结构、缺失资产或关联、超出限额不能以默认空值或虚构内容补齐；不静默截断。每阶段明确材料/条目/存储/并发与模型输出限额。
+4. 本机公开提案收件箱放仓库外应用数据位置，固定受控目录、逐条 JSON 与原子写入/版本检查，无数据库。记录本份已选材料、hash、候选、来源诊断、明确目标和源版本，不含 Key/token、其他文章或私人资料；不会自动扫描整仓库。损坏条目拒绝而不替换空提案。明确展示其为本机拟公开资料存储，提供丢弃/容量管理，不能把普通缓存清理当收件箱清理。
+5. 批准绑定 `proposalId + proposalRevision + candidateHash + target + expectedSourceRevision`。提案版本是受保存记录内容约束的版本，不靠 mtime；候选 hash 由服务端固定序列化快照产生；源 revision 沿用原始文件字节 SHA-256。候选、来源材料、目标或源发生变化，原批准失效；模型迟到结果不能改写已审核候选。新建目标仍须在真实提交边界重验不存在/slug 唯一。
+6. 本人点“批准并保存草稿／修订”才走原 service。新内容固定 draft；已有内容明确更新时保留原 published，不隐式取消公开或上线。Build 继续整文件 revision 和其他条目保留；Think 保留文件身份/未改字段。结果未知先核对源和回执，不盲重试。
+7. 应用成功即清除收件箱中的候选正文/原材料，或仅留不可编辑的 hash/源 revision 回执；此后编辑重新读真正内容源，不把收件箱当第二份可编辑正文。失败保留待审条目并准确报告，不能因传输失败声称源未写入。
+
+“保存草稿/修订”与 M23 的“审核并发布”是可选分支，不能把前者变成用户必须先点击的一道额外手续。后者可从已审核提案或真实内容源准备精确发布候选：复用原模块规则、在隔离候选中体现明确的 published:true 及源差异，最终批准绑定提案版本/hash、源版本、精确补丁与 Git 目标。才执行获批范围的源码落地与发布。未获发布批准时，原 apply 的新建 draft/既有状态保护保持，AI 或 Skill 不获得 apply/publish 权限。prepare/execute 合同已在 M23 锁定，见下一节。本批只实现/隔离验证，没有真实发布。
+
+| 已实现 API（前缀 `/api/authoring/v1`） | 职责与约束 |
+| --- | --- |
+| `POST /intake/think`、`POST /intake/build` | 接收 {material,format,target?}，确定性生成模块专属提案，不调用 AI。显式整理使用各模块 /organize |
+| `GET /proposals/:id` | 读取提案/诊断/版本，无源文件写入 |
+| `PUT /proposals/:id` | 带 expectedProposalRevision，仅编辑待审对象，不隐式应用或改变 published |
+| `POST /proposals/:id/apply` | 核对精确批准及原模块当前校验/源版本后保存，返回源 revision 与应用回执，不提交或部署 |
+
+另有 GET /proposals 列表、DELETE /proposals/:id（expectedProposalRevision）、POST /intake/think/organize 与 /intake/build/organize。DTO 以 contracts/proposal.ts 和 intake/service.ts 为准。不提供通用 path、shell、任意 URL 下载端点。沿用 loopback、同源/Host/token、限额/错误不泄露正文的保护。未完成提案可以存储，不能绕过原模块保存校验。
+
+#### 6.11.5 首版一键发布与延期输入适配
+
+**M23 前移到 M20 之后**，首版仅覆盖公开 Think/Build，由现有文字/Markdown 入口即可完成闭环，不依赖 Pi、DOCX/PDF、Keep/Me 或私人交付的新增能力。这里的“一键”是本人一次最终确认授权精确范围后，程序自动完成固定步骤，不表示跳过审核、校验、Git 保护或部署核验。
+
+当前提供“批准并保存草稿/修订”和“审核并发布到网站…”两种动作。后者在一次明确的最终确认内编排固定校验/构建/提交/推送/手动 workflow，底层职责继续分开，不每步重复问同一已批准操作。该单元的实施授权不等于实际提交/推送/发布许可，本轮仍无这些许可。具体要求：
+
+- 批准精确 diff、目标仓库/分支、内容与源版本，变化即失效；不 git add -A，不按整份 Build data.ts 白名单混入无关修改。保护既有 dirty/index；从确认基线生成仅含获批补丁的隔离候选，无法分离则阻止，不自动 stash/reset/强推/提交 Studio 开发工作。
+- 对同一冻结候选做规定检查，固定获批提交；现 workflow 需增加期望 SHA 守卫，不能仅凭点击时 main 的值或发布后发现错 SHA。沿用 check 后部署同一 artifact，不重建，不把 GitHub 权限放进浏览器或复用 AI Key。
+- “已保存／待发布／部署中／已上线”分别显示；published:true 仅表示构建纳入。“已上线”需核对 run、获批 SHA、产物与线上结果，不能只靠源字段或 push 成功。发布回执只存运行/版本元数据，不另存正文。
+- 失败显示具体已完成边界，例如“源码已保存，部署未完成”；提交、推送、dispatch、部署的未知结果先查 Git/run，不盲重试、不假称整体回滚。首版不增加私人/Keep/Me 自动发布；既有私人密文交付继续手动、独立于此主线。未来若另获授权纳入私人发布，也只能使用本人已批准的正式密文，不能从提案或私人内存取明文。
+
+**M23 实现锁定**：一次只处理一个公开 Think/Build。prepare 接收已保存提案 {proposalId,expectedProposalRevision} 或真实源 {module,key,expectedSourceRevision}，生成两份只读差异（远端 main 与本机落地）及 bindingHash。批准绑定提案/hash、整份源 revision、精确树、远端 main、本机 HEAD/index 和固定目标。后续变化重新准备，不按标题覆盖，不提供原始路径/命令。
+
+隔离 clone 仅是派生检查目录，不是另维护一个仓库。提交始终以最新远端 main 为父，只改目标内容。Build 专用 serializeEntry 保留非目标条目全部原始字节/注释，原通用 CRUD 序列化不变。本机原分支 HEAD/index 不移动，源通过原 service 保存，后续发布继续基于远端，不自动合并开发工作。当前检出分支与远端可能因此不同步，后续维护时另行审查合并。
+
+固定执行顺序为隔离精确提交 → 规定检查与资源守卫 → 原源保存 → GitHub Git Data 上传相同 blob/tree/commit（逐一核对对象 SHA）→ GraphQL updateRefs(beforeOid=获批基线,afterOid=受检提交,force:false) 原子快进 → 唯一 studio_request+expected_sha dispatch → run/同产物/线上哈希及 Chromium/WebKit 核验。固定 github.com API 使用本机 gh 的既有认证，只留后端（依据 [GitHub CLI](https://cli.github.com/manual/gh_api) 与 [RefUpdate](https://docs.github.com/en/graphql/reference/git#refupdate) 官方合同）。百炼 Key 不交给 Git/构建/窗口。工作流先核对 expected_sha=GITHUB_SHA，部署前再次核对 check 输出和远端 main，部署仍消费同一 check 的 artifact，不重建。
+
+| M23 HTTP（同一前缀） | 职责 |
+| --- | --- |
+| GET /publish。GET /publish/:id | 本机元数据回执列表/状态，不返回正文 |
+| POST /publish/prepare | 上述两类引用，返回精确差异、绑定、执行条件。无源写入或远端变更 |
+| POST /publish/:id/execute | {bindingHash,approvePublication:true}，一次最终批准。202 后轮询状态，重复执行拒绝 |
+| POST /publish/:id/reconcile。/verify | 空对象。只查询外部边界或重做既有产物/线上核验，不重新上传/dispatch |
+| POST /publish/:id/close | {expectedStatusRevision,acknowledgeUnverified:true}，本人核对后结束未验记录，不撤销副作用、不称上线 |
+| DELETE /publish/:id | {expectedStatusRevision}，只删已结束元数据，不删内容或远端提交 |
+
+元数据位于仓库外 Known Folder/publications/仓库身份，复用固定普通文件/原子 CAS 存储（最多64份、总16MiB、单份384KiB），含 hash、版本、边界、run/artifact，不另存正文。isolated candidate 位于 .cache/studio/publication-work/UUID。成功后仅清理已核对归属/身份的自有目录，失败/未知保留证据。不能把清缓存当清收件箱。产物上限512文件、128MiB总量、32MiB单文件，显示差异共1MiB。ZIP/tar 在受限内存中验证 CRC/校验和/普通路径，不解压链接或任意路径。
+
+source/commit/push/dispatch 各记录未开始/进行中/确认/未知。保存不等于上线。receipt 写失败停止后续副作用。宿主失联在当前受限发布阶段结束后停止下一阶段。未知结果先核对，不恢复旧批准。发布进行中正常关闭被拒绝且缓冲保留。宿主意外失联只允许当前受限阶段结束，下一发布阶段停止（单次候选检查最多30分钟，不能承诺立即退出）。超时只终止自有子进程树。没有模型、Agent、任意 shell 发布能力。
+
+**真实启用前置仍待验**：远端须另获提交/发布许可安装本版 guarded workflow 与 record.mjs。当前远端缺少时 prepare 仍可审阅，但 canExecute=false/REMOTE_WORKFLOW_NOT_READY。真实 gh 权限、Actions 同产物、CDN 文件与实际 App 最终发布未在本批执行，不把隔离模拟称真实上线。失败后“核对外部状态”“重新核对产物与线上”不会重复发布。
+
+**延期且不作为发布前置：M21 / M22**。以下保留原边界，均无本轮实施/安装许可；主线验收完成后是否启动由作者另行决定。
+
+作者已确认使用 Pi Coding Agent。Skill 只负责读取获准项目材料、输出标准可读 MD/结构化报告或调用提案客户端；App 已开时投递同一收件箱，未开时导出文件供下次导入，不自行启动 App 或另起常驻服务。结构化报告可使用带格式版本/目标类型的受控 JSON 块，真正内容仍对应模块 DTO，不导入可执行代码。Skill 源可含 SKILL.md、脚本、参考格式，安装到 Pi/其他 Agent 是后续明确授权动作；App 不做任意 Skill 执行器，不嵌入 Pi、不增加 MCP。依据：[Pi Skills](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/skills.md)、[Agent Skills 格式](https://agentskills.io/specification)。
+
+新的客户端默认只提交/读取/修改提案，不沿用 M6 的 `--allow-write`，不暴露 apply、删除源、私人与发布。Skill 工具白名单是防误操作策略，不能隔离已有 shell/仓库写权限的 Agent；现完整会话配对不是多租户授权系统，不能承诺任意 Agent 绝对无法绕过。若需要硬隔离，另规划 OS 权限及后端能力隔离，不借本轮引入账号/OAuth/通用权限框架。Pi 的模型和凭据由其自身配置，Studio 百炼 Key 不复制到 Skill、浏览器或报告。
+
+M22 先支持受控 DOCX 可见文字/表格提取；需要时再支持有文本层的 PDF，扫描 OCR、复杂图表/图片理解、附件迁移暂不纳入首版。明确选文件并通过受限字节或原生句柄处理，不接任意路径；ZIP/XML、尺寸/解压、外部引用与嵌入对象须有负例，不能调用 Office 宏/脚本。丢失语义或不支持内容显示诊断并供本人核对。GitHub 资料第一轮由 Pi/其他已授权 Agent 整理；App 内直接全仓库抓取、私有 GitHub 凭据/OAuth、任意 URL 抓取另行规划。
+
+#### 6.11.6 顺序、状态与共同验收
+
+**本批主线顺序**：M16.3 → M19.1 → M19.2 → M20 → M23。作者已授权逐项实现、统一人工验收；数值编号不改变依赖，真实发布仍未授权。
+
+| 顺序 / 单元 | 状态 | 交付目标 | 依赖 / 停点 |
+| --- | --- | --- | --- |
+| 1 · [M16.3](#studio-m16-3) | Auto verified / Awaiting unified acceptance | 日常运行与更新准备分离 | 自动验证通过、真实性能/App 待验；已有 M7/M8/M17 能力及共享安全/关闭回归，M18 原生专项不作串行阻塞 |
+| 2 · [M19.1](#studio-m19-1) | Auto verified / Awaiting unified acceptance | Think 录入与审核主入口 | M16.3；先无 AI 打通结构化 MD/文字、收件箱与审核保存 |
+| 3 · [M19.2](#studio-m19-2) | Auto verified / Awaiting unified acceptance | Build 项目录入与审核 | M19.1；项目模型独立，不以文章模型冒充 |
+| 4 · [M20](#studio-m20) | Auto verified / Awaiting real AI and unified acceptance | 自动整理并填写文章/项目 | M19.1/19.2；复用百炼，补缺项/来源核对，不自动写源或发布 |
+| 5 · [M23](#studio-m23) | Auto verified / Awaiting real publication and unified acceptance | 审核后一次批准的公开发布 | M20 及主线必需验收。无 M21/M22 前置，真实提交/推送/发布仍需明确范围 |
+
+| 既有 / 延期单元 | 状态 | 保留事实与后续边界 |
+| --- | --- | --- |
+| [M16.1](#studio-m16-1) | Done | 六次普通冷启基线及限制保留 |
+| [M16.2](#studio-m16-2) | Deferred | 主性能目标未达及原 1844ms 目标保留，不以 M16.3 命名代替验收 |
+| [M17](#studio-m17) | Done | 工作台实际 App 布局/缩放/中文编辑/取消关闭已验收，见 9.46 |
+| [M18](#studio-m18) | Awaiting author acceptance | 实现/自动验证完成，原生选择器与协同关闭待验，见 9.47；只移出主线，不标 Done、不继续扩展 |
+| [M21](#studio-m21) | Deferred | Pi Skill 与薄提案客户端；以后另行授权，不阻塞 App 文字/MD 主线 |
+| [M22](#studio-m22) | Deferred | DOCX/文本 PDF 等输入适配；以后另行授权，不阻塞 M23 |
+
+**其他功能暂不扩展**：Keep/Me、私人资料库、私人网站更新维持当前可用接口和原待验状态；不删除、不重写为新模型，也不为本次主线增加其 AI/Agent/导入/自动发布。维护安全和修复直接影响主线的回归，不等于另开其功能阶段。
+
+**共同 Verification（下称 H）**：每个获准实现单元运行本项目 lint/typecheck/test/build、受影响 Studio 浏览器交互及页面 smoke；涉及网站/预览/输出时跑对应根/base、Chromium/WebKit 与 release/Vault 边界。保留所有真实 pageerror、失败和平台限制。自动使用非敏感隔离 fixture；不控制桌面，真实首显/选择器/原生关闭由作者操作并记录。旧未验项若实际涉及当前共享路径，须补对应证据，不以本次排序抹去，也不把无关私人专项强加为公开导入发布的前置。必需反馈或检查缺失不能标 Done；本批人工统一收尾依据本轮新授权，不沿用 M9–M15 旧许可。首版主线验收不等于延期功能或整个 Studio 全部完成。
+
+**共同 Non-goals**：不引入数据库 CMS、账号/云同步/远程服务、Electron/Tauri/PWA、新前端框架迁移、通用任务/Agent/Provider/插件框架或 MCP；不搬网站目录/更改源模型，不编辑真实私人材料、不开放私人 AI/Agent、不自动批准/无确认提交发布。原 M7–M15 与 9.1–9.47 的历史不回写。M23 仅为未来公开 Think/Build 的受批准发布范围；本批已有主线实施许可，没有真实 Git 或部署许可。
+
+<a id="studio-m16-1"></a>
+#### M16.1 — 启动基线与反馈（Done）
+
+- **Goal**：区分四类启动，找出真实瓶颈并让等待可见。
+- **Scope / Non-goals**：分段计时、缓存命中/重建原因、首次可见/首屏可编辑及失败阶段；不先改关键路径、减校验、重录 Key 或承诺秒数。
+- **Files**：`studio/windows/{app,desktop,app-build,web-build,local}.ts`、薄宿主必要计时接点、相应测试；文档与隔离证据。
+- **接口 / 数据流**：可信内部阶段事件/计时 → 固定非敏感诊断和启动反馈；无新业务 API，日志不含正文、Key、token、私人位置或原始异常。
+- **Done Criteria（本轮作者确认调整）**：四类记录可区分；本机普通冷启采用作者确认的 6 次独立样本（原计划至少 10 次），给出 p50/最慢值；首次准备/更新与普通样本分开，未实际计时明确记未测、不混算。作者确认启动及编辑正常，宿主 window-visible/editor-ready 与真实首显/可编辑含义保持区分，未收集的秒表数值不捏造；确定 M16.2 目标，不以无窗口测试冒充首显。调整依据及完成证据见[收尾记录](#studio-m16-1-acceptance)。
+- **Verification**：H；有/无缓存、单实例激活、更新、失败和取消 fixture，诊断敏感内容负例；作者手动启动计时。
+- **风险 / 下一边界**：测量开销及机器状态影响结果，保留环境/样本条件；完成基线后才按测量实施 M16.2。
+
+<a id="studio-m16-2"></a>
+#### M16.2 — 启动关键路径优化（Deferred，按作者决定延后余项）
+
+作者本轮接受当前启动性能，剩余 417ms 主指标差距留待以后明确恢复；以下目标不降低，原功能/安全验证保留。本轮不继续优化凭据或启动流程，允许 M17 先行。
+
+- **Goal**：达到 M16.1 确定的目标，降低日常打开成本。
+- **确定的优化目标**：同机、同条件、同版本计时定义、无源码变化，至少 6 次独立普通冷启。宿主入口到 editor-ready 的 nearest-rank p50 从 2459ms 降至 **≤1844ms**（至少降低 25%，向下取整），最慢 **≤2498ms**；宿主内 window-visible 不退步，p50 **≤1947ms**、最慢 **≤2011ms**。逐次先算区间再统计，不将各区间 p50 相加；不将 editor-ready 冒充真实正文已全部可编辑。若改计时起点/握手定义，应补可比基线，不能靠早发 ready 达标。双击到首显/可编辑若另测则另列，不与宿主内时间混算。激活路径不重建、不新增后端，退出后不常驻；有效缓存不 restore/build/访问 NuGet。此为本机小样本工程目标，不是其他机器或首次安装 SLA。
+- **排查顺序与实现现状**：先前将 Markdown/AST 延至实际使用，保持原验证与同步解析合同；六次正式 App 复测后，backend-start→api-ready p50 从 1385ms 降至 1249ms，实际整段收益小于纯依赖导入的隔离收益，不能将后者等同 App 提速。当前 native-check→web-check p50 180ms、web-check→backend-start p50 57ms，不为小段盲改顺序。credential-location→credentials p50 631ms、credentials→api-ready p50 587ms，需进一步细分模块导入、Known Folder 定位和凭据读取。local.ts 的定位与读取分别启动 PowerShell，是下一项最小排查候选，但已有阶段存在重叠，不能据此断言这些值全是 PowerShell/DPAPI 纯耗时或相加 p50。任何后续改动仍须保留 Known Folder/DPAPI/文件身份校验及后端独占凭据，不缓存或传给窗口明文 Key。本轮只核对记录，未修改凭据协议或继续实现；主目标仍差 417ms，不标 Done。
+- **Scope / Non-goals**：预览/AST 等依赖按实际需要延迟，安全协调宿主/Web 准备，区分一次性准备与打开、复用已有窗口快路径；不去掉 hash/文件身份/锁检查，不常驻后台，不降低凭据隔离。
+- **Files**：`studio/windows/`、`studio/server/{main,http,source-preview,source-expression}.ts`、Think 预览接点及测试；按瓶颈最小调整。
+- **接口 / 数据流**：有限 boot/ready/error/cancel 生命周期 → 独立拥有的产物/收据 → API → 可用窗口；真实业务 API 不变，构建仍不接 Key，后端自行读取原保存配置。
+- **Done Criteria**：同机同条件指标达标；有效缓存普通打开不 restore/build/访问 NuGet，C# 与 Web 依赖各自正确失效，普通内容编辑不触发编辑器重建；故障恢复与协同退出保持。
+- **Verification**：H；M16.1 同口径对比，损坏收据/篡改产物/链接/并发启动/取消/失败清理负例，原 AI 配置加载与单实例回归，作者实际打开。
+- **风险 / 下一边界**：延迟加载把成本移到首次预览，需单独显示该状态；早显窗口不能错报服务可用。通过后进入 M17，不混入改版。
+
+<a id="studio-m16-3"></a>
+#### M16.3 — 日常运行与更新准备分离（Auto verified / Awaiting unified acceptance）
+
+**本轮实施授权（2026-10-31）**：作者明确指定只实施 M16.3、完成验证及文档；不进入 M19.1，不控制桌面、不提交/推送/发布。下段是此前只规划的历史停点。本轮已保存修改前代码/文档和启动诊断；真实当前版本的六次普通启动基线尚未提供，不以 M16.2 历史数据或无窗口测试代替。
+
+**本批停点调整**：作者确认尚无当前版本六次优化前基线，本轮先实现和自动验证，真实性能保留待验；随后明确授权继续主线、最后统一人工验收。M16.2 原目标和未达结论不变，不以无窗口结果代替真实性能。
+
+2026-11-12 调整首次启动入口。缺少运行包时，双击图标会自动执行锁定准备，成功后打开 Studio。有效运行包直接复用。运行包损坏、依赖不兼容或开发更新时，可从 `studio:prepare` 显式重建。NuGet 包源或漏洞数据不可访问时，启动器和手动命令会显示 `NUGET_SOURCE_UNAVAILABLE`。
+
+本次在受限网络复现了 `NU1900`，恢复 NuGet 访问后完成本机准备，版本为 `152cb12b55c2`。直接读取该运行包验证了复用。`npm.cmd run lint`、`npm.cmd run typecheck`、`npm.cmd test`、`npm.cmd run build`、`npm.cmd run studio:build` 均通过。单元测试 209 通过、1 跳过，启动浏览器回归在 Chromium 和 WebKit 共 6 项通过。实际双击打开原生窗口和启动耗时留待人工验收。
+
+同日收到双击仍失败的反馈。旧运行包的真实子进程复现先报 `INVALID_COMMAND`，再报 `APP_START_TIMEOUT`。打包后两个命令行入口共享 `import.meta.url`，旧入口先消费了 App 的启动消息。现在旧入口只在独立执行 `desktop.ts` 时注册。另修复 Windows PowerShell 5.1 替换启动诊断文件时的空参数问题。本机当前运行包为 `8da211add141`。验证覆盖打包后的启动消息、隔离环境下的后台就绪与关闭，以及 Windows PowerShell 连续两次刷新诊断。Lint、类型检查、网站构建均通过，单元测试 210 通过、1 跳过，Chromium 和 WebKit 启动回归共 6 项通过。真实桌面双击仍待确认。
+
+- **Goal**：日常双击尽快得到真实可用反馈和编辑能力，文章/项目编辑无需承担开发构建流程。
+- **Scope**：明确本地准备入口 `npm.cmd run studio:prepare`、完整兼容产物/版本收据、日常运行入口；宿主/Web/backend 与依赖身份一致。窗口尽早显示，AI 原配置读取与窗口/API 准备按需解耦，区分准备中/未配置/失败；预览/私人/次级工具延迟到实际使用。既有启动器/进程重复开销先实测后最小减少，不改变单实例和协同退出。
+- **Non-goals**：不做安装器、联网自动更新、多版本管理框架、常驻服务、框架迁移、录入/发布功能或私人扩展；不删产物/文件身份/链接/锁/Known Folder/DPAPI 校验，不以重配 Key、提前 ready 或弱化密文参数提速。
+- **Files**：studio/windows/{Open,Launcher}.ps1、studio/windows/{app,desktop,app-build,web-build,local,startup}.ts、studio/desktop/ 必要宿主状态接点、studio/server/{main,http}.ts 与确需的 AI 就绪接点、studio/web/main.ts 的初始化/就绪显示、相关契约及 tests/unit/studio-{windows,desktop,startup}.test.ts、Studio 关闭/启动浏览器测试；package.json 仅在需要明确准备命令时最小增加。沿用派生缓存，具体收据文件在实施时锁定，不预建框架、不重做工作台。
+- **接口 / 数据流**：准备动作 → 校验/构建完整版本 → 原子确认就绪收据；日常图标 → 校验就绪产物与实例 → 窗口/本机 API → 编辑可用，AI/预览就绪另报状态。构建不接 Key；凭据只在本机后端读取，不到窗口/日志/命令参数。缺失或坏版本明确提示准备，失败保留旧完整产物且不混载，更新切换不强关活动窗口或丢缓冲。
+- **Done Criteria**：有效已准备版本启动不执行 SDK 探测、restore/build、Vite/npm、全源码遍历或 NuGet 请求；更新准备失败/中断不暴露半套版本，来源/锁/产物不匹配能拒绝或明确安全回退。早显状态与真实编辑就绪分开，AI 状态不误报、原 Key 自动加载，首次按需使用和保存/锁定/关闭正常。保持原可比宿主指标：editor-ready p50 ≤1844ms/最慢 ≤2498ms，window-visible p50 ≤1947ms/最慢 ≤2011ms；不得把成本移到未计时的启动器外层满足数字。双击全链路另列，须较同版改动前的配对基线改善，不能仅优化宿主计时后声称体验改善。
+- **Verification**：H；实施前固定当前版本准备/普通/激活基线；前后同机同条件各至少六份独立普通启动，保留原宿主计时、增加外层准备/进程阶段诊断，并由作者独立记录双击到可见/可编辑。首次准备/源码更新与普通样本单列，不混算 9653ms 更新记录和历史 2261ms p50。断网且无 SDK 的有效产物启动、未准备/坏收据/篡改/链接/新旧版本混载/准备中断/并发激活/活动窗口更新/故障恢复负例，原 AI 加载、首次 Think/Build 预览、私人锁定与协同关闭回归；缺失实际 App 反馈不能标 Done。本轮不要求作者现在测新样本。
+- **风险 / 下一边界**：只显窗口不代表可编辑，不以隐藏准备成本或旧版假成功达标；版本分离不能让新 backend 读取旧 UI 合同。本批自动验证通过后按新授权进入 M19.1；真实 App 与性能仍待统一验收，不标 Done。
+
+<a id="studio-m17"></a>
+#### M17 — 统一 Studio 工作台 UI（Done）
+
+**本轮授权与依赖例外（2026-10-30）**：在已告知 M16.2 六次实测主目标未达后，作者明确表示“先这样吧，这个没那么重要，以后再说，继续下一阶段吧”，据此将该余项记 Deferred，保留原目标与失败记录，接受当前启动性能作为 M17 基础，不标 M16.2 Done。仅实施顺序中紧接的 M17，不进入 M18、不控制桌面、不提交/推送/发布。
+
+- **Goal**：四个公开/私人模块有一致且清楚的日常编辑体验。
+- **Scope / Non-goals**：外壳、空间/模块导航、列表/编辑/预览/属性分区、操作层级、设计样式；不改内容合同、文件 CRUD、私人锁定或访客网站，不提前显示未实现提案/发布入口。
+- **Files**：`studio/web/{index.html,styles.css,main.ts}`、各模块面板及实际需要的轻量视图控件、编辑器测试。
+- **接口 / 数据流**：视图组合/状态展示 → 既有 Web API/ExitEditor；不把内容操作搬进公共 UI 控件，不要求框架迁移。
+- **Done Criteria**：常用与危险操作分层、保存/错误/禁用/未保存状态一致；1280×720/1440×900、125%–150% 缩放可用，正文/长表单/预览不被遮挡；键盘、焦点与中文输入保护保持。
+- **Verification**：H；四公开/四私人面板两引擎 smoke，切换/关闭/取消/保存失败回归，非敏感截图与作者实际 App 检查。
+- **风险 / 下一边界**：不能因 DOM 重排丢掉隐藏面板缓冲、事件解绑或可访问名称；通过后 M18 才重排私人业务流程。
+
+<a id="studio-m18"></a>
+#### M18 — 私人资料库与网站更新向导（Awaiting author acceptance）
+
+**本次排序调整**：实现与自动验证保留，原生选择器/协同关闭待验，不标 Done、不继续扩展。由 In Progress 归为独立待验项，为公开主线保留唯一实施单元；M19.1 改依赖 M16.3，不再将本项的私人专项作为串行前置，受影响共享安全仍须回归。
+
+**本轮授权（2026-10-31）**：作者确认 M17 正式 App 的新布局、缩放、中文编辑和取消关闭正常，要求完成收尾后按本计划开始 M18。仅本项，不进入 M19.1；保留已有改动，不控制桌面、不提交/推送/发布。
+
+- **Goal**：本机保存与网站交付可分别理解，日常界面不要求操作内部密文对象。
+- **Scope / Non-goals**：统一术语、资料库打开/编辑/保存、校验/导出/确认的向导和详情；不合并三种密文身份，不记住口令、不忽略后台锁、不接 AI/Agent、不取消最后替换确认。
+- **Files**：`studio/web/private.ts` 及必要的私人视图拆分、现私有契约/native 选择接点与测试；优先编排原能力，安全事务确有需要时最小扩展。
+- **接口 / 数据流**：原选择句柄/全包校验/加密保存/候选导出/固定 bundle 替换 → 向导状态；分别呈现已保存、准备失败、替换未知，不把整个流程假称原子回滚。
+- **Done Criteria**：只在本机使用可停在加密保存；网站交付正确检查最新源/关联与备份，详情可查版本；选择器隐藏/取消、锁定/迟到结果均不会恢复旧明文或误覆盖。
+- **Verification**：H；创建/打开/保存/备份/恢复/取消、未知写结果、源/关联变化及整包保留负例，实际文件选择器与协同关闭由作者验收。
+- **风险 / 下一边界**：选文件与明文 epoch 的相互影响仍需原生专项证明，不能只改 CSS；待验独立保留。公开提案改在 M16.3 通过后另行授权 M19.1，不依赖本项私人专项，但不能跳过受影响共享安全的回归。
+
+<a id="studio-m19-1"></a>
+#### M19.1 — Think 录入与审核主入口（Auto verified / Awaiting unified acceptance）
+
+**依赖**：M16.3 自动验证已通过；按作者本批授权先继续实现，M16.3 真实性能/App 与本项人工反馈最后统一验收。不依赖 M18 的私人专项收尾。
+
+- **Goal**：建立可日常使用的文章导入、审核、恢复及批准保存主入口，原手动表单成为精调/备用方式。
+- **Scope / Non-goals**：受限 UTF-8 MD/文字和结构化报告、Think 专属候选、公开收件箱、来源/缺项、审核/预览/应用及可用的导入/待审核默认入口；单份材料单个目标，无模型调用、批量事务、私人或发布。未实现的 Build/发布入口不提供可用占位。
+- **Files**：拟增 `studio/contracts/proposal.ts`、`studio/server/intake/` 的 Think/记录存储与 HTTP 接点、Web 录入/审核视图、测试；复用原 Think service。
+- **接口 / 数据流**：本节 intake/think、proposals GET/PUT/apply → 版本化候选 → 本人精确批准 → 原 Think 校验/原子写入；现手动表单继续可用。
+- **Done Criteria**：不完整候选可留待审且重启可恢复，应用才写真正源；新建为 draft，既有目标须显式选择并保留 published；源/候选变动废止批准，成功后不留下正文镜像，损坏/未知写入安全处理。
+- **Verification**：H；中文/多行/代码、格式版本/未知字段/缺项、材料提示词不执行、重复 slug、源及提案冲突、审核后再改、重启恢复/应用清除/容量与断线负例。
+- **风险 / 下一边界**：收件箱不能变成第二内容库或泄露未发布材料，路径不由客户端指定；通过后仅向 M19.2 开放同流程 envelope。
+
+<a id="studio-m19-2"></a>
+#### M19.2 — Build 项目录入与审核（Auto verified / Awaiting unified acceptance）
+
+**依赖**：M19.1；与文章复用审核流程字段，项目业务 DTO/校验保持独立。
+
+- **Goal**：完整项目报告可形成符合原模型的可审核项目档案。
+- **Scope / Non-goals**：Project 专属章节、代码、阶段/进展/问题、来源与缺项，原审核页/模块表单联动；不转文章模型、不补造贡献/日期/成果、不放松 Build 草稿校验。
+- **Files**：`studio/contracts/proposal.ts` 的 Build 分支、intake Build 解析、Web 项目审核、Build service 调用与测试；不改原项目源结构。
+- **接口 / 数据流**：intake/build → Build 候选 → 完整校验/真实项目预览 → 批准后原 Build service；沿用整份 data.ts expectedRevision。
+- **Done Criteria**：嵌套记录、可选省略、代码/顺序和其他条目保持；缺项停在提案，关联/状态/日期/slug 非法阻止应用；同文件别的条目变化也会冲突，既有公开状态不被暗改。
+- **Verification**：H；完整/不完整报告、所有嵌套负例、重复 slug、其他条目保留、同文件修改、审核失效及真实 Astro root/base 预览。
+- **风险 / 下一边界**：结构合法不证明个人经历真实，来源核对不可省略；通过后 M20 才调用模型，不把“可导入”写成“AI 已接入”。
+
+<a id="studio-m20"></a>
+#### M20 — 自动整理并填写文章/项目（Auto verified / Awaiting real AI and unified acceptance）
+
+**依赖**：M19.1/19.2，完成后主线为 M23；不先实施 Pi 或文档适配。
+
+- **Goal**：普通文章/项目材料可自动形成带来源诊断的模块候选，尽量填好现有字段，作者主要审核、补缺项与精调。
+- **Scope / Non-goals**：复用现百炼后端配置，显式发送已选材料，结构化输出解析/模块校验、缺项/待确认信息；不替换润色合同，不扩多 Provider、任意工具/仓库抓取、私人或自动应用。
+- **Files**：`studio/server/ai/` 的专属整理用例、intake/提案契约和 Web 请求/审核区及测试；仅按实际重复复用请求设施。
+- **接口 / 数据流**：明确整理模式/发送快照 → 现模型 → 严格解析和来源诊断 → Think/Build 提案；保留无 AI 导入，Key 不到浏览器，不假定模型原生 JSON Schema 能力。
+- **Done Criteria**：输入/输出/token 限额明确，超限/截断/坏结构可见且原材料保持；区分功能/本人贡献/计划，迟到输出不改新候选；本人审核前无源写入，原五种文本建议仍正常。
+- **Verification**：H；确定性上游 fixture 覆盖提示注入/虚构字段/无依据/限流/截断/取消/乱序/非法结构；另用非敏感材料完成真实 Think/Build 整理与审核反馈，模拟不冒充接通。
+- **风险 / 下一边界**：上下文/成本与事实质量须本人核对，大材料先外部整理而非静默截断；真实调用未验不能 Done。通过后进入另获授权的 M23；M21/M22 延后，不是发布前置。
+
+<a id="studio-m23"></a>
+#### M23 — Think/Build 审核后一键发布（Auto verified / Awaiting real publication and unified acceptance）
+
+**依赖**：M20 及 M16.3/M19.1/M19.2 的主线必需验收；不依赖 M21/M22、Keep/Me 或 M18 私人专项。共享关闭/安全和已有内容模型保护仍须验证。
+
+- **Goal**：本人一次明确批准精确候选后，可完成保存、规定检查、提交/推送及固定 Pages 流程，并看见真实结果。
+- **Scope / Non-goals**：仅公开 Think/Build 的审核快照、明确 published:true 变化、固定发布协调、候选/回执及受检 artifact；从已审核提案或真实内容源启动，与保存草稿为两条可选分支，一次最终批准后编排固定步骤。暂不增加私人密文/Keep/Me 自动发布、批量删除/取消公开、通用 shell/Git 工作流，不自动批准/全量暂存/强推，不把实施请求当实际发布授权。
+- **Files**：新增 `studio/server/publish/`、发布契约/Web 最终审核与状态页、`.github/workflows/deploy.yml` 的期望 SHA 守卫及隔离测试。不重做网站部署架构。
+- **接口 / 数据流**：已审核提案或内容源 → prepare 复用原模块规则生成含发布状态的精确补丁/源版本/Git 目标 → 本人一次最终确认 → 冻结的隔离候选 → 公共和发布全门槛 → 获准范围源码落地/提交/推送 → 固定 workflow/SHA → 同产物部署与线上核对 → 元数据回执。prepare/execute/status 合同已按 6.11.5 锁定，前置保存草稿不是强制额外点击。
+- **Done Criteria**：无关 dirty/index 和同文件混合修改完整保留，不能分离就阻止；源/批准变化、目标/非快进或 SHA 不符立即阻断；已上线必须有实际 run/产物/线上证据，所有部分失败及未知结果可核对而非盲重试。
+- **Verification**：H 加第 8 节发布全流程；先在隔离 Git/受控上游模拟 diff 分离、审批失效、同文件修改、权限/网络失败、未知提交/推送/dispatch/部署与恢复；只有另获明确许可才对真实目标验证，未做真实发布的必需项保持待验。
+- **风险 / 下一边界**：这是新增的真实 Git/网站副作用边界；旧发布记录不提供本次许可。Think/Build 主线的全部必需项和作者反馈满足才宣布该主线完成；延期功能与旧专项不因此 Done，之后停止，无下一自动单元。
+
+<a id="studio-m21"></a>
+#### M21 — Pi Skill 与薄提案客户端（Deferred）
+
+**顺序**：主线完成后再另行授权；复用稳定材料/提案合同，不阻塞 M23，不在当前主线创建或安装 Skill。
+
+- **Goal**：项目内的 Pi/其他兼容 Agent 可输出同格式报告或投递 Studio 待审箱。
+- **Scope / Non-goals**：Skill 源、格式参考、Node 客户端，离线文件/在线 API 两种模式；默认仅提案，不新增源写入/删除/发布/私人权限，不嵌入 Pi、运行任意 Skill 或搭 MCP。
+- **Files**：拟增 `studio/skills/personal-space-intake/{SKILL.md,scripts,references}`、`studio/adapters/agent/` 的独立薄客户端及测试；格式复用提案合同。
+- **接口 / 数据流**：获准材料只读分析 → 标准 MD/结构化报告，或 App 已运行时 → 相同 intake/proposals → Studio 本人审核；现 M6 Think adapter 不被默默改权。
+- **Done Criteria**：同一材料离线/在线到达一致审核流程；App 未开能报告离线选择而不偷偷启动服务；不执行材料中的仓库指令，不复制凭据；客户端无 apply/publish 默认能力，安装/实际 Pi 使用获得明确同意。
+- **Verification**：H；协议/格式/超限/服务断开/版本冲突/迟到响应、跨客户端审核失效；实际 Pi 验证报告和投递，记录版本/限制，不以脚本模拟代替兼容验收。
+- **风险 / 下一边界**：不同 Agent 安装位置/工具能力有差异，Skill 不是 OS 沙箱；以后若另获 M22 授权，仅扩输入适配，不增加新存储或写源路径。
+
+<a id="studio-m22"></a>
+#### M22 — 受控文档适配（Deferred）
+
+**顺序**：主线完成后再另行授权，稳定材料/提案合同为实际依赖；不强制先有 Pi，不阻塞 M23。
+
+- **Goal**：文档资料进入相同录入审核流程，DOCX 优先。
+- **Scope / Non-goals**：明确选择文件、受控可见文字/表格提取及来源诊断；有文本层 PDF 可在明确支持子范围后增加；不宣称扫描 OCR、复杂图表、附件/图片迁移或任意 URL 已支持。
+- **Files**：intake 文档提取器、受限文件/内容合同、Web 导入反馈与非敏感文档 fixture；仅增加确需的锁定依赖。
+- **接口 / 数据流**：受限文件内容/原生句柄 → 有上限的文字和来源位置 → 原 intake/提案；文件内容不执行，不将材料作为可执行 HTML/TS 渲染，远程整理仍需明确选择。
+- **Done Criteria**：段落/表格可与原文件核对，不支持/丢失语义明确提示；坏包/过大/外部引用安全拒绝，不自动上传原文档；进入审核和源版本保护与 MD 一致。
+- **Verification**：H；DOCX 文字/表格、多语言/换行、恶意 ZIP/XML/解压上限/嵌入对象/外部链接、未知格式与取消；PDF 如纳入须另测文本提取与无文本提示；作者核对提取结果。
+- **风险 / 下一边界**：文档布局不能等同可靠语义，不能把遗漏内容伪装成完整成稿；M23 已前移，不依赖本项；文档格式扩展独立验收。
+
+<a id="studio-writing-workbench"></a>
+### 6.12 Studio 写作体验升级 · 第一阶段（Done）
+
+作者已认可分三阶段实施及 CodeMirror 6 选型，本轮授权第一阶段界面精简。默认进入 Think，合并导航，突出标题、正文、保存和网站预览。属性、AI、诊断和低频操作按需展开。Build、Keep、Me 继续使用专属表单，发布、待审和私人维护走独立入口。验收覆盖模块到达、错误可见、编辑缓冲、Astro 预览、发布确认和私人锁定。CodeMirror 与 Live Preview 留待后续单独实施。
+
+本次实施证据见[验收记录](#studio-writing-workbench-record)。后续产品方向与 CodeMirror 6 源码编辑见[当前 Markdown 写作闭环](#studio-think-writing)。
+
+<a id="studio-think-writing"></a>
+### 6.13 Studio Markdown 写作闭环（Think，自动验证完成，原生 App 待作者核对）
+
+默认工作台采用内容选择、Markdown 编辑、可选 AI 整理、Astro 预览、保存或发布。先贯通 Think 和原稿恢复，随后按作者停点再做 Build 和 Keep/Me。CodeMirror 6 只负责源码编辑。已有文章写回原 Markdown，未完成原稿使用本机公开待审存储。发布复用 M23 的精确审核和一次最终批准。私人模块从公开工作台隐藏，维护路径与安全测试继续保留。此节接续 6.12 的界面精简，当前默认入口以此节为准。
+
+**验收**覆盖原文件字节与 YAML 注释保真、手工编辑、根路径和 base 下的真实 Astro 预览、原稿重启恢复、AI 核对和撤销、旧源版本冲突、协同关闭、明确批准和远端前置条件。两引擎浏览器回归并保留私人测试。操作见[工作台手册](./MAINTENANCE.md#studio-writing-workbench)，证据见[Think 写作验收](#studio-think-writing-record)。
+
+<a id="studio-think-preview-time"></a>
+### 6.14 Think 整理、快速预览与时间（Done）
+
+在现有 Think 工作台上修复已复现的百炼候选解析故障，复用网站 Markdown 处理器提供快速隔离预览。记录可选 UTC 秒级文章时间，累计写作时长仅存本机。正式 Astro 构建、发布验证和私人功能沿用原边界。
+
+验收使用实际百炼非敏感请求、无可见窗口的真实 WebView2、Chromium/WebKit、正式 Astro 和私人回归。验收明细见[本轮记录](#studio-think-preview-time-record)，操作见[写作手册](./MAINTENANCE.md#studio-writing-workbench)。
+
+<a id="studio-think-stability"></a>
+### 6.15 Think 稳定化与源码编辑辅助（In Progress）
+
+核对 M23 发布前置条件，统一换行与公式渲染，接入可切换的 Gemini，保留候选核对机制。将快速预览定位到编辑源行，提供图片粘贴、拖放和代码围栏快捷键。真实提交、推送和部署另行授权。
+
+本地编辑与浏览器验证见[本轮记录](#studio-think-stability-record)。Gemini 已在 Windows WebView2 用现有 Key 完成真实候选审核。远端工作流已安装，正式发布仍待独立授权及线上验收。见[后续验证](#studio-gemini-publish-readiness)与[Think v1.0 封版](#studio-think-v1-freeze)。
+
 <a id="verification"></a>
 ## 7. Verification：执行命令与证据
 
@@ -1062,7 +1625,7 @@ Windows WebKit 未暴露 `-webkit-tap-highlight-color`：颜色断言按 CSS.sup
 目标仓库 `hjk202/hjk202.github.io`，public/main，站点根域名、base `/`；保留旧 demo 历史和已有标签，不改可见性/域名。所有上线按本次明确发布授权执行。
 
 1. 核对 Git 差异、候选源 SHA、实际账号权限与发布目标；完整检查候选，保护未提交工作，不把旧源通过当新源证据。
-2. push/PR **只检查**；在 main 通过 `workflow_dispatch` 手动触发 `Verify and publish Personal Space` 才发布。`.github/workflows/deploy.yml` 使用锁定 Node/npm、官方 Action 固定 SHA。
+2. push/PR **只检查**。本版 workflow 手动输入完整 expected_sha 与 studio_request（人工填 manual、Studio 使用唯一 UUID），先守卫获批 SHA。在 main 通过 `workflow_dispatch` 手动触发 `Verify and publish Personal Space` 才发布。`.github/workflows/deploy.yml` 使用锁定 Node/npm、官方 Action 固定 SHA。
 3. check 运行 lint/typecheck/unit/root build/root e2e、WebKit、真实第五私人适配会话、extension/content/design/mobile、隔离 base build/e2e 与发布/密文边界。
 4. 只上传 check 实际测试的 `dist`；deploy 消费同产物，不重建。CI 不接真实明文/口令，不运行 pack/rekey。
 5. 记录真实 run 链接、源 SHA、artifact/digest、manifest；核对实际下载产物、本地受验构建、线上文件哈希，检查全部当前正常路由（本版 9 页）/404/索引/资产/导航/搜索及受影响私人链路，全程 pageerror 为 0。
@@ -1560,3 +2123,686 @@ N1 全部 Done Criteria/Verification 满足、标 Done；手机真人检查留�
 **线上 smoke**：真实 Chromium/WebKit 各验证九个正常路由和真实 404，Think 四行预览/全文、320/375/1280px 明暗、键盘与点击、返回/刷新、Spotlight、公式和未配置私人入口均通过；两引擎各 0 pageerror、0 failed request，截图已查看。证据为 `.cache/doc-release/` 的 run/dispatch/artifact/local-manifest/release-comparison/online-smoke JSON、原始日志与截图。
 
 **收尾与限制**：编辑器实际文件树和 N1 作者手机反馈未在本轮验收，原两项 Windows/WebKit 平台跳过未当作通过；未改文章、Studio、依赖或发布流程。仅补记本段及 README/MAINTENANCE 的发布入口；最终文档审计退出 0，135 处相对链接/锚点有效、205 个非目标文件保持，`git diff --check` 通过，另存记录提交。工程输入与已发布源仍为上述受验版本，不为完成记录再次部署。Phase 5/6 不启动，完成后停止。
+
+<a id="studio-next-planning-record"></a>
+### 9.22 Studio M7–M15 规划入档（2026-10-17，文档任务完成）
+
+**授权 / 实际变更**：作者认可 M7–M15 方案并明确本轮只改 PLAN、README、MAINTENANCE，不实现、不提交/推送/发布。开始时 Git 工作区干净；已记录 210 个跟踪文件及三份文档的基线。新增 6.10 的现状证据、App/服务归属、各模块原始 source/AST/整文件 revision、私人唯一源与加密边界、11 个独立单元（M14 拆三项）的 Goal/Scope/Non-goals/Files/接口/数据流/Done Criteria/Verification/风险及下一边界；全部 Pending。README 简述下一路线及桌面入口待诊断；MAINTENANCE 区分当前操作与未来能力，不重复维护实施状态表。
+
+**Verification**：实际运行 `node .cache/studio-m7-m15-plan/verify.mjs`，退出 0；四份文档围栏闭合、170 处相对链接/锚点有效，11 个独立 Pending 单元的契约字段齐全，当前命令与 package.json 对应、手册 9.6/9.7/9.8 顺序正确。M0–M6 计划及原全部完成记录保持，手册示例与 README 真实目录图未变；207 个非目标跟踪文件 SHA-256 不变（含 AGENTS、编辑器配置、所有源码/测试与 package/lock），只有三份目标文档修改，无新增 Git 候选或暂存。HEAD 仍为 9fd8cc8，当前发布源/工作流记录保持；`git diff --check` 退出 0。证据在 `.cache/studio-m7-m15-plan/` 的 baseline.json / verification.json 及初始文档副本。
+
+**停点 / 限制**：工程 lint/typecheck/test/build、浏览器/桌面 smoke 未运行（仅文档，未改工程输入）；桌面故障尚未复现，不冒称修复，N1 手机反馈仍待作者。既有发布与标签保持，M7 尚未开始，当前无实施项 In Progress；不创建产品代码/目录占位、快捷方式、依赖或密文，未提交、推送或发布，完成入档后停止。
+
+<a id="studio-m7-record"></a>
+### 9.23 Studio M7 — 可靠启停与恢复（2026-10-18，Done）
+
+**授权与基线**：仅实施 M7、重建快捷入口、验证并同步文档；不进入 M8，不提交/推送/发布。HEAD `9fd8cc8bda5c903c0b897f23a63168764b62899b`，已有三份规划文档未提交；210 个跟踪文件哈希及初始文档副本保存在忽略的 `.cache/studio-m7/`。原 M0–M6/v0/N1 与全部完成历史保持。
+
+**诊断**：旧 open/stop 均退出 1、DESKTOP_UNAVAILABLE；会话 API pid 18820 与 host pid 32132 均已退出，管道不可达，三份关联状态/锁仍在。见 initial-state.json / reproduction.json。Node 在桌面 PATH 中存在，不把 PATH 猜测当根因。
+
+**实际变更**：desktop-state.ts 核对固定退出残留的归属、进程、管道、端口、普通单链接文件及目录身份，删除前重验身份/字节；未知来源、坏状态、活锁和占端口均拒绝。desktop.ts 等待 API 正常关闭、锁释放及 host 退出才确认停止，不复用已退出 API；API 异常退出未释放作者锁时保留关联状态，供 host 也退出后安全恢复。Windows 在进程退出后短暂 EADDRINUSE 的竞态已复现，open 最多额外等待 3 秒逐次重验，忙时不删证据。server/main.ts 仅增加可信 IPC 父进程断开时关闭自有 API。没有 HTTP shutdown、接管终端服务或强杀用户进程。
+
+web-build.ts 对 Node 版本、Web/合同源码、Vite 配置、package/lock 和三项产物核对哈希，匹配复用，过期/缺失/普通坏收据才重建；构建失败不启动旧 UI，编译进程不继承 AI Key。新增共用 Launcher.ps1，隐藏窗口并显示固定错误码/处理建议；快捷方式安装先检查两个目标以保护同名外部入口，固定 Node 路径、失效再查 PATH。未改 AI 配置格式、作者模型、HTTP 内容接口、Web 产品界面、依赖或网站运行逻辑。
+
+**验证与失败处理**：新增十项 M7 回归，覆盖退出残留/活锁/坏状态/替换/硬链接/junction、占端口、中文空格路径、并发启动/立即启停、构建计数与失效/失败/缺依赖/Key 隔离、独立终端保护、host/API 异常退出、外部快捷入口保护和缺 Node。原四项 Windows 测试保持。验证发现并修复启动就绪与停机回执竞态、空控制回复分类、Windows 端口释放、死 API 旧状态；测试副本的中文路径 fs.cpSync 失真改为显式复制并断言精确入口。未削弱负例或过滤 pageerror。故障两项在真实用户权限下连续五轮各 2/2 通过，见 loss-fixed-1.log 至 loss-fixed-5.log；初始失败证据保留。
+
+实际命令由 `.cache/studio-m7/run.mjs` 调用固定本机 npm CLI（等价 npm.cmd 脚本），同名 `.log` / `.json` 保存命令和退出结果；清除 AI 凭据环境。需要链接/IPC 的最终单元验收在真实 Windows 用户权限下执行；沙箱曾出现 junction EPERM 与本机服务识别失败，不把这些限制或此前偶发成功当最终通过。
+
+| 实际检查 | 最终结果 / 证据 |
+| --- | --- |
+| `npm.cmd run lint` / `npm.cmd run typecheck` | 退出 0；Astro 172 文件零诊断，Studio tsc 通过 |
+| `npm.cmd run test` | 退出 0；112 tests，111 passed / 1 既有 Windows 普通文件 symlink 权限 skipped |
+| `npm.cmd run build` / base 构建 | 退出 0；根 10 HTML / 26 文件；base `/personal-space/` 输出 `.cache/base-dist` |
+| 根/base 完整 Chromium E2E | 各 77/77，退出 0；root-e2e / base-e2e 日志及结果目录 |
+| WebKit mobile / private smoke | 16/16、29/29，退出 0；同名日志与结果目录 |
+| `npm.cmd run studio:build` / Studio 双引擎 | 退出 0；37 passed / 1 既有 WebKit 无 CDP IME skipped，含 CRUD/冲突、AI 模拟及真实 Astro 预览；已实际查看 studio-results 的 WebKit editor.png 与 Chromium preview.png，编辑/预览无溢出或遮挡 |
+| release / Vault 产物边界 | `node tests/verify-release.mjs`、`node --experimental-strip-types tests/verify-vault-release.mjs` 退出 0，公开产物无 Studio/测试/凭据 |
+| 文档与范围审计 | verify.mjs：201 个非目标跟踪文件字节保持，原完成历史与 M8–M15 保持；链接/状态、HEAD/空暂存区检查通过 |
+
+**真实本机入口调用**：已重建 `C:\Users\80631\Desktop\Personal Space Studio.lnk` 与 `Stop Personal Space Studio.lnk`。原真实退出残留已按条件恢复，首次实际冷启动退出 0、约 4.61 秒（live-cold.json）。读取快捷方式保存的目标/参数经 Windows Shell 调用，最终重复打开约 2.05 秒、停止约 1.94 秒、重开约 3.97 秒（live-targets.json）；重复打开同一 API pid，重开为新 pid，停止时三份状态/锁释放。Web 收据字节和 mtime 保持、无额外构建；隔离计数验证冷启动一次构建、重复打开/重开不重建。真实 AI 状态 available:true，原 DPAPI 密文哈希/大小保持，未重录 Key、未发送付费 AI 请求、未修改真实正文。最后保留 Studio 运行供作者确认。
+
+**实施轮待验停点（现已闭合）**：文件资源管理器自动化返回“应用授权等待超时”，作者选择“由我最后手动双击验收”；当时 M7 保持 In Progress / Awaiting desktop acceptance，未将实际目标调用冒充桌面双击。现由下述作者真实反馈补齐。关闭普通标签页仍不停止服务，M8 未实施。
+
+**实施轮限制（保留）**：两项既有平台 skip 不当通过；未验其他 OS、真人 IME 候选窗、App 或新手机反馈，实施轮未跑未受影响的 extension/content/design/session 发布专项、未发布。自动审批拒绝强制结束两个辅助 PID，未执行；旧沙箱 fixture 的认证正常关闭仍报 DESKTOP_UNAVAILABLE，当时保留现场，不用强杀代替安全退出，也未声称辅助清理完成；真实 4322 服务与作者源不受影响。实施轮仅更新 M7 代码/测试及三份文档，保留原未提交工作，未提交/推送/发布，停于作者验收。本轮不重查、清理这些辅助进程，不宣称旧 PID 仍存活或已清理。
+
+**最终验收收尾（2026-10-18）**：作者明确反馈：“我手动双击测试了，启动、重复启动、停止和重开都正常，AI 配置也保留了。”证据来源为本次聊天中的作者本机实测反馈，记录在 `.cache/studio-m7-acceptance/manual-acceptance.json`；不是代理桌面自动化或模拟结果。已逐项核对上述工程、浏览器、原文保护、快捷目标与异常恢复记录，全部 M7 Done Criteria / Verification 满足，M7 从 In Progress 标 Done，无实施项 In Progress；M8–M15 保持 Pending，不因此获得实施授权。
+
+本轮只改 PLAN/README/MAINTENANCE，核验原 `.cache/studio-m7/` 34 份证据文件的哈希及成功结果，原工程测试统计/平台 skip 保留。实际运行 `node .cache/studio-m7-acceptance/verify.mjs` 和 `git diff --check` 均退出 0：文档围栏/链接/状态一致，210 个非目标候选文件（含全部已有代码/测试及三个未跟踪 helper）字节保持，M8–M15 范围与此前完成历史保持，原证据未覆盖，HEAD 与空暂存区未变。证据在本轮 baseline.json / verification.json。未改工程输入，lint/typecheck/test/build 及浏览器/桌面自动化本轮未重跑；上表是实施轮真实结果，不冒称本轮重新执行。未操作本机服务、快捷方式、凭据、真实正文或付费 AI；全部已有未提交工作保留，不进入 M8，不提交、推送或发布，完成收尾后停止。
+
+<a id="studio-m8-record"></a>
+### 9.24 Studio M8 — Windows App 与协同关闭（2026-10-18 实现与检查；2026-10-23 文档核对，In Progress / Awaiting manual acceptance）
+
+**授权与基线**：仅 M8 的 App、协同关闭、验证与文档，保留 M7 和其他未提交工作；不进入 M9，不提交/推送/发布。M8 开始时 HEAD `9fd8cc8bda5c903c0b897f23a63168764b62899b`、空暂存区，213 个候选文件的哈希/文档副本保存在忽略的 `.cache/studio-m8/baseline.json`。作者中断桌面操作后明确要求不再控制桌面；本次续轮只运行无窗口命令行检查并修改三份文档，228 个开始候选的基线在 `.cache/studio-m8-finish/baseline.json`。不将旧 M7 作者反馈复用为 M8 签收。
+
+**实际实现（前续轮保留）**：新增 `studio/desktop/` WinForms/WebView2 薄宿主，SDK 8.0.404/latestPatch、net8.0-windows/x64、WebView2 包精确 `[1.0.4258.31]` 与 NuGet lock；未升级 npm 依赖。`app.ts` 管单实例/激活/私有 stdio，`app-build.ts` 核对宿主输入与产物、锁定构建及热复用；原 Launcher 的 open 改为 App，已有快捷目标沿用，Stop 保留。`desktop.ts` 增加认证 activate 与 App 生命周期钩子，继续只管理自有 API/lease，拒绝旧浏览器或独立终端实例接管。宿主不持有业务凭据，只拿固定本机 origin；内容仍走原 HTTP/Think adapter，无新业务端点或发布能力。
+
+`contracts/desktop.ts` 与 `web/desktop.ts` 只处理 UUID 关联的准备退出/取消/就绪/关闭失败。X/菜单/备用停止统一处理缓冲，等待写入、校验和输入完成；保存失败或响应未知保留缓冲、不自动重试。取消退出保留 AI/预览，明确退出时取消；保存并退出先取消请求再走原保存。停机失败恢复可编辑状态。C# 只接受精确顶层 Studio URL/已知字段，拒绝外部顶层导航、新窗口、下载、权限与 host objects；预览沿用 CSP/sandbox。native 以 detached 启动、脱离 Node 的 Windows job，避免 Node 崩溃连带结束缓冲窗口。API 异常先保留窗口/归属，无法证明清理成功则留关联证据供 M7 严格恢复，不强杀或自动清缓存。Web、宿主、obj、NuGet/profile/构建收据均在忽略缓存，不进入公开产物。
+
+**失败与修复**：初始 WinExe 控制台编码初始化抛错、同步 stdin 读取阻塞 UI，改为标准句柄 UTF-8 reader/writer 与后台读取/UI 线程派发；去掉包附带但未使用的 WPF reference 后构建 0 警告。完整 Studio 首次 51 通过/2 失败/1 跳过，暴露“停机失败后再次退出的取消按钮仍 disabled”；修复状态恢复后，专项 16/16、全套 53/54（1 既有跳过）通过，原失败日志保留为 studio-browser-first-failure.log。WebKit 私人专项首次 28/29、一次 30 秒超时，原样重跑 29/29；未改超时、过滤 pageerror 或弱化测试。真实故障验证发现 Node Windows job 会在 host 被结束时连带结束 native，增加 detached 窗口后确认 host/API 退出而窗口/草稿仍在。初始失败与修复过程保留，不把未完成的最终关闭补写为通过。
+
+**2026-10-18 无窗口命令行验证**：证据在 `.cache/studio-m8-finish/`；run.mjs 通过实际 Node 安装中的 npm-cli 执行对应 npm.cmd 脚本，逐项 JSON 记录完整命令/退出码/日志，未打开 App、未读取真实凭据或发付费 AI 请求。2026-10-23 只核对这些已有结果与文档/范围，未重跑工程检查；下表区分两次执行。
+
+| 实际命令 / 检查 | 结果与证据 |
+| --- | --- |
+| `npm.cmd run lint` / `typecheck` | 均退出 0；Astro 178 文件 0 errors/warnings/hints，另含 Studio tsc；lint/typecheck.json 与 log |
+| `npm.cmd run test` | 退出 0；118 项，117 通过、0 失败、1 个既有普通文件 symlink 权限跳过；unit.json/log。包括 M8 有限消息、认证激活/取消停机、API 故障保留归属、拒绝接管、构建 Key 隔离/目录跳转/缺 SDK 与 M6 写入未知回归 |
+| `npm.cmd run build` | 退出 0；10 页、26 文件，含 prebuild 公开/Vault 边界；build.json/log |
+| `dotnet restore PersonalSpaceStudio.csproj --locked-mode --source https://api.nuget.org/v3/index.json` / `dotnet build PersonalSpaceStudio.csproj --no-restore --configuration Release`（cwd studio/desktop） | 均退出 0，SDK 8.0.404、0 警告/0 错误；native.mts、dotnet-*.json/log。锁文件未变，没有自动安装系统组件 |
+| `dotnet restore` / `dotnet run --project tests/studio/desktop/ContractTests.csproj --no-restore --configuration Release`（project 使用绝对路径、同 SDK cwd） | 退出 0；精确 origin、额外/重复字段及 ID 边界检查通过；dotnet-contract*.json/log。纯契约，无窗口 |
+| `ensureDesktopApp` 连续两次 | 成功；第二次收据字节/mtime 与 exe 哈希保持，native.json；只构建/复用，不运行 exe |
+| `node --experimental-strip-types .cache/studio-m8-finish/agent-stop.mts` | 退出 0；真实隔离 HTTP + Agent + App 控制钩子（退出就绪为测试钩子，无 native），已提交写响应在停机后丢失，API 退出、锁释放、源保持、AGENT_WRITE_OUTCOME_UNKNOWN、重复 id 拒绝且只写一次；agent-stop.json |
+| `node tests/verify-release.mjs` / `node --experimental-strip-types tests/verify-vault-release.mjs` | 均退出 0；26 公开产物无 Studio/宿主/正文 fixture/凭据，Vault 仍未配置；boundary/vault-boundary.json/log |
+| 文档与范围核对（2026-10-23） | `node .cache/studio-m8-finish/verify.mjs` 与 `git diff --check` 退出 0；围栏/相对链接/状态、历史与未来单元、候选哈希、HEAD/空暂存区检查；结果在该目录及 `.cache/studio-m8-doc-final/verification.json` |
+
+**此前同一 M8 的浏览器验证（本续轮未重跑）**：`.cache/studio-m8/run.mjs` 的 studio-build + studio-browser 对应 `npm.cmd run studio:test`：退出 0，Chromium/WebKit 共 54 项、53 通过/1 个既有 WebKit IME 协议不支持跳过；close-final.log 为关闭专项 16/16。使用真实 HTTP/文件/预览、测试页内有限 bridge；AI 退出用非敏感模拟请求，不能冒充真实 WebView2 或百炼退出验收。root/base 构建退出 0，网站根与 `/personal-space/` E2E 各 77/77，WebKit mobile 16/16、private 29/29，pageerror 断言保留。证据分别为 base-build/root-e2e/base-e2e/webkit-mobile/webkit-private.json/log、studio-browser.json/log。最终续轮未改任何工程输入；最后 detached 仅改 Node 窗口创建，未改已验浏览器/网站输入。本项未运行未受影响的 extension/content/design/session 发布专项，未发布。
+
+**此前真实隔离 native 验收与当前缺口**：使用 `.cache/studio-m8/gui-*` 非敏感源和 4324 测试端口，未改真实文章或真实 Key。实际 WebView2 已验证中文文字录入、X/菜单同一对话框、取消保留、有效保存退出及源写回/锁释放/端口释放；空 slug 保存失败留窗口；备用停止可取消，重复打开激活同一实例；API 故障后缓冲与控制仍在、重复启动不创建第二 API，明确放弃后可按严格证据重开；窗口进程故障后 API/锁清理。命令/固定故障结果在 gui-*.log、native-fault-{api,window,supervisor}.json，真实界面证据为此前工具会话观察，不虚构截图文件。故障注入只针对新建夹具并核对认证、CIM 命令行、父子进程与固定目录；生产代码没有强杀能力。
+
+最后一次 host 故障修复确认 API/host 已退出、native 仍显示“本机服务连接已中断”与新建草稿；其 X 后最终取消/放弃流程被作者物理 Esc 中断，**未完成**。此后按作者要求不再控制桌面，也不强行关闭可能留下的测试窗口。正式桌面入口的 M8 双击/激活、重开后的真实 AI 配置保留、真实 App 内 AI/预览运行中退出、失联最终关闭、原生导航/桥来源完整运行时负例仍待对应反馈/隔离验收；纯 C# 边界与双引擎模拟不能替代这些项。缺 Runtime 的真实机器场景未测试，未卸载系统组件来造故障；缺 SDK 的隔离负例已通过。人工中文录入不冒充完整真人 IME 候选窗验证。
+
+**保护与停点**：相对 M8 初始 213 个候选，9 个目标文件改变、204 个非目标保持；新增 15 个 M8 源/测试/项目文件，原 M7 的三个未跟踪 helper 保留。相对无窗口收尾开始的 228 个候选，只改 PLAN/README/MAINTENANCE，其余 225 个保持，包含前轮全部工程改动；2026-10-23 的独立基线在 `.cache/studio-m8-doc-final/`，同样只改三份文档。原 9.1–9.23 完成记录、M9–M15 需求/状态与网站/真实内容/package/lock 保持，HEAD 未变、暂存区为空。本次文档核对未调用桌面、工程测试、构建或本机服务/快捷方式/凭据，未清理旧辅助进程；表中工程检查为 2026-10-18 的实际结果。手动步骤集中在 [MAINTENANCE](./MAINTENANCE.md#studio-m8-manual)，M8 保持 **In Progress / Awaiting manual acceptance**，全部必需验收满足后才可收尾为 Done。未进入 M9，未提交、推送或发布，本轮完成文档核对后停止，等待作者反馈。
+
+
+<a id="studio-m8-refine-record"></a>
+### 9.25 Studio M8 补充优化 — 单图标、默认日期与 AI 配置（2026-10-23，自动验证完成；M8 仍待手动验收）
+
+**授权/范围**：作者明确要求一起优化以上三点、完成验证和文档，不控制桌面，保留已有改动，不进入 M9，不提交、推送或发布。开始时 228 个候选文件、HEAD `9fd8cc8bda5c903c0b897f23a63168764b62899b` 与空暂存区；基线与三份文档副本在忽略的 `.cache/studio-m8-refine/`。M7 及此前 M8 实现保持，新增授权只调整 M8 单元，不启动未来模块。
+
+**实际修改**：Install-Shortcuts.ps1 只安装 Personal Space Studio，普通文件/描述/仓库/固定 PowerShell 目标/完整参数均核对后才移除本项目旧 Stop 图标，删除前再次核对字节；同名外部、硬链接/跳转或变化拒绝。已通过该脚本更新真实桌面的快捷文件，随后只读核对 launchExists:true、legacyStopExists:false、pointsToOpen:true、repositoryMatches:true、shortcutsInvoked:false（shortcut.json）。未点击图标、打开 App 或控制窗口；停止脚本/npm 命令保留为排错手段。正常 X/菜单依然走既有保存/放弃/取消与自有 API 停机流程，不改为强杀或无条件关闭。
+
+Web 新建时用本机日期各分量生成 YYYY-MM-DD，避免 UTC 跨日偏差；字段仍可改/清空，只在点新建时赋值。旧文章读取/无修改保存不补日期，API/Agent 候选规则不变。AI 状态移到顶部，不用先选文章即可查看，并说明缺配置/坏配置及正文为空时的操作条件。localAuthoringEnvironment 复用现有私有 DPAPI 读取，desktop.ts 保持构建先于解密；Windows 终端 main.ts 在无百炼环境配置、且非父 IPC 子进程时复用同一存储，显式环境保留优先权，不暗中混搭。桌面子进程缺配置不会意外读取真实 Key，坏存储明确报错，直接 startStudioHttp/HTTP 模型保持不变。没有新配置格式、Key 迁移、前端凭据或 Provider 框架。
+
+**AI 排查结论**：本机已有存储可解密且字节保持；正确 App 后台配置加载未复现失败，不能断言作者当时错误一定来自某个入口。已确认并修复“终端启动只读环境、不会复用本机保存配置”的入口差异；直接运行 native exe 不能独立启动后台，隔离服务故意无真实凭据，手册与状态提示已澄清。真实验收调用同一 startDesktopHost → main.ts → HTTP/AI 链，在非敏感空内容夹具两次启动自动 available:true，并作一次 polish，返回 HTTP 200 / ok:true；原文与模型输出均未记录。ai-live.json 仅留布尔、状态码和固定错误码；源目录未创建文章，原 DPAPI 密文字节保持、自有 API/锁均清理。此为真实后端调用，不冒充 native 中点击按钮。
+
+**实际验证**：run.mjs 经固定 npm CLI 执行对应 npm.cmd 脚本，JSON/log 保存命令与退出；浏览器为无界面 Playwright，未控制桌面。首次类型检查发现新增测试环境对象少了 NodeJS.ProcessEnv 声明（4 errors），修正后重跑，初次失败证据保留为 typecheck-first-failure.log；未弱化规则或删测试。其余结果：
+
+| 命令 / 专项 | 结果（证据均在 .cache/studio-m8-refine/） |
+| --- | --- |
+| `npm.cmd run lint` / `typecheck` | 均退出 0；178 Astro 文件 0 errors/warnings/hints，Studio tsc 通过；同名 json/log |
+| `npm.cmd run test` | 退出 0；119 tests：118 pass、0 fail、1 个既有普通文件 symlink 权限 skipped。覆盖单图标及旧停止迁移、外部快捷保护；Windows 终端无环境读 DPAPI/显式环境优先/坏配置安全失败；保留全部 M8 正常/异常停机与防接管回归 |
+| `npm.cmd run studio:build` + 双引擎完整 Studio 测试（等价 studio:test） | 退出 0；58 项，57 pass、1 个既有 WebKit IME 协议 skipped，pageerror 断言保留。新增 LA/Tokyo 两时区跨 UTC 日期、可编辑保存、跨日重新新建、旧源省略日期字节保持，四个浏览器用例均通过；原关闭专项与真实 Astro 根/base 预览保持 |
+| `npm.cmd run build` / base `/personal-space/` 构建 | 均退出 0；根 10 页/26 文件，base 输出 .cache/base-dist；含原 prebuild 边界 |
+| `node tests/verify-release.mjs` / `node --experimental-strip-types tests/verify-vault-release.mjs` | 退出 0；公开产物无 Studio、宿主、测试或凭据，Vault 仍未配置 |
+| SDK 8.0.404 锁定 restore / Release build / .NET ContractTests | 均退出 0，0 warnings/errors；native.mts 与 dotnet-*.json/log；原项目/lock 未改，热收据/产物保持，未运行 exe |
+| 同一 App 后台加载链 + 真实非敏感百炼 polish | 两次自动加载配置、一次 HTTP 200，原密文与源保持，原文/响应/Key 不落日志；ai-live.json |
+| 实际快捷文件迁移与只读复核 | Install-Shortcuts.ps1 / shortcut-check.ps1 均退出 0，真实桌面仅保留本项目启动入口；shortcut.json。不是点击/窗口验收 |
+| `node .cache/studio-m8-refine/verify.mjs` / `git diff --check` | 退出 0；相对链接/围栏/状态、历史/未来计划、范围哈希、HEAD/空暂存区通过；verification.json |
+
+**文档/保护/停点**：只改 11 个已存在目标：三份文档、server/main.ts、web/main.ts 与 index.html、windows/local.ts/desktop.ts/Install-Shortcuts.ps1、两份现有 Windows/编辑器测试；其余 217 个候选字节保持，没有新增 Git 候选。既有所有未提交代码和未跟踪 helper 保留，网站/真实文章/package/lock/宿主项目未改，原 9.1–9.24 历史与 M9–M15 Scope/状态保持。未启动真实 App，未操作已有服务/缓冲或旧辅助进程；只关闭自己的无窗口隔离后台。网站未受改动，未重跑未受影响的全站 E2E/发布专项；根/base 构建、边界及 Studio 预览回归为本轮实跑，不沿用为本轮全站交互通过。
+
+自动验证与三项补充实现已完成；M8 仍 In Progress / Awaiting manual acceptance，原 native 未完成项未被取消。请作者先保存并退出旧窗口，再双击唯一图标：确认新建日期默认当天且能修改、顶部 AI 已配置并能对测试正文请求建议、X 后选择保存/放弃会关闭后台且重开不重录 Key；取消仍保留窗口/内容。完整步骤见 [MAINTENANCE](./MAINTENANCE.md#studio-m8-manual)。不控制桌面、不进入 M9、不提交/推送/发布，完成后停止。
+
+
+<a id="studio-m8-icon-record"></a>
+### 9.26 Studio M8 入口图标 — 蓝发二次元头像（2026-10-23，文件/构建验证完成；实际桌面显示待作者确认）
+
+**授权与基线**：作者报告仍有 Personal Space Studio 与 Stop Personal Space Studio、图标没有内容，要求可爱的蓝发二次元形象。沿用不控制桌面、保留已有工作、不进入 M9、不提交/推送/发布的边界，只补 M8 本机图标与入口核对。开始时 228 个候选与原 HEAD/空暂存区，哈希及文档副本在忽略的 `.cache/studio-m8-icon/`。
+
+**入口核对**：只读检查用户桌面、公共桌面、注册表桌面位置及已存在的 OneDrive 桌面位置，最终含隐藏文件扫描，只找到 `C:\Users\80631\Desktop\Personal Space Studio.lnk`；未找到 Stop 快捷文件或同名脚本。首次工具会话显示启动图标仍引用 shell32.dll,70，未用角色图。作者随后确认旧 Stop 删除提示找不到内容，并表示可能为以前残留、不影响使用。这与不存在文件的显示残留相符，但未控制桌面确认原因，不声称已消除屏幕上的第二图标，不强删不存在/未知对象、不重启 Explorer 或清图标缓存。最终文件记录为 desktop-final.json，正文/任意其他桌面文件未输出；辅助非快捷文件扫描先遇 Windows PowerShell 5.1 的 UTF-8 无 BOM 字符解析问题，改为 ASCII Unicode 正则后完成，不改用户设置。
+
+**实际资产与引用**：使用内置 image_gen.imagegen（无另配 Key），生成原创蓝发 Q 版二次元透明头像；原 PNG 不改字节，复制到 `studio/desktop/assets/studio-blue-hair.png`。确定性导出 ICO 七种尺寸 16/24/32/48/64/128/256，保存 `studio-blue-hair.ico`，完整最终提示词与方式记在 `studio-blue-hair.prompt.txt`。已查看生成结果并确认蓝发/可爱头像、无文字水印；PNG 原 alpha 保留。Install-Shortcuts.ps1 改用项目 ICO 的绝对路径，缺文件明确 STUDIO_ICON_MISSING；csproj 嵌入 ApplicationIcon，Form 从自身 exe 提取同一图标。未改网站 favicon、Web 编辑行为、文章、AI/文件/API 或依赖。
+
+**真实快捷文件更新**：安装器退出 0；只更新本项目启动 .lnk 的图标引用，不调用快捷方式。最终 iconLocation 为 `D:\hjk202\studio\desktop\assets\studio-blue-hair.ico,0`，普通文件/描述/仓库归属正确，磁盘仍只有一个本项目启动入口，shortcutsInvoked:false。旧 Stop 的屏幕状态留给作者手动刷新核对，不拿磁盘检查冒充视觉验收。编译使用隔离输出 `.cache/studio-m8-icon/native-app/`，不覆盖可能正在运行的旧 exe；正式入口下次正常退出再启动会按输入哈希重建/载入新窗口图标，无须重录 AI Key。
+
+**验证**：run.mjs 的对应 npm.cmd 脚本均退出 0：lint、typecheck（178 文件零错误/警告/提示）、test（119 项：118 pass / 1 个既有 symlink 权限 skipped）、build（含 prebuild，10 页/26 文件），及 release/Vault 产物边界检查。现有单图标/安全迁移测试扩展为校验真实 ICO 引用和全部尺寸；原测试/负例保留，未新增镜像实现的无效测试。命令、退出与日志在同名 json/log；SDK 8.0.404 locked restore、隔离 Release build、.NET ContractTests 均退出 0、0 warnings/errors，native.json 验证七种 PNG frame 字节全部嵌入新 exe，nativeApplicationLaunched:false、existingAppOutputOverwritten:false。
+
+verify-artwork.ps1 退出 0，逐个解码 ICO 内的原始 PNG frame，核对真实尺寸、非空蓝色像素、透明像素及原 PNG 哈希，artwork.json 记录结果。初次用 System.Drawing.Icon(256).ToBitmap 检查时，该旧接口实际选择 128 尺寸，导致按 256 像素面积判断失败；诊断尺寸后改为直接检查各目录项的 PNG，不放宽非空/蓝色/alpha 标准。全部七帧与原 PNG 均通过。未启动任何 App 或浏览器、未复跑未改动的 Studio/网站交互；此前 57/58 Studio 结果仅为历史，native/桌面视觉按作者约束待验，不冒称本轮点击通过。
+
+**文档与保护**：`node .cache/studio-m8-icon/verify.mjs`、`git diff --check` 退出 0；链接/围栏/状态、资源哈希、实际图标引用、全部检查退出结果、HEAD/空暂存区核对通过。只修改三份文档、安装器、宿主 csproj/Form 和现有 Windows 测试七个候选，新增上述三份图标资产；其余 221 个原候选字节保持。原 9.1–9.25 历史、M9–M15 Scope/状态、全部网站/作者源/配置/lock 和此前未提交工作保持，未查看或更改真实 Key。图像与构建资产都留在 Studio，不进入公开 dist。M8 仍 In Progress / Awaiting manual acceptance；只需作者核对蓝发快捷图标和下次重开后的窗口图标，其他未完成 native 项不因本轮生成图像被签收。不控制桌面，不进入 M9，不提交/推送/发布，完成本项后停止。
+
+---
+<a id="studio-m8-ai-loading-record"></a>
+### 9.27 Studio M8 正式 App AI 配置修复（2026-10-23，自动验证完成；正式窗口重开待核对）
+
+**授权与诊断**：作者确认从蓝发桌面图标打开仍显示 AI_NOT_CONFIGURED，要求继续排查修复、不控制桌面、不重配 Key。只读核对正在运行的正式 app.ts host → main.ts：同一 Windows 用户、正确仓库/入口、正常 LOCALAPPDATA，保存文件存在且可经既有 DPAPI helper 读取，但 API 的两个百炼环境变量均缺失，认证状态接口确实返回 available:false / AI_NOT_CONFIGURED。没有读取或输出环境变量的凭据值。临时目录重定向假设已排除；不能把原因归给作者用了错误入口或 Key 没有保存。为何该次启动未带上环境配置尚无充分证据，不将推测写成确定结论。旧逻辑的具体缺口是 IPC 子进程完全信赖父环境、不读取本地保存配置，随后把缺失状态固定在 AI 服务中；9.25 的直接 startDesktopHost 验证没有覆盖完整 App 入口，这一限制在此补正，原历史保留。
+
+**最小修复**：desktop.ts 完成构建后，fork 不携带明文百炼配置，改经私有 Node IPC 的严格 `studio:start` 消息指定存储；main.ts 在 API 后端直接复用 localAuthoringEnvironment / readLocalCredential，读取原 DPAPI 文件，再初始化 AI。新协议只接指定字段与绝对存储路径，不属于 HTTP/Agent/native 能力，不改变凭据格式/位置、模型、提示词或公共业务接口。无存储测试不隐式读取真实 Key，普通 Windows 终端保留显式环境优先规则。坏配置错误传回启动器；畸形启动消息、启动器在读取期间断开都不留下 API/作者锁。Web 缺配置提示改为说明“当前后台未加载”，已保存时先保存、正常退出重开，仍失败保留密文排查，不再暗示必须改用入口或重复录入。
+
+**验证（证据在忽略的 `.cache/studio-m8-ai-loading/`）**：
+
+| 命令 / 专项 | 实际结果 |
+| --- | --- |
+| `npm.cmd run lint` / `npm.cmd run typecheck` | 最终均退出 0；178 文件，0 errors/warnings/hints |
+| `npm.cmd run test` | 最终退出 0；121 tests：120 pass、0 fail、1 个既有普通文件 symlink 权限 skipped。新增缺失 API 环境仍读取指定 DPAPI 的真实 HTTP 回归、私有消息负例/启动器失联与锁清理；CLI 测试适配私有启动消息 |
+| `npm.cmd run build` / `npm.cmd run studio:build` | 均退出 0；网站 10 页，Studio Web 独立缓存，未发布 |
+| `node .cache/studio-m8-ai-loading/run.mjs studio-browser` | 退出 0；Chromium/WebKit 共 58 项，57 pass、1 个既有 WebKit IME 协议不支持 skipped，含原编辑、AI、Agent、关闭、根/base 隔离预览与 pageerror 断言；完整浏览器运行用提示文案更新前的 Web 产物 |
+| 最终 Web 重建后 `playwright test --config tests/studio/playwright.config.ts ai.spec.ts` | 退出 0；两引擎 12/12，通过新缺配置提示、不重配建议、未配置时普通保存/校验、AI 结果与取消等交互；studio-ai.json/log |
+| `node --experimental-strip-types .cache/studio-m8-ai-loading/full-launch.mts` | 最终退出 0；正式 Open.ps1 → app.ts open → detached app.ts host → main.ts，使用无界面 WinExe 代替 native 窗口、夹具 Vite 编译器与空内容目录。两次重开均 available:true，API 入口主动清除百炼环境也能加载原保存配置；一条非敏感实际 polish 返回 200 / ok:true，源与密文字节保持，自有实例正常退出；full-launch.json。不冒充 WebView2 点击验收 |
+| `node tests/verify-release.mjs` / `node --experimental-strip-types tests/verify-vault-release.mjs` | 均退出 0；公开产物无 Studio/宿主/测试/凭据，Vault 仍未配置 |
+| `node --experimental-strip-types .cache/studio-m8-ai-loading/secret-audit.mts` | 退出 0；仅在内存比对保存的 Key，547 个仓库候选/本轮验证文件/公开产物中未发现其明文，输出只有布尔与数量；secret-audit.json |
+| `node .cache/studio-m8-ai-loading/verify.mjs` / `git diff --check` | 退出 0；范围哈希、相对链接/锚点、围栏/状态、原历史与 M9–M15、HEAD/空暂存区保持；verification.json |
+
+新缺失环境回归先在旧代码上实际失败（available:false），修复后通过。首次全套 unit 的既有终端用例误用正式 4322，与作者保持打开的 App 冲突；改为夹具已分配端口后通过，没有停止正式服务。新私有消息负例最初用 null，运行时可测但 Node Serializable 类型不接受，改为数组负例后类型检查与全部断言通过；初次失败日志保留，不删除/弱化负例。未改 C# 宿主、图标、网站源/路由及构建配置，本轮未重跑 .NET 项目与整站根/base E2E，不冒称本轮验证；已有 native 未完成项仍保持待验。
+
+**保护与停点**：开始时 231 个候选、原 HEAD 与空暂存区，基线/文档副本保存在上述目录。本轮只改三份文档、main.ts、desktop.ts、Web AI 提示及三份既有测试共 9 个候选，其余 222 个字节保持，无新增产品文件；真实文章/配置密文、快捷方式和全部既有未提交工作保留。未控制桌面，未激活/关闭/重启作者的正式窗口。最后只读核对仍为原 API 进程、旧 AI 状态，不能把隔离验证当成旧窗口已更新；已请作者保存并正常退出，再从蓝发图标重开，随后核对新后台状态与原 Key 复用，无须重录。M8 保持 **In Progress / Awaiting manual acceptance**，M9–M15 Pending；不提交、推送或发布。
+
+---
+<a id="studio-m8-known-folder-record"></a>
+### 9.28 Studio M8 默认凭据目录与正式入口复核（2026-10-23，自动验证通过；正式重开核对进行中）
+
+**实际反馈与纠正**：作者保存并重开后，新正式 API 仍返回 AI_NOT_CONFIGURED，窗口也显示同样错误。只读检查确认入口/用户正确、文件 ACL 正常、没有 Node 加载器/编译缓存环境选项。临时启动诊断仅记录布尔与固定状态，实际得到 hasStore:true / defaultStore:true / storeExists:false / state:missing，说明尚未进入解密。正常用户目录的原保存文件仍可读取。9.27 从外部环境块作出的“排除目录重定向”结论过早，不代表 Node 实际定位结果；仅换私有启动传递并未解决正式故障，不能标验收通过。诊断与原失败状态保存在忽略的 `.cache/studio-m8-ai-loading/reopen/`。
+
+**本次修复**：Credentials.ps1 的 Get-StudioStorePath 改用当前用户 FOLDERID_LocalAppData 与 SHGetKnownFolderPath / KF_FLAG_NO_PACKAGE_REDIRECTION，保留 Windows 配置的目录位置、不依赖启动环境 LOCALAPPDATA。Node localStorePath 经既有私有 PowerShell helper 的仅解析模式复用同一函数；Configure 读写两端共用定位，不硬编码账户、不扫描其他位置、不移动/重写原密文、不要求重录 Key。现有 IPC、HTTP、Agent、模型和提示词保持。依据：[微软 Known Folder API](https://learn.microsoft.com/en-us/windows/win32/api/shlobj_core/nf-shlobj_core-shgetknownfolderpath)、[目录标志](https://learn.microsoft.com/en-us/windows/win32/api/shlobj_core/ne-shlobj_core-known_folder_flag)。
+
+**自动验证**：同一受重定向环境中，旧环境拼接位置无文件、Known Folder 位置存在（pathsDiffer:true）；原 Key 只读可加载。已有终端集成测试改为“Windows 固定存储与启动环境不一致”的非敏感夹具：旧代码实际失败，新定位通过，并保留显式环境优先、坏配置失败、原文/密文保持和隔离端口断言。当前 lint、typecheck、test、build、studio:build 均退出 0；178 文件零诊断，121 tests / 120 pass / 1 个既有 symlink 权限 skipped，网站 10 页。Chromium/WebKit AI smoke 12/12；release/Vault 公开产物边界均退出 0。命令与退出在本目录 run.mjs、同名 json/log；未改 Web/网站交互，不把上一轮完整 Studio/网站 E2E 当本轮重跑。
+
+完整 Open.ps1 → app.ts open → host → main.ts 的无窗口夹具额外使用真实锁定 .NET 构建与真实 Vite 编译，两次重开均 available:true，原密文和空内容保持，自有实例正常停止，未发送新模型请求；faithful-launch.json。原生显示仍由作者操作，不把替代窗口当真实 WebView2 点击。
+
+**入口反馈**：作者随后报告 Windows 桌面蓝发入口不见。只读核对磁盘原 Personal Space Studio.lnk 仍为普通可见文件，目标、Open.ps1 和 ICO 均存在；先备份到本轮证据目录，再用原安全安装器重新保存同一个入口，退出 0。没有调用快捷方式、打开/操作窗口、重启 Explorer 或清图标缓存，不声称已解释视觉消失原因；作者已再次打开窗口供诊断。备用仍可用 npm.cmd run studio:open，同一入口且不重录 Key。
+
+**保护与当前停点**：`node .cache/studio-m8-ai-loading/reopen/verify.mjs`、`git diff --check` 退出 0，197 个相对链接/锚点及状态/历史一致；相对本续轮 231 个候选，仅三份文档、local.ts、两份现有 PowerShell helper、Windows 测试及 main.ts 临时诊断共 8 个改变，其余 223 个字节保持，无新增产品文件。HEAD 不变、暂存区为空；本轮 291 个候选/验证文件/公开产物的内存比对无 Key 明文（secret-audit.json），未重配凭据。作者已获告知本次目录修复须正常退出重开，尚待正式新后台结果；临时无敏感值诊断将在定位确认后移除。M8 保持 In Progress，原 native 未验项及 M9–M15 状态不变。真实文章/Key 与既有未提交工作保留；不控制桌面，不提交、推送或发布。
+
+---
+<a id="studio-m8-credential-recovery-record"></a>
+### 9.29 Studio M8 正式 App 原凭据恢复（2026-10-23，实际后台与百炼请求通过；M8 其余 native 仍待验）
+
+**根因与纠正**：9.28 的 Known Folder 修复后，作者再次重开仍缺配置；不能把隔离启动成功当作正式恢复。作者按要求重复双击一次，临时只读探针证明真实双击与命令行的存储路径哈希、main/local 源码哈希完全一致，但前者连父目录都不存在、stat:ENOENT，后者能读取文件。进一步通过 GetFinalPathNameByHandle 证明，命令行可见的原文件物理上位于 Codex 包的 LocalCache/Local，属于 Windows 打包应用的 AppData 文件虚拟化。Known Folder 的路径标志不关闭文件 IO 虚拟化；同账户、相同逻辑路径和正常 ACL 均不足以证明文件视图相同。依据：[微软打包应用 AppData 行为](https://learn.microsoft.com/en-us/windows/msix/desktop/desktop-to-uwp-behind-the-scenes)。证据集中在忽略的 `.cache/studio-m8-ai-loading/runtime-path/`，不记录 Key、会话 token 或凭据正文。
+
+**恢复与最小改动**：使用一次性脚本，只从已确认的 Codex 隔离存储复制原 DPAPI 密文字节到正式桌面启动环境的用户 Studio 目录；不扫描其他凭据、不解密迁移、不覆盖已有目标、不删除原件。限制普通文件/尺寸/schema，拒绝 reparse 祖先，以独占临时文件写入、Flush 后 Move 且禁止覆盖。作者保存、正常退出并从蓝发图标手动重开；入口在该环境完成复制，receipt 为 CIPHERTEXT_COPIED。随后移除 Open.ps1 的一次性 hook、临时 diagnose.ts 及 main.ts 的启动诊断，Open.ps1 恢复开始时原字节，产品不长期依赖 Codex 包目录。Credentials.ps1 仅补充注释，明确 Known Folder 与 IO 虚拟化的区别；原私有 IPC / DPAPI 读取能力保留。README 与 MAINTENANCE 同步实际状态，并注明首次/更换 Key 应在普通 Windows 终端配置；作者这次无需重配。
+
+**实际正式 App 验证**：作者确认“已保存、退出并重开，窗口保持打开”。只从命令行读取该正式实例，API PID 34264、app:true，认证状态 HTTP 200 / available:true / issue:null；对非敏感测试句调用 polish，返回 HTTP 200、ok:true、非空建议。共两次请求；第一次检查器误用 data.text 而不是既有契约 value.text，纠正检查器后第二次非空断言通过，未因此修改产品契约。未读取或修改真实文章、未自动采纳建议，未操作或关闭窗口。formal-check.json 只保留固定状态与布尔，不保存请求/建议正文或凭据。原隔离密文恢复前后 SHA-256 一致，physical-store*.json；加密配置始终留在仓库外。
+
+**本轮验证**：run.mjs 对应实际 npm 脚本 lint、typecheck、test、build、studio:build 全部退出 0；178 文件零诊断，121 tests / 120 pass / 1 个既有普通文件 symlink 权限 skipped，网站构建 10 页。Chromium/WebKit AI smoke 12/12（隔离内容与模拟上游），release 与 Vault 公开产物边界检查均退出 0。一次性复制的非敏感 fixture 覆盖字节保持、原件保留、目标不覆盖、坏文件/缺源/目录跳转拒绝；普通沙箱不能创建 junction，按审批使用隔离目录重跑后全部通过，不降低拒绝标准。命令、退出与证据为同目录 json/log；本轮未改宿主/C#、Web 或网站页面逻辑，不重跑无关 native build、全站根/base 或完整 Studio E2E，不把此前结果冒充本轮实测。
+
+**保护与停点**：本轮基线为 231 个候选、原 HEAD 与空暂存区。范围核对仅三份文档、main.ts 的诊断移除与 Credentials.ps1 注释共 5 个候选改变，其他 226 个字节保持，无新增产品文件；原 9.1–9.28 历史与 M9–M15 计划不变。verify.mjs、secret-audit.mts 与 git diff --check 验证范围/链接/状态、原密文哈希与无 Key 明文；记录在同目录 verification.json / secret-audit.json。正式 App AI 加载与真实请求本次已确认，其他 native 手动操作仍按维护手册等待对应反馈，M8 保持 In Progress。未控制桌面、未要求重录 Key，真实内容及已有未提交工作保留；不进入 M9，不提交、推送或发布。
+
+---
+<a id="studio-batch-m9-record"></a>
+### 9.30 批量授权与 M9 Keep（2026-10-23，Auto verified / Awaiting unified acceptance）
+
+**授权与状态**：作者对 M8 日常清单反馈“ok了”，随后要求后续全部完成再汇报，并明确确认 M9–M15 批量实施、最后统一人工验收。原生桥/导航与失联最终交互等缺口仍保留待验，不虚构已通过。此授权取代本路线逐项等待人工确认的停点；各实施单元仍独立完成自动与安全验证才继续，技术阻断不得跳过，不导入真实私人资料、不控制桌面、不提交/推送/发布。基线 231 个候选、原 HEAD 与空暂存区，在 .cache/studio-batch/baseline.json；保留全部 M7/M8 未提交工作。
+
+**M9 实际交付**：Keep 自有 Bookmark 契约/校验/服务、严格字面量 AST parser、固定 data.ts 文件 adapter、认证 HTTP CRUD/校验/真实隔离 Astro 预览与 PC 表单。整文件 revision，既有 slug 不改，无修改字节保持，编辑只替换受管理表达式，外围代码/注释保持；不支持的表达式/无法保留的内部注释阻断写入。draft、段落换行、可选字段、数组顺序和其他条目保留。只抽取已有结果 envelope，未建立通用内容模型。Think/Keep 内存缓冲分别保留，协同退出显式保存两者；冲突、断线与结果未知保留缓冲且不盲重试。新增 Keep 写入锁的正常关闭和严格异常恢复，仅清理与已确认死亡 API 对应的固定锁，外来/孤立锁拒绝处理。作者 API 的路径和请求详见维护手册 9.3.6，现有 Think AI/Agent 权限不扩大。
+
+**实际验证**：lint/typecheck/test/build/studio:build 均退出 0；187 文件零诊断，127 tests / 126 pass / 1 个既有 symlink 权限 skip。Keep 双引擎 10/10，包含完整表单 CRUD/删除取消、草稿/段落保留、整文件冲突、写入已完成但响应丢失、两模块取消/保存退出，以及根/base 原 Astro 惰性预览、sandbox 与源/dist 不变。通过 adapter 在非敏感网站副本新建/取消公开/删除至全空，根/base 共六次实际构建，分类/详情/外链/搜索/计数通过。网站 Chromium 根/base 各 3/3，WebKit 根/base 各 2/2；release 与 Vault 公开产物边界检查均退出 0。证据为 .cache/studio-batch/m9 下 run.mjs、同名 json/log、site-check.json 和测试结果目录，不含真实私人内容或 Key。
+
+**失败与复验**：首次新单测清理顺序错误，改为先关闭夹具服务再删目录；初次全单测发现旧启动夹具漏复制新增纯校验依赖，仅补对应源码后全套通过。首次完整 Studio 回归为 63 pass / 2 fail / 1 skip，原因是原 Think 标签定位匹配到隐藏 Keep 同名字段；定位限定 Think 表单后该文件双引擎 17 pass / 1 个既有 WebKit IME skip，其余原已通过用例保留，未过滤异常或弱化断言。后续并行构建与浏览器共享产物时，出现一次 Keep 初始脚本未加载、一次网站重载 Not found；停止并行修改产物后原样串行复验，Keep 10/10 与网站对应 smoke 全通过，不更改超时。网站专项检查器最初把搜索索引误当已带 base，已按既有逻辑 URL 契约纠正，并保留 HTML 根/base 链接独立断言。
+
+**保护与边界**：M9 改动仅 Studio、必要测试与三份文档；真实 src/public、package/lock、工作流及已有其他改动保持。命令行/浏览器 fixture 通过不替代真实 App 人工确认；M9 不标 Done，正式 App 的 Keep 保存/预览/退出由最后统一人工验收覆盖。M8 原专项继续保留；M10–M15 仅按已获授权及逐阶段自动门槛推进。范围/历史/链接与 HEAD/空暂存区证据为本目录 audit.json。
+
+---
+<a id="studio-batch-m10-record"></a>
+### 9.31 M10 Me 单例资料（2026-10-23，Auto verified / Awaiting unified acceptance）
+
+**范围与实际变更**：M9 自动/安全验证与范围审计通过后，依批量授权实施 M10。新增独立 Profile 契约、单例 service、严格字段/链接校验、HTTP read/save/clear/validate/preview 与 Me 表单；复用实际已有 AST、固定文件/revision/原子写入与原模板预览设施。仅按两模块真实重复提取同源传输和段落/链接 DOM 控件，不建立通用内容模型。空源保持 null，不补造资料；新建需显式点击且默认 draft。save 拒绝 null，clear 单独确认并检查整文件 revision；取消公开保留原对象。可选字段、段落换行、链接顺序及表达式外围字节保留。退出处理覆盖多个模块缓冲，增加 Me 锁严格归属恢复，仍不清理孤立/外来锁；HTTP/Agent 不接收任意路径，AI/现有 stdio 权限仍仅 Think。手册 9.3.7 锁定实际接口和操作。
+
+**验证与证据**：.cache/studio-batch/m10 下对应 npm 脚本 lint/typecheck/test/build/studio:build 全部退出 0；194 文件零诊断，最终单测 131 项 / 130 pass / 1 个既有 symlink 权限 skip。Me 双引擎 8/8（单例编辑、可选字段、清空取消/null、新建不造数据、冲突与坏链接、根/base 真 Astro 惰性预览与 sandbox/源不变）；Keep 回归 10/10、原退出专项 16/16。Me adapter 在非敏感网站副本实际保存公开/draft/null，根/base 六次构建，原空态、真实 count、搜索与链接符合既有规则，不改 Me Compass 平均逻辑。Chromium 根/base smoke 各 3/3，WebKit 对应全模块/Keep smoke 各 2/2；release/Vault 公开产物边界均退出 0。最后补入的 Me 锁恢复负例单独引发一次完整 lint/typecheck/test 重跑，最终版全部通过；本轮无产品或测试失败被过滤。run.mjs 与同名 json/log、site-check.json 保存实际命令/退出；不声称本轮重跑完整全站/Studio 套件或实际点击原生窗口。
+
+**保护与下一边界**：本项基线为 M9 checkpoint（240 候选），三份初始文档在本目录；范围审计保存 audit.json 与下一项 checkpoint.json。仅本项 Studio/必要测试和三份文档变化，真实网站/正文/public/package/lock 与此前工作保持，历史记录完整保留，HEAD/空暂存区不变。不导入真实私人资料、不控制桌面、不提交/推送/发布。Me 的真实 App 操作留待最后统一人工验收，不标 Done；自动门槛通过后才进入已授权的 M11。
+
+---
+<a id="studio-batch-m11-record"></a>
+### 9.32 M11 Build 公开项目（2026-10-23，Auto verified / Awaiting unified acceptance）
+
+**实际变更**：M10 自动/安全验证与审计通过后按批量授权实施 M11。新增 Project 自有契约/服务、完整嵌套结构与原模型校验、固定源 AST/revision/原子 CRUD、HTTP/真实 Astro 隔离预览与五步 PC 表单。sections/代码/关键词/链接/status/milestones/updates/issues 完整维护，不转成另一套正文；省略、空数组、记录顺序与其他项目保留，不执行候选 TS，不改已有 slug。客户端只用项目 DTO，无路径/源码/命令或私人权限。正式 Vault 存在时，删除或取消公开的父项目返回 PRIVATE_REFERENCES_UNKNOWN，保留源并明确原因；不解密、不假称已核对。原预览投影增加 header/footer/nav 惰性语义标签以保留真实项目封面，脚本/属性过滤与 CSP 不变。扩展 Build 锁的严格退出/恢复，不清理外来或孤立锁。手册 9.3.8 记录实际字段/操作/API，README 与当前架构表同步四个公开模块。
+
+**验证**：本目录 .cache/studio-batch/m11/run.mjs 对应 lint/typecheck/test/build/studio:build 全退出 0；200 文件零诊断，139 tests / 138 pass / 1 个既有 symlink 权限 skip。Build 双引擎 8/8：分步编辑、嵌套代码和记录保留、新建/删除取消/draft、整文件冲突、正式 Vault 存在时关联阻断、根/base 真模板预览/sandbox/源与 dist 不变。Me 8/8、Keep 10/10、退出回归 16/16。Build adapter 在独立非敏感网站副本执行公开新建/取消公开/删除至全空，六次根/base 实际构建，详情/链接/搜索/计数/代码换行/更新降序/隐藏空区块通过；site-check.json。网站 Chromium/WebKit × 根/base 的 Build/Keep/Me/全模块 smoke 各 4/4，另有 Build 单项复验；release/Vault 产物边界均退出 0。同名 json/log 保存命令、结果及证据，未控制真实 App 窗口或运行真实私人资料。
+
+**失败处理与限制**：首次增量 tsc 的记录泛型推断遗漏可选字段，改为原 Project 成员类型后通过。第一次 Build 浏览器为 6 pass / 2 fail，实际原因是阶段状态 select 的隐式标签混入选项文本；给控件补准确 aria-label，保留原断言/超时，完整重跑 8/8。另补 Node 直接调用稀疏关键词数组的拒绝负例，避免序列化为 null 后损坏源；最终四项门槛已重跑。API/表单自动通过不替代真实 App 人工验收，M11 不标 Done。未引入私人编辑、模型抓取、排序系统、数据库、Git/发布能力。
+
+**范围与下一阶段**：本项基线为 M10 checkpoint（247 候选），文档副本保存在本目录；audit.json 验证仅 15 个既有目标改变、新增 6 个本项文件，232 个原候选字节保持，真实 src/public/package/lock 与历史保留，HEAD/空暂存区不变。M8 专项与 M9–M11 人工项目留待统一验收；自动与安全门槛通过后才进入已授权 M12，须先证明私人边界，不把公开模块的模式直接套用私人数据。不提交、推送或发布。
+
+<a id="studio-batch-m12-record"></a>
+### 9.33 批量 M12 私人隔离原型（2026-10-23，Auto verified / Awaiting unified acceptance）
+
+**实际边界**：新增 studio/private 的完整包校验、挥发会话和固定错误，以及 server/private 的密文文件 adapter。复用原 PBKDF2 600000/AES-GCM/AAD/限额与四个模块 schema；全包资产和最新公开 Build 关联校验，保留原字段/省略/顺序，不用归一化结果覆盖未编辑模块。局部表单候选只暂留内存，预览/加密前重验完整包；lock 使迟到解密/加密失效，口令不存于会话。确定仓库外密文主文件为唯一作者源，网站 bundle 为派生交付物；旧 JSON 继续由作者在本机用既有 CLI 加密/验证后显式转用，保留密文备份，不自动迁移或增加明文导入接口。
+
+**可信选择与存储**：原生选择器仅接受精确顶层来源、严格 operation/nonce；路径仅 native → launcher → backend 私有通道，浏览器仅得随机 handle，没有任意路径 HTTP 接口。一次绑定一个仓库外 JSON，链接/硬链接/重定向目录/ADS/设备名/错误 envelope 拒绝；整文件 revision、独占临时文件/fsync/原子替换、旧密文 revision 命名备份、失败保留旧源和 cleanupPending。独立 API/Agent 没有选择能力；本项未提供私人 HTTP 读写或编辑 UI。App 构建/启动环境移除外部 WEBVIEW2_ 覆盖；只允许本服务拥有的 Blob 图片，连接仍同源。
+
+**自动验证**：证据在 .cache/studio-batch/m12/。npm.cmd run lint、typecheck、test、build 与 studio:build 全部退出 0；最终类型检查 210 文件、0 errors/warnings/hints，完整测试 146 项、145 通过、1 项既有 symlink 跳过。覆盖整包/字段/资产/关联、真实密码互通、错误口令、锁定迟到结果、路径/句柄/旧版本/备份/原子失败及可信 IPC 选择。初次受限权限测试发生 junction/文件替换 EPERM，保留 unit-sandbox 日志，未弱化检查；核对命令后仅结束该次滞留测试进程，具备所需权限下完整重跑通过，未接触正式 App。新增原型脚本 URL 显式导入的 lint 问题修复后重跑通过。
+
+**实际浏览器与原生原型**：可复现入口 tests/studio/private/playwright.config.ts 自动构建纯测试 bundle；Chromium/WebKit 8/8，包括 Node→browser 解密、只修改目标、browser→Node 解密整包比对、错误字段/迟到结果和 Blob 图片 CSP。原生项目 locked restore/build、无窗口契约测试退出 0、0 warnings/errors；独立 tests/studio/private/runtime/RuntimeProbe.csproj 使用实际 WebView2、相同 Boundary 过滤器和独占 InPrivate 环境，无 Show/Activate/选择器或桌面控制。内存加解密/图片加载/锁定、非可信 frame 请求拒绝及外部导航阻断通过；正常释放浏览器后、未预清理目录，扫描 121 个 profile 文件，UTF-8/UTF-16 canary 均不存在，local/session stores 为空。runtime-probe.json / runtime-cache-audit.json 保存布尔证据。首次原型误用 Blob fetch，CSP 拒绝；改用真实预览所需的图片加载并仅增加 img-src blob:，随后通过，connect-src 未放宽。
+
+**回归与限制**：双引擎退出协同 16/16，网站四模块 root smoke 4/4，release/Vault 边界退出 0。正常运行/锁定/退出的 canary 检查不承诺 OS 内存取证、崩溃转储、本机恶意程序隔离或 JavaScript 字符串物理清零。真实文件选择器、App 隐私/关闭交互留到统一人工验收，不标 Done。真实 src/public/package/lock 与既有改动保持，历史/范围/HEAD/空暂存区检查见 audit.json / checkpoint.json；未读取真实私人源/口令或 Key，不控制桌面，不提交/推送/发布。M12 技术安全门槛通过后才进入已授权 M13。
+
+<a id="studio-batch-m13-record"></a>
+### 9.34 批量 M13 私人 Think（2026-10-23，Auto verified / Awaiting unified acceptance）
+
+**实际变更**：正式 App 增加独立私人面板、可信选择/解锁/新建完整包、私人 Think 列表/字段/确认删除、全包校验、原受控客户端预览与仓库外加密保存。沿用稳定 opaque id、私人 date/kind/body，不套用公开 slug/published。预览不运行 Astro，HTML 为文字，资产只用内存 Blob，链接不导航；整包未编辑字段、其他记录/模块/资产保持。浏览器口令对话框输入即清理，不传后台、不记住；锁定、离开私人模块、隐藏后台、十分钟闲置及获准关闭清除会话/DOM/Blob，取消退出保留缓冲。迟到结果受 epoch/version 限制，发送后错误/未知结果禁止盲重试。主文件消失拒绝静默空包重建。
+
+**后台边界**：仅可信启动注入 CipherFiles，原生选择仍是唯一绑定入口。新 /api/studio-private/public-build 与 files/{handle} 只传公开关联快照、密文/句柄/revision；拒绝任意 path/password/payload，受原 Host/Origin/Token/尺寸/并发限制。保存先校验当前公开 Build revision，最终原子替换前再次检查；不解密，也不冒称 backend 已校验明文。没有私人 AI/Agent 或正式 bundle 替换能力。补充可编码/8MiB 内存候选约束与最终依赖守卫。复用现有网站客户端需 bundler 解析，因此仅将 Studio Web 严格类型检查拆到独立 tsconfig，并追加 package 的 typecheck 命令；Node/backend 保持 NodeNext，网站源码、依赖及 lockfile 不改。App Web 构建指纹增加实际复用的私人核心/schema/渲染/CSS 依赖，相关文件变化会可靠重建。
+
+**自动与浏览器证据**：.cache/studio-batch/m13/ 下 lint/typecheck/unit/build/studio-build 全退出 0；215 文件、0 errors/warnings/hints；149 项单元测试、148 通过、1 项既有跳过。私人 Chromium/WebKit 22/22：完整包 CRUD/真实 Node 解密比对/可修改当天日期、实际 Blob 图片、HTML 不执行、未编辑收藏/介绍/项目/资产保留、错误/冲突/源消失、公开源变化使旧候选失效、未知写结果、迟到读取、锁定/退出取消与保存。所有应用请求检查无本次随机 canary/口令/私人测试文字上传，无外网，local/session stores 空；诊断关闭 DOM snapshot/trace/screenshot，断言未弱化。第一轮删除测试暴露旧“保存成功”状态残留，已在新增/删除/保存开始时修正，并重跑通过。早期错误上下文仅含已公开的非敏感测试源代码字面量，未含随机 canary；测试口令现改为运行时随机，避免源片段复制测试凭据。
+
+**原生与回归**：tests/studio/private/runtime 增加可选实际编辑界面模式；独立隐藏 WebView2 使用实际 bundle、原 Boundary/资源过滤、独占 InPrivate profile 和可信测试 handle，运行新建/受控预览/输入口令/真实 HTTP 密文保存/重解锁/锁定。无 Show/Activate/选择器或桌面控制；正常释放后、未清理目录前扫描 122 个文件，UTF-8/UTF-16 canary 不存在，外部导航/非可信 frame 桥拒绝。runtime-build.json、runtime-probe.json、runtime-cache-audit.json 为证据；不代替真正 App 人工交互或 OS 内存取证。原退出协同 16/16，公开 Think 17 通过/1 项既有 WebKit IME 跳过、Keep 10/10、Me 8/8、Build 8/8，网站四模块 smoke 4/4，release/Vault 边界退出 0。
+
+**范围与停点**：基线 M12 checkpoint（266 候选），历史/链接/文件范围/HEAD/空暂存区见 audit.json 与 checkpoint.json。真实 src/public、文章和 lockfile 保持；package 仅上述检查脚本变化。M13 不标 Done，真实选择器/中文输入/App 最小化和关闭仍留到统一人工验收。未读取真实私人源/口令或 Key，不控制桌面，不提交/推送/发布；通过本项自动安全门槛后进入已授权 M14.1。
+
+<a id="studio-batch-m14-1-record"></a>
+### 9.35 批量 M14.1 私人 Keep（2026-10-23，Auto verified / Awaiting unified acceptance）
+
+**实际变更**：独立私人 Bookmark 类型/新建 helper 与 Keep 字段面板，复用原 schema/受控客户端和完整包会话。私人 Think/Keep 切换只改变视图，候选保留同一完整包；收藏 id 不可改，新建分类生成 32 位 id，可选分类/类型仅显式增删，不注入公开 slug/published。说明段落/换行/顺序和其余模块/资产保持，来源链接与同分类 id 的名称一致性由原 schema 校验；内存预览链接不导航。保存/版本/关闭/密文边界不新增接口。提取两份真实浏览器测试共用的非敏感 fixture；增加 App 构建指纹中的 Keep 真实渲染依赖。
+
+**必要修复**：段落控件原 label 含删除按钮文字，双引擎精确可访问名称测试失败；增加明确 aria-label，并重跑受影响公开 Me/Build 和私人表单，不放松 locator。私人动态输入统一关闭自动填充/拼写检查；补齐解锁完成时启动十分钟闲置计时、锁定清除计时器，以及新增记录超过包限额时保留原候选并显示固定错误。同步总览表里落后的 M12/M13 状态，保持与各自既有记录一致，不拔高人工状态。
+
+**验证**：.cache/studio-batch/m14-1/ 下 lint/typecheck/unit/build/studio-build 均退出 0；220 文件、0 errors/warnings/hints，150 项单元测试、149 通过/1 项既有跳过。完整私人双引擎 30/30，覆盖字段/稳定 id/完整包保留/实际 Blob 图片、非法 URL/分类、分类增删、段落、创建删除、退出取消/冲突/锁定及快进时钟十分钟闲置；未编辑 Think/Me/Build/资产整包解密比对通过。旧私人工具回归保持，应用请求不含本次口令/canary/私人测试文字，持久化 stores 为空；关闭后隔离作者源仅有原 Build data.ts，无私人内容写入网站。初次 4 项可访问标签超时记录保存在 private-browser-first-failure.log，修复后重建并全套通过。退出协同 16/16、公开 Me 8/8、Build 8/8，release/Vault 边界退出 0。
+
+**保护与下一项**：基线 M13 checkpoint（273 候选），范围/历史/链接/HEAD/空暂存区见 audit.json 与 checkpoint.json；仅 Studio、必要测试与三份文档改变，真实 src/public/package/lock 和其他既有改动保持。App 实际选择/私人 Keep 输入与退出留待统一人工验收，不标 Done；通过本项自动门槛后才进入 M14.2。不读取真实私人资料或 Key，不控制桌面，不提交/推送/发布。
+
+<a id="studio-batch-m14-2-record"></a>
+### 9.36 批量 M14.2 私人 Me（2026-10-23，Auto verified / Awaiting unified acceptance）
+
+**实际变更**：独立私人 Profile 类型与段落/链接字段面板，接入原完整包会话；仅 paragraphs/可选 links，不引入公开 name/description/published/null。不存在的私人 Me 保持缺省，显式新建仅创建空 paragraphs；编辑未触碰 links 时保留省略，提供明确省略操作，确认清空只删除私人 Me 模块候选。取消不丢缓冲，其他模块/id/资产保持；加密保存仍写同一仓库外主文件，不新增 HTTP/AI/Agent 能力。Me 原受控客户端在 Studio 的当前挂载路径中预览，不改变网站路由，空内容不补造；链接不导航。App 指纹增加实际 Me 渲染/CSS 依赖。
+
+**验证**：.cache/studio-batch/m14-2/ 的 lint/typecheck/unit/build/studio-build 均退出 0；224 文件、0 errors/warnings/hints，151 项单元测试、150 通过/1 项既有跳过。完整私人双引擎 36/36，涵盖段落/换行/链接增删/省略、空态/清空取消与确认、无公开字段补造、非法链接、冲突、退出取消、锁定、整包 Node 解密比对与既有 Think/Keep 回归；应用网络无本次口令/canary/私人测试文字，local/session stores 为空，fixture 网站源无私人新增文件。原退出协同 16/16，release/Vault 边界退出 0。没有用模拟密码替换真实 Web Crypto；原生 App 选择/输入/清空与协同关闭由最终统一人工验收覆盖。
+
+**保护与下一边界**：基线 M14.1 checkpoint（278 候选），范围/历史/链接/HEAD/空暂存区核对见 audit.json 与 checkpoint.json。仅本项 Studio/必要测试和文档变化，真实 src/public/package/lock 及其他已有工作保持；不标 Done。自动门槛通过后才进入 M14.3，不提前实现密文交付。不读取真实私人资料或 Key，不控制桌面，不提交/推送/发布。
+
+<a id="studio-batch-m14-3-record"></a>
+### 9.37 批量 M14.3 私人 Build（2026-10-23，Auto verified / Awaiting unified acceptance）
+
+**实际变更**：独立私人 Project/Supplement 原始类型与新建 helper，保留原 schema 允许的省略字段，接入完整包会话的独立项目/公开项目私人补充列表、增改删、校验与原受控客户端预览。支持章节/代码、关键词/链接/状态、阶段/进展/问题，补充不注入独立项目专有字段。只按真实重复复用现有 Build 嵌套 DOM 控件：参数仅为真实共享的章节/记录结构和控件前缀，顶层公开/私人模型仍分离，没有通用内容模型。未修改源网站 schema/client/data，新增 App 构建指纹依赖确保真实 Build 渲染更新时重建。
+
+**原契约与关联**：核对原 vault.schema/server，允许不同 id 的多条补充关联同一 publicSlug，保留该行为；重复项目/补充 id 拒绝。校验/预览/加密每次读取最新已公开目标，缺失父项目阻断；输入口令后公开 revision 改变，在最终落盘前拒绝，不把密文结构校验说成 backend 业务校验。完整包其他条目/模块/资产与未触碰可选字段/数组/代码换行保持，未增加资产编辑、AI/Agent 或正式包替换。
+
+**验证**：.cache/studio-batch/m14-3/ 的 lint/typecheck/unit/build/studio-build 均退出 0；228 文件、0 errors/warnings/hints，153 项单元测试、152 通过/1 项既有跳过。完整私人双引擎 44/44：嵌套代码/阶段/进展/问题往返、新建删除、原始省略与整包保留、两类记录/稳定 id、重复 id/合法同父补充、公开目标缺失/编辑中变化、错误字段/日期/状态/资产、退出取消/冲突/锁定，真实 Web Crypto 与 Node 解密比较通过。网络无本次口令/canary/私人测试文字，stores 为空，隔离作者源没有私人新增文件；公开 Build 回归 8/8、退出协同 16/16，release/Vault 边界退出 0。
+
+**保护与下一项**：基线 M14.2 checkpoint（282 候选），范围/历史/链接/HEAD/空暂存区见 audit.json 与 checkpoint.json；真实 src/public/package/lock 与其他原工作保持。M14 三子项均自动验证完成，真实 App 操作统一待验，不标 Done；通过门槛后按批量授权进入 M15。不读取真实私人资料或 Key，不控制桌面，不提交/推送/发布。
+
+<a id="studio-batch-m15-record"></a>
+### 9.38 批量 M15 密文交付与统一验收准备（2026-10-23 实现，2026-10-29 验证收尾，Auto verified / Awaiting unified acceptance）
+
+**实际交付**：新增 `studio/server/private/delivery.ts`，复用受限密文 adapter 管理三个独立角色：仓库外加密主文件是唯一作者源、仓库外新候选是派生交付副本、仓库内只允许固定 `public/vault/bundle.json`。原生增加有限 export 选择消息，不替换主文件句柄；仅可信启动注入交付能力，独立 CLI/Agent 不获得任意路径或私人权限。HTTP 新增认证的 status/export/replace，只接密文、随机句柄和版本，拒绝口令/明文/path/多余字段。后台不解密、不把 envelope 校验冒充业务校验。
+
+**网站兼容最小修复**：完整 WebKit 回归发现原 Compass SVG 链接缺少显式 tabindex，真实鼠标移动的 movementX/Y 始终为零，导致键盘导航和返回后的悬停失效。用隔离无窗口探针记录真实 Tab/坐标行为后，仅在 Compass.astro 增加 tabindex=0、按 clientX/Y 变化识别真实移动，沿用原导航/计数/清理规则，不改变布局/模型。Spotlight 的 220ms 关闭动画可能早于测试端两次 RAF 往返采样结束，测试改为在页面内观察关闭、定位真实 CSSAnimation 中点并立即继续动画，保留实际模态/透明度/背景动画/结束与焦点断言；没有改产品动画或延长关闭时限。
+
+**安全与恢复**：前端必须先保存完整主文件，重验四模块/资产和最新公开 Build 关联，以当前口令解密核对已保存主文件，再重新加密导出新候选。候选关联主文件 revision、公开源 revision、目标 expectedRevision 和当前编辑版本；修改/锁定/换源后重新导出。最终替换前重复核对文件身份及版本，原子写入前再检查关联；不提供 force 或自动重试。旧正式包原始密文字节先备份至仓库外主文件同目录 `.studio-delivery-backup-<sha>.json`，不把备份放进 public。未知响应保持不确定状态，可只读 SHA 确认，不重复提交已消费候选。恢复通过显式选择旧密文备份的新副本、完整校验、重新导出及确认完成，不直接覆盖作者源。主文件保存、候选导出、本地 bundle 替换与 Git/上线始终分开；操作和恢复路径见[维护手册](./MAINTENANCE.md#studio-private-delivery)。
+
+**自动验证**：本轮运行器通过 Node 调用本机 npm CLI / Playwright CLI；对应 npm 命令与完整参数、退出码分别在 `.cache/studio-batch/m15/*.json`，日志在同名 `.log`。下表为实际结果，不代表正式网站发布验收或真实 App 人工反馈。
+
+| 实际命令 / 验证 | 结果与证据 |
+| --- | --- |
+| `npm.cmd run lint`、`npm.cmd run typecheck` | 退出 0；235 文件零诊断，Studio NodeNext / Web Bundler 严格检查均通过；lint/typecheck.log |
+| `npm.cmd run test` | 退出 0；165 项、164 通过、1 项既有普通文件 symlink 权限跳过；unit.log。包含交付备份/恢复、四类 stale、原子失败/最终依赖守卫、路径/junction/hardlink/坏备份/明文结构/认证负例、初始化失败清锁、真实 Node IPC export 不替换 master cap |
+| `npm.cmd run build`、`npm.cmd run build -- --base /personal-space/ --outDir .cache/base-dist`、`npm.cmd run studio:build` | 全退出 0；网站 prebuild 未跳过，网站与 Studio 产物分离；build/base-build/studio-build.log |
+| 原 Studio Chromium/WebKit 全套（`tests/studio/playwright.config.ts`）与受影响预览复验 | 83 通过、1 项既有跳过；Agent/AI 建议模拟、四公开模块、真实 Astro 隔离预览、IME 与关闭协同；studio-browser.log；网站兼容修复后 Build 实际 Astro 预览双引擎 8/8，studio-project.log |
+| 私人 Chromium/WebKit 全套（`tests/studio/private/playwright.config.ts`） | 54 通过；四模块完整包保留/校验/预览/保存、资产/HTML、锁定/闲置/后台/退出、导出/取消/冲突/未知写结果/错误口令等；private-browser.log |
+| 原网站完整 root/base × Chromium/WebKit | root-e2e 77 通过；base-e2e 77 通过；webkit-root-full 77 通过；webkit-base-full 77 通过；root-e2e/base-e2e/webkit-root-full/webkit-base-full.log，公开导航与既有 Vault/清理测试保持 |
+| 实际交付密文的隔离网站 root/base × 两引擎 | 8/8；delivery-site.log / delivery-site-artifacts.json。通过真实 adapter 交付后构建，Node 解密整包一致，实际网站四模块/PNG Blob/搜索/真实计数与 Me 平均/公开项目补充/锁定清理通过，无私人 head/上传/外网；产物无明文、口令或 Studio 测试文字，该隔离构建过程未改真实 src/public |
+| `node tests/verify-release.mjs`、`node --experimental-strip-types tests/verify-vault-release.mjs` | 退出 0；boundary/vault-boundary.log。仅本地检查，不运行 Actions、不发布 |
+| Windows 宿主 locked restore/build、有限消息契约、隐藏运行时 probe | 2026-10-23 退出 0；dotnet-restore/build/contract.json、runtime-build/probe/cache-audit.json。实际生产 Boundary/InPrivate WebView2、四私人面板预览/加密保存/重解锁/密文交付、外部导航和非可信 frame 拒绝；窗口从未显示/激活，未打开选择器。正常释放后、未先清理目录，122 profile 文件 UTF-8/UTF-16 canary 不存在，应用 stores 空。该编辑器探针未声称覆盖资产编辑；Blob 图片由既有 M12 原型和本轮浏览器/真实网站测试覆盖 |
+| `node .cache/studio-batch/m15/audit.mjs`、`git diff --check` | 退出 0；audit.json / checkpoint.json，文档链接/状态/历史、源哈希/文件范围、HEAD/空暂存区核对通过 |
+
+**失败处理**：保留 studio-browser-first-failure.log/json 与 studio-results-first-failure/。2026-10-23 全套的两项 Chromium Build 隔离预览在仍构建时触发默认 30 秒外层测试截止，但原断言允许 90 秒；2026-10-29 对 Build/Keep/Me 的真实预览组明确 120 秒外层预算，使既有 90 秒断言可执行。未改产品超时、安全规则、预览内容/源保持断言，没有过滤 pageerror、删除用例或重试掩盖失败；重跑全套结果如表。WebKit root/base 各 3 项原失败、截图/trace 均留在 webkit-*-full-first-failure.log/json 与对应 *-results-first-failure/；原失败用例定向 Chromium/WebKit 复验与修复后完整 root/base 两引擎复验见表。后续完整 WebKit 暴露两项导航时序：click 后未等真实目标 load 就 goBack，以及还原后 SVG hit-test 帧尚未稳定即连续 tap；保留 webkit-root-full-navigation-failure.log/json 与对应 trace。测试补显式目标 load 与还原后的两帧等待，原 URL/触控/返回断言保持，不吞导航取消、不用自动重试；两用例独立重复三次 6/6，webkit-navigation-repeat.log，随后重跑完整矩阵。M12 的旧沙箱 EPERM 记录见 9.33；M15 的 delivery-site-config-failure.log 仍保留，修正隔离测试服务 cwd 后原断言通过，不改网站运行逻辑。
+
+**保护与停点**：相对 M14.3 checkpoint 的 286 候选，仅本项三份文档、交付接点及必要测试共 27 个既有候选改变，新增 7 文件；其余 259 个字节保持。网站仅 Compass.astro 的上述兼容修复，全部真实作者内容、public、其他网站源码、package/lock、AGENTS 和此前未提交工作保持。9.1–9.37 历史保持，未暂存；HEAD 仍为 `9fd8cc8bda5c903c0b897f23a63168764b62899b`。本仓库没有写入测试正式 bundle，没有读取真实私人资料、口令或 AI Key，没有控制桌面、提交、推送或发布。各阶段自动/安全门槛通过，M9–M15 均为 **Auto verified / Awaiting unified acceptance**，M8 原生专项继续待验；不是整条路线 Done。唯一剩余验收入口是[统一人工步骤](./MAINTENANCE.md#studio-batch-manual)，收到实际反馈后再核对状态；正常无窗口/cache 检查不承诺 OS 内存取证、崩溃转储或字符串物理清零。到此停止，不开始新的实现或上线。
+
+<a id="studio-authoring-planning-record"></a>
+### 9.39 Studio M16.1–M23 规划入档（2026-10-30，文档任务完成）
+
+**授权与实际变更**：作者认可上一轮只读评估，明确本轮只整理架构与阶段计划，不实施、不控制桌面、不提交/推送/发布。新增第 6.11 节，记录现有启动/私人 UI/AI/Agent/发布源码依据、同仓库及 API 边界、启动测量与优化、工作台风格、私人向导、模块专属提案/公开收件箱/事实来源和精确批准、Pi 离线/在线客户端、受控文档及固定发布协调。M16.1/16.2、M17、M18、M19.1/19.2、M20、M21、M22、M23 共 10 个独立单元均含 Goal、Scope、Non-goals、Files、接口/数据流、Done Criteria、Verification、风险及下一边界，全部 Pending；首个候选为 M16.1，未获实施授权。README 只同步入口和进度，MAINTENANCE 增加尚未实现的使用蓝图，并将旧通用 Git/job 参考收敛至已认可的 M23 边界，不另立需求来源。
+
+**Verification**：运行忽略目录内的文档审计 verify.mjs 与 git diff --check，退出 0；四份文档围栏/相对链接及锚点、10 项规划字段与 Pending 状态、已实现/规划区分、前项依赖及授权停点核对通过。原 6.10 与 9.1–9.38 完成历史完整保留；M8 原生专项与 M9–M15 统一人工待验不拔高，不重启网站 Phase 5/6。证据位于 .cache/studio-m16-planning/docs-nFAJCj/ 的 baseline.json、verify.mjs、verification.json，统计以该 JSON 为准。
+
+**改动范围与停点**：293 个初始 Git 候选中仅 PLAN/README/MAINTENANCE 三份文档改变，其余 290 个 SHA-256 不变，含 AGENTS、网站/Studio/测试/作者内容、package/lock、图标与已有未提交代码；候选集合无增删，HEAD 仍为 9fd8cc8bda5c903c0b897f23a63168764b62899b，暂存区保持为空。核对辅助证据仅在忽略的 .cache 内，未创建未来模块/Skill/接口/按钮。工程 lint/typecheck/test/build、性能测量、浏览器/原生 smoke 与真实 AI 调用未运行（纯文档且工程输入未变），不借用历史通过冒称本轮重跑。没有启动或停止 App、读取实际凭据/私人源、安装 Skill、控制桌面、提交、推送或发布。完成文档后停止，等待新的明确实施指令。
+
+<a id="studio-m16-1-record"></a>
+### 9.40 Studio M16.1 启动基线与反馈（2026-10-30，In Progress / Awaiting manual baseline）
+
+**实际变更**：新增 studio/windows/startup.ts，只接固定阶段和缓存原因，记录 runId、outcome、相对单调时间到固定 startup-latest.json；使用原安全目录/文件身份/原子替换能力，不覆盖链接或坏目标，诊断失败只给固定提示，不影响服务授权。宿主/Web 检查各报告命中/缺失/变化/坏 JSON，宿主 restore 与 build 分段；启动器记录凭据定位/后端/API 及原生窗口/WebView2/编辑器握手，重复激活单列。C# 原有窗口显示初始化/载入文字并发出仅 type 的观察消息，未改变先准备后显示窗口、缓存校验、启动顺序、退出或密钥读取方式。未加业务 API，未进入 M16.2。
+
+**计时边界与证据**：相对时间起点为 host 或 opener 的函数入口，不含先前 PowerShell/静态模块加载；原生阶段以父进程收到通知计，不能冒充屏幕首显或真实可编辑。scenario 由缓存观察推断，不宣称判定系统首次安装。每次只保留最新诊断，留存方法和真实 10 次普通冷启步骤见[维护手册](./MAINTENANCE.md#studio-startup-baseline)。本机 10 次隔离后端启停的 p50（nearest-rank）1245ms、最慢1709ms，构建关闭、无可见窗口、无真实凭据；只证明采集/启停链路，不是正式 App 冷启动基线，不能用来选 M16.2 目标。原数据在 .cache/studio-m16-1/fixture-baseline.json。
+
+**Verification**：日志与退出元数据在 .cache/studio-m16-1/。npm lint/typecheck（237 文件零诊断，Node/Web 严格检查）、test（167 项，166 通过、1 个既有权限跳过）、网站 build、studio:build 均退出 0；Studio Chromium/WebKit 83 通过/1 个既有 WebKit IME 跳过，网站四模块 root smoke 4/4，release/Vault 边界退出 0。隔离 dotnet locked restore/build 与纯消息契约退出 0，不启动正式 App、不覆盖生产宿主产物。最终 lint/types 与启动诊断定向负例复核通过；缓存标签/非法数据不入报告、硬链接报告不覆盖及十次隔离启动已测。新增测试没有访问真实配置、原生窗口或桌面。
+
+**失败处理**：typecheck-first-failure.log 保留新增 IPC 对象属性缩窄遗漏，增加精确字段和类型守卫后通过。unit-first-failure.log 保留父进程断开时诊断 send 触发 EPIPE 的实际失败；观察消息使用回调承接管道错误，保留原有断线权限/清锁处理与原测试断言，重跑全套通过，不吞业务错误。
+
+**范围与停点**：基线 293 个候选，修改 10 个既有候选（3 文档、6 个启动/宿主接点、原 Windows 测试），新增诊断模块与定向测试 2 文件，其余 283 个字节保持。具体 SHA/链接/历史/HEAD 与空暂存区核对见 scope-audit.json；真实 src/public、内容、package/lock、AGENTS 和其他既有改动保持。未优化关键路径、常驻后台、减少校验或重录 Key；没有控制桌面、提交、推送或发布。作者尚未完成真实 App 首显/可编辑与至少 10 次冷启、更新/激活反馈，以及下一项性能目标确认，M16.1 保持 In Progress，不标 Done；M16.2–M23 仍 Pending。到此停止，等待手动基线，不自动进入下一项。
+
+<a id="studio-m16-1-manual-review"></a>
+### 9.41 Studio M16.1 手动反馈核对与 M16.2 目标候选（2026-10-30）
+
+**作者反馈与核对范围**：作者明确确认已完成手动启动测试并留存诊断，启动、重复激活、关闭重开和 AI 配置正常，以上功能反馈记通过；不外推至原 M8 专项或 M9–M15 全部人工验收。只读检查仓库相关诊断名称及约定目录，未找到 .cache/studio-m16-1/manual/，仅找到最新 startup-latest.json 一条真实 ready/cold 样本，宿主/Web 缓存均 hit。已请求其余记录保存位置和另记全链路计时的位置，不认定作者未测试，不访问私人源或实际凭据，不操作 App 或桌面。
+
+**可核实耗时**：本条为 host-monotonic-ms，window-visible 1885ms、editor-ready 2284ms；native-check→web-check 174ms，web-check→backend-start 63ms，backend-start→api-ready 1400ms，api-ready→window-start 14ms，window-start→window-visible 217ms，window-visible→editor-ready 399ms，另有宿主入口到 native-check 的 17ms。后端区间包含并发加载/定位与凭据读取、API 初始化，不能称为单项解密耗时。此计时不含先前 PowerShell/模块导入，不冒充双击到首显或真正可编辑。单条样本不出具十次 p50/最慢值；旧 fixture-baseline 仍只表示无窗口隔离后端，不能混算。白名单验证后的原样本及数值汇总保存在 .cache/studio-m16-1/review-YZH6hk/observed-cold.json、summary.json。
+
+**M16.2 目标与状态**：6.11 中提出同机同口径十次冷启 p50 降低至少 25%、最慢不退步的候选，绝对秒数及可行性待完整样本核对、作者确认。优先细分后端 1400ms 区间，按测量决定是否延迟预览/AST 依赖；不减少身份/hash/锁校验，不常驻后台，不重录 Key，不提前把空窗称作编辑就绪。本轮只完成证据核对与目标建议，未改 M16.2 实现或标 In Progress。
+
+**Verification 与停点**：本轮仅改 PLAN/README/MAINTENANCE；文档围栏/链接/锚点、状态、历史保留和范围通过 review-YZH6hk/verify.mjs 及 git diff --check 核对，证据 verification.json。295 个 Git 候选中 3 文档变化、其余 292 个哈希不变，HEAD 不变、暂存区保持为空；上轮 9.40 的工程验证结果保留，本轮工程输入未改，不重新宣称运行 lint/typecheck/test/build 或浏览器/原生验证。缺少可访问的至少 10 条真实冷启及全链路计时/首次准备记录、最终目标确认，M16.1 仍 In Progress，不能标 Done；M16.2–M23 Pending。未控制桌面、提交、推送或发布，等待记录位置后继续核对，不用文档修改绕过前置验收。
+
+<a id="studio-m16-1-acceptance"></a>
+### 9.42 Studio M16.1 六次真实冷启基线与收尾（2026-10-30，Done）
+
+**授权、条件调整与人工反馈**：本轮作者要求检查记录、完成 M16.1 并确定 M16.2 目标。检查发现六份文件后明确告知不足原十次，作者回复“就这六次就够了吧”；据此采用六次作为本机工程基线，修改当前 Done Criteria 并保留原十次要求的历史记录，不伪造、复制或补算样本。本轮确认的验收口径为六次真实普通冷启统计、现有分类/失败隔离验证与作者正常使用反馈；首次准备/源码更新的真实耗时及双击全链路秒表值未采集，明确保留为数据限制，不再作为本轮需要补做的计时项。作者先前确认启动、重复激活、关闭重开和 AI 配置正常，仅据此收尾本项，不将其他 M8/M9–M15 专项标完成。
+
+**样本检查与统计口径**：manual 中六份文件均通过固定字段、阶段顺序、单调非负整数时间、独立 runId、ready/cold、native/Web 两项 hit 检查；无 restore/build 阶段。最新 startup-latest 与最后一份同 runId，未重复计数；9.41 旧单样本及无窗口 fixture 十次均排除。p50 延续 nearest-rank，六次按升序取第 3 项；各区间先逐次作差再统计，不把区间 p50 相加。原文件不改动，核对副本、来源 SHA、完整逐次结果与汇总见 .cache/studio-m16-1/acceptance-yXxqCT/ 的 baseline.json、cold-*.json、summary.json。
+
+| 本轮样本（按文件名时间排序） | window-visible（ms） | editor-ready（ms） |
+| --- | ---: | ---: |
+| 064108-632 | 1696 | 2072 |
+| 064119-530 | 1947 | 2459 |
+| 064129-332 | 1999 | 2477 |
+| 064138-596 | 1910 | 2378 |
+| 064148-174 | 2003 | 2498 |
+| 064157-520 | 2011 | 2474 |
+
+| 指标（宿主内计时） | p50（ms） | 最慢（ms） |
+| --- | ---: | ---: |
+| 宿主入口 → 窗口可见通知 | 1947 | 2011 |
+| 宿主入口 → 编辑器握手完成 | 2459 | 2498 |
+| 后端开始 → API 就绪 | 1385 | 1512 |
+| 宿主检查 → Web 检查 | 169 | 189 |
+| Web 检查 → 后端开始 | 56 | 68 |
+| 窗口 spawn → 可见通知 | 257 | 330 |
+| 可见通知 → 编辑器握手 | 468 | 512 |
+
+**结论与限制**：普通缓存命中并不重建，主要候选瓶颈是后端开始到 API 就绪。该区间同时涉及静态依赖加载、Known Folder 定位及凭据解密/服务初始化，阶段有重叠，当前不能精确归因于某个函数或单独把百炼/DPAPI 当作原因。clock 为 host-monotonic-ms，排除 PowerShell/早期模块导入，通知含 IPC 调度；window-visible 不是屏幕测量，editor-ready 不是全部列表加载或正文实际可输入的精确时间。作者正常使用反馈与诊断互相补充，不生成不存在的秒表数据；未测真实首次准备、更新或激活延迟。六次仅用于同机短期工程对比，不推断长期分布、更高分位或首次安装 SLA。分类能力由原隔离 fixture 与手动普通冷启/激活反馈共同覆盖，不声称本轮量过四类真实场景耗时。
+
+**确定 M16.2 目标**：同机同条件至少六次独立 ready/cold、原计时定义不变，editor-ready p50 ≤1844ms（2459×0.75 向下取整）、最慢 ≤2498ms；window-visible p50 ≤1947ms、最慢 ≤2011ms。先细分后端区间再做按需延迟依赖等最小优化，不提前发 ready、不降低 hash/身份/锁/DPAPI 校验，不常驻后台、不重录 Key；有效缓存不 restore/build/访问 NuGet，激活不新增后端，首次预览的转移成本另外验证。计时口径若需改变，应建立可比的新旧基线而非直接宣称达标。目标已确定，本轮没有实施 M16.2。
+
+**Verification、范围与停点**：运行 node .cache/studio-m16-1/accept-records.mjs（退出 0），完成六份报告与去重统计；运行 acceptance-yXxqCT/verify.mjs 及 git diff --check（退出 0），检查四文档围栏/链接/锚点、Done/Pending 状态、既有路线/历史、统计及文件范围，证据 verification.json。源与测试对上次 review 基线哈希未变，复核 9.40 的 13 项退出元数据均为 0，包括 lint/types/test/build、Studio 构建及浏览器、网站 smoke、边界、原生构建/契约和启动定向测试；这是复核此前实际运行证据，本轮未重新运行工程/浏览器/原生检查。本轮只改三文档，295 个 Git 候选中其余 292 个 SHA 保持，六份手动样本字节保持，HEAD 与空暂存区不变。按本轮确认口径 M16.1 Done，M16.2–M23 全部 Pending，没有实施项 In Progress；未控制桌面、启动或停止 App、读取实际 Key/私人源、提交、推送或发布。到此停止，不自动优化或进入 M17。
+
+<a id="studio-m16-2-record"></a>
+### 9.43 Studio M16.2 启动关键路径优化（2026-10-30，In Progress / Awaiting manual App verification）
+
+**实际变更与边界**：只修改三个后端接点：Think 和 Keep/Me/Build 预览服务保留原轻量对象与关闭生命周期，将 Markdown 编译器改为在合法预览作业内动态加载，加载/初始化后重查取消和关闭；既有图片资源检查仍先于 Astro 原生构建。source-expression 只将 TypeScript 编译器延迟到第一次实际 data.ts 解析，用固定 createRequire 和 Node 模块缓存，保留同步 AST 白名单/序列化合同，不执行源模块、不减少校验。未修改宿主/Web 构建器、启动顺序、单实例/关闭、Known Folder/DPAPI 或 AI 调用，不并行启动构建；SDK/指纹/身份/锁校验及所有计时起点、窗口/编辑器握手含义未变。首次预览/模块读取承担延迟成本，原等待/取消界面继续有效，没有进入 M17。
+
+**实测证据与限制**：.cache/studio-m16-2/probe-imports.mjs 在改动前后各六个新进程只导入 HTTP 模块，不开 API、不读凭据、不显示窗口；import-before.json 的 p50 1049ms/最慢 1096ms，import-after.json 为 371ms/381ms（p50 减少 678ms，约 64.6%）。另以改动前副本和当前代码、独立隔离目录及显式非敏感 DPAPI canary，交替各六次测 backend-start→api-ready；关闭构建、不显示原生窗口、不测 Known Folder 定位、每次确认测试 AI 配置可用后停止自有 API。公共检查完成后复核得到旧版 p50 2006ms/最慢 2613ms，新版 1328ms/1720ms，见 backend-compare.json；首次与公共检查并发时的 2141ms→1508ms 对照另存 backend-compare-concurrent.json，不丢弃慢样本。两种测量均为隔离诊断，不与 M16.1 正式 App 六次混算，不证明正式 App 已达到 1844ms 目标，也不将移至首次预览的成本隐藏为整体消失。
+
+**新增/加强的验证**：startup-loading 定向七例用独立进程观测实际模块加载，验证配对、Think 列表、未授权预览均不加载编译器，首次 Keep 读取才加载 AST；Think/通用预览初次加载期间的取消、关闭、依赖失败保留源、返回固定错误并清理 staging，原始异常不回传。浏览器继续实际构建四模块预览与资源隔离、取消/超时/构建失败。Windows 缓存测试补文章/C# 改动不触发 Web 重建、硬链接拒绝和产物篡改；旧启动回归不再每次覆盖 M16.1 历史 fixture-baseline。隔离 native-cache.mjs 真实运行锁定 restore/build，共八项检查：首次准备、缓存命中、Web/内容改动保持 native 命中、C# 改动/坏产物/坏收据重建、硬链接产物拒绝；没有运行生成的 App 或覆盖正式产物。
+
+| 实际命令 / 检查 | 结果及证据（.cache/studio-m16-2/） |
+| --- | --- |
+| run.mjs lint、typecheck、unit（同名 package 脚本，实际 Node/npm CLI 参数见 JSON） | 均退出 0；238 文件零诊断，174 项中 173 通过、1 个既有权限跳过；补充缓存断言后再次通过，lint/typecheck/unit.json 和日志 |
+| run.mjs build、studio-build、base-build | 均退出 0；网站根/base 与 Studio Web 构建；对应 JSON/日志 |
+| run.mjs studio-browser | 退出 0；Chromium/WebKit 共 83 通过、1 个既有 WebKit IME 跳过，覆盖真实 Astro 预览根/base；studio-browser.json/log |
+| run.mjs root-smoke、base-smoke、boundary、vault-boundary | 均退出 0；四模块根/base smoke 各 4/4，release/Vault 产物边界通过；对应 JSON/日志 |
+| run.mjs startup-loading | 退出 0；7/7 定向负例，startup-loading.json/log |
+| node probe-imports.mjs before/after、node backend-compare.mjs | 均退出 0；每组各六次，导入与 API 两种口径分开，三个性能 JSON；无正式 App 计时 |
+| node --experimental-strip-types native-cache.mjs | 退出 0；8 项，native-cache.json，nativeApplicationLaunched=false |
+| node audit.mjs、git diff --check | 退出 0；链接/状态/历史/来源 SHA/范围与旧手动样本核对，verification.json |
+
+**工具限制与人工停点**：首次在默认沙箱运行定向 HTTP 测试时，自有 loopback 连接返回 EACCES，另六个取消/清理用例通过；在获准访问隔离本机端口的执行环境重跑后 7/7，并通过完整门槛，没有改变测试断言或过滤 pageerror。未启动/停止真实 App、控制桌面、读取真实 Key/私人源或调用真实百炼。必须由作者按[复测步骤](./MAINTENANCE.md#studio-startup-optimization)正常重开，保存至少六份新 ready/cold，并反馈 AI 配置、首次模块/预览、激活与关闭表现；再核对 editor-ready p50≤1844ms/最慢≤2498ms、window-visible p50≤1947ms/最慢≤2011ms。真实目标未验前保持 In Progress，不能继承 M16.1 的功能反馈标 Done。
+
+**范围与状态**：初始 295 个 Git 候选中修改 7 个（3 文档、3 个后端接点、原 Windows 测试），新增 1 个定向测试，其余 288 个 SHA 保持；原六份手动样本字节保持，M16.1 历史数值文件未被回归测试覆盖。src/public、真实内容、package/lock、图标、所有 Windows/原生运行代码及其他既有改动保持；M7–M15 合同及 9.1–9.42 历史保留。HEAD 与空暂存区不变，M16.1 Done、M16.2 In Progress、M17–M23 Pending；未提交、推送或发布，到此停止等待手动复测，不进入 M17。
+
+<a id="studio-m16-2-manual-review"></a>
+### 9.44 Studio M16.2 六次正式 App 复测核对（2026-10-30，主性能目标未达）
+
+**本轮范围与真实反馈**：作者提供新六次启动诊断，明确确认 AI 配置、首次预览、关闭重开正常。本轮完成记录检查、基线比较及文档同步，未改启动实现、未启动/停止 App、未操作桌面或读取真实 Key/私人源；这次功能反馈记通过，不外推为所有私人/原生专项已验收。检查 manual 中六份报告均为独立 runId、ready/cold、native/Web 两项 hit，阶段字段/顺序及时间单调有效，没有 restore/build；与 M16.1 六个 runId 也不重复。两批均为原 host-monotonic-ms 起点和相同阶段定义，未加入旧单样本、隔离结果或最新文件副本凑数。
+
+| M16.2 文件名时间部分（原文件顺序） | window-visible（ms） | editor-ready（ms） |
+| --- | ---: | ---: |
+| 072805-350 | 1712 | 2175 |
+| 072820-995 | 1813 | 2261 |
+| 072829-974 | 1844 | 2307 |
+| 072838-226 | 1773 | 2258 |
+| 072847-770 | 1868 | 2339 |
+| 072856-779 | 1882 | 2400 |
+
+| 性能门槛 | M16.1 基线（ms） | 本批 M16.2（ms） | 固定目标（ms） | 结果 |
+| --- | ---: | ---: | ---: | --- |
+| editor-ready p50 | 2459 | 2261 | ≤1844 | **未通过，仍差 417ms** |
+| editor-ready 最慢 | 2498 | 2400 | ≤2498 | 通过 |
+| window-visible p50 | 1947 | 1813 | ≤1947 | 通过 |
+| window-visible 最慢 | 2011 | 1882 | ≤2011 | 通过 |
+
+**统计与结论**：每批六次独立普通冷启，p50 延续 nearest-rank、升序第 3 项；主指标改善 (2459−2261)/2459≈8.052%，约 8.1%，未达到至少 25%。不能以首显或最慢值改善、功能正常、此前纯依赖导入节约 678ms 或隔离 API 对照替代这项失败；不修改目标，不标 Done。这里是宿主入口到通知/握手，排除 PowerShell 启动器及先前模块导入，不冒称双击到真正可见/可输入的全链路秒表数据。小样本仅作本机前后工程对比，不出具更高分位或跨机承诺。
+
+**剩余排查候选**：逐次先相减再统计，backend-start→api-ready p50 1385→1249ms；credential-location→credentials 为 774→631ms，credentials→api-ready 为 598→587ms；这些 p50 不能相加，第一段含父进程同步定位、后台静态加载及 IPC 等重叠开销。源码 local.ts 的 localStorePath 运行一次 PowerShell 定位 Known Folder，desktop.ts 将所得固定存储位置经私有 IPC 送入 main.ts，readLocalCredential 再启动 PowerShell 读取/解密；可优先补这些实际步骤的独立计时，评估减少重复进程启动成本。此为代码与数据共同指向的候选，尚非函数级归因或已获验证的修复；不缓存明文 Key、不改用环境目录替代 Known Folder、不减少 DPAPI/身份/链接/路径检查，不将凭据搬入窗口。当前需要进一步 M16.2 优化，不要求作者重复测同一版，也不进入 M17；本轮未实施上述候选方案。
+
+**Verification 与证据**：运行 node .cache/studio-m16-2/review-manual.mjs，退出 0，完成两批十二份报告的白名单/去重/时间和旧样本 SHA 核对；自有 manual-review-8MJHER/ 中 baseline.json 保存本轮开始的代码/文档/样本哈希，before/after 为诊断副本，summary.json 保存逐次值、分段统计及四项布尔结果，passed=false。脚本退出 0 表示数据检查完成，不表示性能验收通过。运行该目录 verify.mjs 与 git diff --check，退出 0；四份文档围栏/链接/锚点、固定目标未降低、当前状态/历史及范围通过 verification.json 核对。9.43 工程门槛的十三项退出元数据复核为 0；本轮工程输入未修改，未重新运行 lint/typecheck/test/build、浏览器或原生检查，不宣称重跑。
+
+**范围和停点**：296 个 Git 候选中仅 PLAN/README/MAINTENANCE 三份文档改变，其余 293 个 SHA 不变；十二份原手动文件字节保持，9.1–9.43 历史及 M7–M15 合同不回写，HEAD 与空暂存区保持。已完成本批验收核对，结果是主性能门槛未过，M16.2 仍 In Progress（不再是等待本批人工反馈），M16.1 Done、M17–M23 Pending。未控制桌面、提交、推送或发布；收尾停止，不借本次记录检查启动新的实现或下一阶段。
+
+<a id="studio-m17-record"></a>
+### 9.45 Studio M17 统一工作台 UI（2026-10-30，In Progress / Awaiting author App review）
+
+**授权与依赖例外**：收到 M16.2 主性能目标未达的反馈后，作者明确决定“先这样吧，这个没那么重要，以后再说，继续下一阶段吧”，随后要求“继续进行”。据此接受当前启动版本，将 417ms 主目标差距留为 Deferred，保留原目标和 9.44 失败证据，不标 Done；本轮只实施顺序中紧接的 M17，M18 及以后未获实施授权。没有继续测启动或改凭据流程，没有借状态变更把未达目标冒称通过。
+
+**实际变更**：index.html/main.ts/styles.css 提供浅色本机工作台、顶部公开/私人空间切换、公开模块导航、当前位置与 AI 状态；宽窗口 Think 正文/属性分列，可用容器较窄时纵向显示。常用操作和导航可随长文滚动保持可达，删除/重新读取为次级操作，源文件状态/文件名/revision 收在可展开详情。新增 workbench.ts 只做视图组合，将原四个模块的现有 DOM 控件移入同一外壳，Keep/Build 使用列表/编辑分区，Me 保留单例表单，私人有同样容器、模块选择/列表/编辑/内存预览区域；不克隆候选或表单、不替换监听器。通用状态标识仅读原 dirty/unsettled/uncertain 布尔值，不存正文/凭据；观察的只是原非敏感状态节点，不新增缓存/遥测。M18 的私人资料库术语、网站更新向导未实施，原密文主文件/候选/bundle 操作合同与标签保持。
+
+**接口/安全边界**：未改服务端、模型/DTO、文件 CRUD/预览/AI/Agent API、原生窗口或密钥存储。私人控件仍位于原受控 fieldset 内，锁定/离开/隐藏仍清理原表单、列表和预览，不将明文复制到新状态条、存储、AI 或日志。公开切换沿用原业务入口与私人 leave 守卫；顶部“公开”委托最近公开模块的原入口。源文件仍唯一 source of truth；未增加未来待审核/设置/统一导入/发布占位入口，不改访客导航或网站 CSS，不迁移框架、不加依赖。
+
+| 实际验证 | 结果与证据（.cache/studio-m17/） |
+| --- | --- |
+| run.mjs lint/typecheck/unit（实际 package 脚本及 Node/npm CLI 参数见 JSON） | 全部退出 0；241 文件零诊断，174 项中 173 通过、1 个既有权限跳过；对应 JSON/log |
+| run.mjs build/studio-build/base-build | 网站根/base 和 Studio Web 均退出 0；对应 JSON/log |
+| run.mjs studio-browser | 退出 0；Chromium/WebKit 85 通过、1 个既有 WebKit IME 跳过，覆盖四公开 CRUD/失败/冲突/输入法、原 Astro 根/base 预览及安全/取消负例；studio-browser.json/log |
+| run.mjs private-browser | 退出 0；四私人编辑/保存/预览/锁定/交付及迟到结果等共 56 通过，两个引擎；private-browser.json/log |
+| run.mjs root-smoke/base-smoke/boundary/vault-boundary | 均退出 0；网站四模块根/base 各 4/4，公开及 Vault 产物边界通过；对应 JSON/log |
+| 最终导航定位 CSS 修正后的 studio-build、workbench/private-workbench、studio-think-editor/studio-close | 全部退出 0；八面板布局定向 2+2，Think 编辑 17 通过/1 个既有 IME 跳过，协同关闭 16/16。最后仅调整非敏感截图 fixture 后 lint/types/workbench 再通过，无新增真实 AI 请求 |
+| 本地截图目视检查 | 已查看 workbench-chromium.png、workbench-webkit.png；仅非敏感公开样本，AI 用本地 canary 配置显示正常状态，不发送建议请求；私人截图/trace 关闭 |
+| node audit.mjs、git diff --check | 退出 0；文档围栏/链接/锚点、唯一实施项、目标/历史/十二份原样本、SHA 范围、HEAD/暂存区核对见 verification.json |
+
+**失败处理与验证限制**：新增私人布局测试初次漏点 Me 的原“私人介绍”列表项，表单为空断言失败；按实际用户路径补选列表后两引擎通过，未改业务或弱化断言，原日志 private-workbench-first-failure.log 保留。布局测试覆盖 1280×720/1440×900 与 1/1.25/1.5 CSS zoom、八面板控件可达、无横向溢出、Think 缓冲跨模块保留和键盘保存、四私人锁定清理。CSS zoom 与无头浏览器不冒充真实 Windows 缩放或原生 WebView2；实际 App 外观、缩放和使用体验仍待作者检查，不能借自动通过标 Done。截图使用明确的非敏感 fixture，不读取实际 Key/私人资料，不控制桌面。
+
+**范围与收尾**：初始 296 个 Git 候选中仅修改 6 个（3 文档及 index/main/styles），新增视图组合模块和两份布局测试共 3 文件，当前 299 个候选；其余 290 个 SHA 保持，含所有服务端/业务模块、原生/启动/凭据/Agent 代码、src/public/内容、package/lock 和其他既有改动。M7–M15 合同及 9.1–9.44 历史完整保留，十二份旧启动样本字节不变，原启动性能目标不降低，HEAD 与空暂存区保持。本轮没有启动/停止真实 App、安装入口、提交、推送或发布。M16.2 Deferred、M17 In Progress（实现和自动验证完成，Awaiting author App review）、M18–M23 Pending；按[维护手册检查](./MAINTENANCE.md#studio-workbench)反馈后再核对本项，不自动进入 M18，也不要求重测启动。
+
+
+<a id="studio-m17-acceptance"></a>
+### 9.46 Studio M17 正式 App 验收收尾（2026-10-31，Done）
+
+作者明确反馈：“我已重开 App 检查，新布局、缩放、中文编辑和取消关闭都正常。”据此补齐 9.45 中实际 App 外观/缩放/操作的必需待验项；原 lint/typecheck/test/build、两引擎公开/私人交互、根/base smoke 和边界结果从 .cache/studio-m17/verification.json 及对应退出记录复核，均为 0。本次收尾只更新三文档，不将反馈外推为旧 M8 原生专项或 M9–M15 全部人工验收，不重写原失败/限制记录，不要求重新配置 Key 或重复启动测量。M17 Done，M16.2 性能余项 Deferred；随后按本次明确授权开始 M18，后续项未获实施授权。
+
+
+<a id="studio-m18-record"></a>
+### 9.47 Studio M18 私人资料库与网站更新向导（2026-10-31，In Progress / Awaiting author native review）
+
+**授权与前置**：作者确认 M17 正式 App 的布局、缩放、中文编辑、取消关闭正常，已按 9.46 完成本项验收；同次明确授权 M18。仅本机私人编辑与网站更新向导，不进入 M19.1，不操作桌面、不提交/推送/发布。M16.2 性能余项仍 Deferred，原目标和失败证据保留。
+
+**实际变更与接口边界**：private.ts 将日常入口改为私人资料库，保存后明确可结束本机使用；网站更新默认折叠，经选择新位置、校验生成更新文件、最终确认更新本地网站三步进行。生成和替换各自显示结果，不宣称全流程原子回滚；版本/hash/备份角色放可展开详情，最后替换对话框保留。styles.css 仅增加向导进度与详情样式；workbench.ts 接收不携带正文的本地视图状态事件，避免取消口令或完成生成后保存标识停在进行中，结果不确定时明确显示“操作结果待核对”。PrivateFilePicker.cs 只同步选择器标题/文件类型名称，不改选取和路径安全规则。现有 HTTP DTO、backend、加密协议/参数、完整包校验、revision、备份、原子文件写入与发布边界不变，无新路径/明文/口令接口，无 AI/Agent 私人能力。
+
+**选择与锁定**：打开、新建、选择更新位置前先锁定；未保存编辑换源仍需明确放弃，更新选择必须先保存。文件选择事务只含随机 requestId/mode/句柄，与明文 epoch 分离；隐藏照常清除全部私人缓冲、口令、预览和 Blob，只允许当前选择继续返回非敏感句柄。隐藏或退出处理中不自动解锁；返回可见 App 后重新读已保存资料库并验证口令，不恢复旧明文。取消选择/口令保持锁定，主动锁定/pagehide/明确离开取消选择身份，伪造、重复或迟到结果均不能重开会话。已发出的资料库/更新文件/网站密文写入在后台锁定后保留结果待核对标识，迟到成功不抹去该标识或恢复明文。网站替换结果未知时阻断换候选绕过，继续只读核对；生成文件未知须核对并显式选择新位置，不覆盖旧文件。
+
+**实际验证**：命令由 node .cache/studio-m18/run.mjs 调用真实项目脚本/Playwright，完整 Node/npm CLI argv、退出码和日志分别保存在同目录 JSON/log；native.mjs 记录 dotnet 参数。最终以下均退出 0。
+
+| 验证 | 结果与证据（.cache/studio-m18/） |
+| --- | --- |
+| lint、typecheck、unit、build、studio-build | 项目脚本全部 0；242 文件零诊断；174 测试中 173 通过、1 个既有权限跳过；网站根与 Studio 构建通过。最终收尾再次运行 lint/types/studio-build，视图状态最后修正后另跑两份受影响文件 final-lint |
+| studio-browser | Chromium/WebKit 85 通过、1 个既有 WebKit IME 跳过；四公开模块 CRUD、AI 模拟、缓冲/冲突/取消、根/base 原模板预览 |
+| private-final | 两引擎 78 通过：原四私人编辑/预览/加密保存/备份/错误/冲突/整包保留，加上本机保存独立、向导可取消、150% CSS zoom、选择器隐藏后可见重认证、主动锁定/迟到/伪造结果、协同关闭取消、备份副本重新打开。正文/口令无上传，私人截图与 trace 关闭 |
+| private-delivery-final、workbench、studio-close | 10 / 2 / 16 通过；最后构建后工作台及协同关闭再次定向核对。网站未知写入不能换更新位置绕过的断言保留 |
+| root-smoke/base-smoke、webkit-root-smoke/webkit-base-smoke | Chromium 根/base 各 4/4，WebKit 根/base 各 4/4 通过；base-build 退出 0 |
+| delivery-build / delivery-site | 原密文交付在隔离源构建根/base 网站，两浏览器 8 项通过；四模块解锁、公开隐藏与路径关联均按原契约，未改真实 bundle |
+| boundary、vault-boundary | 公开发布及 Vault 产物边界均 0，无 Studio/测试明文/凭据混入网站产物 |
+| native-restore/build/contract | 锁定依赖与漏洞检查保持，隔离输出编译通过；原生消息/句柄/来源/资源边界检查通过。未启动真实 App、未打开原生选择器，未覆盖正在使用的宿主产物 |
+| audit.mjs / git diff --check | 文档链接/锚点/围栏、状态、历史、范围、样本及 Git 核对见 verification.json |
+
+**失败与限制**：首次受限网络的浏览器无法访问隔离 loopback（独立诊断为 ERR_NETWORK_ACCESS_DENIED），未到功能断言；中止受限运行，并在放行测试访问后重跑。第一次原生 restore 因 NuGet 漏洞数据网络不可达报 NU1900，放行元数据后锁定还原/编译/契约测试通过，没有关闭审计。环境失败记录 environment-failures.json，初始运行共享日志的混合证据另留 private-browser-initial-mixed.log；最终使用独立 private-final.log，不能把前者当干净的通过日志。原生 runtime/EditorScript.cs 已同步新步骤，但本轮未执行该 WebView2 原型。CSS zoom、无头浏览器及非 UI 契约不替代真实 WebView2、Windows 文件选择器、切换后台和关闭；维护手册列出非敏感手动步骤，收到反馈前本项保持 In Progress，不标 Done。
+
+**范围与停点**：初始 299 个 Git 候选中修改 10 个既有文件（3 文档、3 Web 文件、原生选择器、2 个私人测试/fixture 与原生测试脚本），新增 1 个私人浏览器测试；其余 289 个 SHA 保持，当前 300 个候选。所有后端/契约/crypto、Windows 启动/凭据/Agent、真实 src/public、package/lock、原旧改动保持；9.1–9.45 历史及 M7–M15 路线保留，十二份手动启动样本保持。HEAD 和原空暂存区未变，没有真实私人口令/Key 读取、真实 App 启停或入口安装。M17 Done、M18 In Progress（实现/自动验证完成，实际选择器与关闭待验），M19.1–M23 Pending；不进入下一项、不提交、推送或发布。
+
+
+<a id="studio-focus-plan-record"></a>
+### 9.48 Studio 主线收敛与顺序调整（2026-10-31，文档完成，无新实施授权）
+
+**授权与实际变更**：作者明确要求只调整 PLAN 架构和 milestone 顺序、同步 README/MAINTENANCE，优先日常启动、文章/项目自动录入审核与一键发布，其他功能暂不扩展。保留原编号，新增 Pending 的 M16.3（日常运行与更新准备分离），主线改为 M16.3 → M19.1 → M19.2 → M20 → M23，全部 Pending。M23 在 M20 后交付公开 Think/Build 的精确批准发布，不依赖延期的 M21 Pi Skill/M22 文档适配，也不扩大为私人/Keep/Me 自动发布。原手动表单作精调/备用，次级工具维持已有能力，不删除实现，不预建按钮/目录/接口。
+
+**架构与事实依据**：核对 app.ts/desktop.ts 的先准备服务再创建窗口，app-build.ts/web-build.ts 的 SDK/源码/产物指纹及失效构建，local.ts/main.ts 的配置读取前置，以及实际 deploy.yml 的 push 检查/手动发布和同产物约定。保存最新只含阶段元数据的诊断副本 .cache/studio-focus-plan/observed-startup.json 与 startup-summary.json：一份 updated-or-recovery/native-Web changed 的宿主计时 9653ms，分段 4637/1204/2591/1200ms 加起始 21ms；只作源码更新重建证据，不混入旧六次普通启动 p50 2261ms，也不冒称双击全链路。M16.3 规划准备/运行分离、兼容的宿主/Web/backend 就绪版本、失败与混载保护、窗口早显与 AI 准备状态分离；现 Known Folder/DPAPI、文件/产物身份、锁、单实例及协同关闭合同不降低。没有实现新的启动路径，也不承诺当前版本已提速。
+
+**审核/发布与状态**：来源、模块专属候选、原 service/校验/冲突及 source of truth 保持；保存草稿和审核并发布为可选分支，后者在未来 M23 一次精确批准后自动执行固定检查/源码落地/提交/推送/部署并核验 SHA/run/产物。不能将无关 dirty/index 或同文件其他条目带入发布，不能由模型/材料取得批准权。本轮不启动 M16.3 或恢复 M16.2；M16.2 原完整合同、目标及失败记录保留。M18 从 In Progress 归为 Awaiting author acceptance，含义只是不再串行阻塞公开主线，原生选择器/协同关闭仍待验，不标 Done。M16.1/M17 Done、旧 M8/M9–M15 未验状态保持；公开主线涉及的共享安全仍须补实测，不将无关私人专项作形式依赖。
+
+**Verification 与范围**：运行 node .cache/studio-focus-plan/prepare.mjs 保存本轮三文档副本、300 个 Git 候选 SHA、HEAD/原空暂存区及当前诊断；运行 update.mjs、sync.mjs 完成文档调整，再执行 node .cache/studio-focus-plan/audit.mjs 与 git diff --check，均退出 0。audit 核对四文档的围栏/本地链接/锚点、主线顺序和五个 Pending、两项 Done/三项 Deferred/一项 Awaiting author acceptance、阶段字段覆盖、发布及私人边界、历史与 SHA；结果 verification.json。9.1–9.47 原记录、M7–M15 路线、M16.1/M16.2/M17 合同及十二份旧手动启动诊断保持。仅 PLAN/README/MAINTENANCE 改变，其余 297 个候选 SHA 不变，没有新增 Git 候选；代码、测试、内容、原生入口/图标、凭据逻辑、package/lock、发布 workflow 和已有未提交改动保持。HEAD/暂存区不变。
+
+**限制与停点**：本轮工程输入未变，未运行 lint/typecheck/test/build、浏览器、App、真实 AI 或部署检查，不将旧工程结果写成本轮通过。不控制桌面，不启动/停止 App、不读取实际 Key/私人口令或真实私人材料，不提交、推送或发布。规划整理完成后停止，首个待另行明确授权的实现项为 M16.3，路线排序不构成该项或后续实现授权。
+
+
+<a id="studio-m16-3-record"></a>
+### 9.49 Studio M16.3 日常运行与更新准备分离（2026-10-31，Auto verified / Awaiting unified acceptance）
+
+**实际变更**：增加固定 `studio:prepare`，在启动锁下准备并验证一套 native/Web/Node 后端快照，成功后原子切换 current 收据；失败保留原完整版本。桌面稳定引导仅激活已有窗口或读取完整快照，核对包锁/运行环境/仓库身份与所有程序资产，不执行源码遍历、SDK/restore/build/Vite 或 NuGet 网络。源码更新后需显式准备，不热换活动窗口。宿主先显示带短版本号的窗口，再接收同版 API 地址；编辑 ready 绑定首次列表成功，不提前报可编辑。后台异步用原 Known Folder/DPAPI 读取配置，区分读取中、未配置、坏配置与读取失败；次级面板首次使用才建立，退出/私人锁定仍受原合同约束。构建不读 Key，无真实私人材料或正文镜像。
+
+**自动验证**：`.cache/studio-m16-3/` 保留命令、日志及退出 JSON。lint、typecheck（248 文件、0 诊断）、test（179 项、178 通过、1 原平台 skip）、build、Studio build 全部退出 0；Studio Chromium/WebKit、私人两引擎、根/base 两引擎 smoke、release/Vault 边界均退出 0。无窗口 .NET locked restore/Release build/消息契约退出 0。冻结版本测试覆盖准备中断不切指针、产物/链接/依赖变化拒绝、源码更新不混载、活动启动锁、真正源目录写入、窗口协议/协同关闭、AI 异步失败/取消；隔离集成使用真实编译宿主产物但不启动它，合成 DPAPI 配置自动加载、Think/Build 首次 Astro 预览及内容根写入通过（integration.json）。曾因测试预览省略已有 key 导致重复 slug，补正确测试请求后通过；未放松产品验证。最终源检查与范围核对继续记在本目录。
+
+**限制与批准调整**：没有操作桌面、读取实际 Key、实际 AI 调用、真实 App 首显/关闭或六次性能对照。本轮作者确认先完成实现/模拟验证，真实性能待验，随后授权整个主线最后统一人工验收；因此 M16.3 不标 Done，也不冒称原 1844ms 等目标已达。首次准备、更新准备、日常启动三种耗时分列；新增启动器 stopwatch 仅从脚本开始到 Node 启动完成，不包含 PowerShell 进程创建，不能与宿主相加冒充双击全链路。旧六次/十二份历史记录与失败目标保持；无提交、推送或发布。
+
+
+<a id="studio-m19-1-record"></a>
+### 9.50 Studio M19.1 Think 录入与审核（2026-10-31，Auto verified / Awaiting unified acceptance）
+
+**实际变更**：新增 module-specific ThinkCandidate/提案/精确批准合同，受限文字、UTF-8 Markdown/frontmatter 和 v1 JSON/围栏报告的确定性解析。API 增加 intake/think、proposals 列表/读取/修改/删除/apply；复用原同源/Token/限额/错误及 Think service。生产收件箱懒定位至 Known Folder 下仓库身份隔离的仓库外目录，逐条普通 JSON、身份/链接检查、原子版本写入，最多 64 条/单记录 384 KiB/总 16 MiB，材料 64 KiB；不扫正文目录之外材料、不执行报告命令。候选可不完整；原目标须显式选择，首次导入补入该源未提供字段以便审核，原公开状态由后端保护。修改后候选 hash/提案版本变化；源变化/重复 slug 阻止应用。应用先写 intent，成功后仅留无正文回执；未知结果禁止盲重试，读取可在源精确匹配时收尾回执。
+
+Web 默认进入录入/待审核，支持文件选择、材料/来源查看、文章字段与正文精调、原预览接口、恢复/容量丢弃、明确批准及协同关闭保存材料至待审箱；手动 Think/其他模块保留，#think 是明确进入原手动编辑的页面片段，不含凭据。首次 ready 等默认入口读取尝试与原首次列表，非提前报可编辑。原编辑测试只改为明确选择手动入口，原行为断言保持。
+
+**Verification**：`.cache/studio-m19-1/` 的 lint/typecheck/test/build/Studio build/intake 退出 JSON 均 0；类型 256 文件零诊断，单元 183 项/182 通过/1 原 skip；录入 Chromium/WebKit 共 6 通过，实际覆盖重启恢复、中文/代码、材料脚本仅文字、批准取消、更新后列表、超限、未导入材料协同保存退出。单元覆盖源码/提案冲突、未知字段/格式/路径、重复 slug、配额/硬链接、响应未知不重写、回执无正文及 HTTP 认证。首次普通沙箱缺少回环/硬链接权限时失败，按正常本机测试权限原断言通过；曾发现旧 canary 清理先于子进程真正退出，补等待其 exit 后通过；浏览器发现应用后 Think 列表未刷新，修复切回刷新后六项通过，未过滤 pageerror 或弱化断言。
+
+**状态与限制**：原真实内容、凭据、私人工具/Agent 权限保持。未调用模型、未实际打开 App 或控制桌面，人工最后统一验收，不标 Done；按本批授权继续 M19.2。真实启动性能仍待验，M16.2 原失败目标和旧专项保留；没有提交、推送或发布。
+
+
+<a id="studio-m19-2-record"></a>
+### 9.51 Studio M19.2 Build 项目录入与审核（2026-10-31，Auto verified / Awaiting unified acceptance）
+
+**实际变更**：增加 BuildCandidate 与 BuildProposal 分支和严格的模块报告/部分嵌套结构解析，不建立通用内容模型。intake/build 与相同待审流程复用过程字段；合法完整项目才调用原 Build service，仍整份 data.ts revision，其他条目、顺序、可选字段、代码和原 published 保护不变。新建项目的提案在创建时绑定整文件源版本，新建固定 draft。纯文字/MD 先作为项目章节待补字段；结构化报告可完整填入原项目 DTO。Web 增加明确模块选择，项目精调复用原 projectFields 控件，缺少的记录字段只显示空白/待确认，不默默补成个人事实；原字段控件只增加缺值安全显示，正常已有表单行为不变。
+
+**Verification**：`.cache/studio-m19-2/` lint/typecheck/test/build/Studio build/intake/intakeBuild 退出记录均 0；259 文件零诊断，186 单元（185 通过、1 原 skip）；Think 六项两引擎回归通过，Build 两引擎根/base 真实 Astro 预览及 draft 应用共 4 项通过。单元覆盖完整/不完整嵌套、无效状态/日期/链接/未知字段、整文件变化、原条目保留、公开状态及审核失效。初始预览失败是隔离 fixture 的目录过滤前缀错误，误删 content.server.ts；用独立非敏感诊断副本确认后将过滤限定为 content 目录边界，产品权限/校验/异常处理保持，修正后四个实际预览通过。
+
+**边界与停点**：没有模型调用、真实源写入、实际 App 操作或 Git 发布；实际 App 人工统一待验，不标 Done。按本批授权进入 M20，M21/M22 依作者确认维持 Deferred；旧专项与真实启动性能待验保持。
+
+
+<a id="studio-m20-record"></a>
+### 9.52 Studio M20 显式 AI 自动整理（2026-10-31，Auto verified / Awaiting real AI and unified acceptance）
+
+**实际变更**：复用原百炼配置、单请求/取消/超时及受限响应处理，保留原五种 Think 文本建议和提示词。增加 Think/Build 专属整理提示与严格 JSON 候选/来源/unknowns 解析，不假定模型原生 JSON Schema；不添加 Provider/工具/工作流框架。输入/输出各 32 KiB、最多 4096 输出 tokens、60 秒、无重试；较大的 64 KiB 本机材料仍可确定性导入，AI 超限明确拒绝，不截断。模型只能建议候选，不能传 published、路径、权限或额外字段。逐字引用必须存在于选中材料、字段路径必须对应候选；缺依据标 unconfirmed，计划/贡献/日期等列本人待确认，引用不当事实证明。人工改一字段只改该字段来源标记，未改字段引用保留，既有源字段单独标 source。来源/待确认也受候选 hash/批准约束。
+
+新增 POST intake/think/organize 与 intake/build/organize，源版本先检查，后端只发送已选材料和模块指令，返回后重验源，取消/关闭不应用迟到输出。Web 明示发送范围，提供显式整理/取消与配置状态，编辑材料即使旧请求失效；输出只是待审，不自动写源。审核页与新材料页区分，原无 AI 导入可独立使用。
+
+**Verification**：`.cache/studio-m20/` 的 lint/typecheck/test/build/Studio build/intake/intakeBuild/organize 均退出 0；262 文件零诊断，190 单元（189 通过、1 原 skip）；Think 六项、Build 根/base 实际预览四项、整理六项 Chromium/WebKit 通过。确定性上游覆盖精确材料发送、独立项目 DTO、计划状态/无依据诊断、伪造引用/多余字段/发布态/坏结构拒绝、限流/截断/超限不发送、不重试、共享 AI 并发、取消/迟到不覆盖新材料、来源编辑保持及无自动源写入。真实 Key 不在浏览器，测试仅用非敏感 canary；无实际模型接通/质量验收声明。
+
+**限制与下一项**：按作者最后统一人工验收的授权，真实百炼 Think/Build 整理与 App 操作留待手动，M20 不标 Done；M5 既有真实验收不外推成新整理通过。下一项 M23 已获本批实现许可，仅实现能力和隔离发布验证，没有本仓库真实提交/推送/发布许可。M21/M22 Deferred、旧专项及启动性能待验不变。
+
+
+<a id="studio-m23-record"></a>
+### 9.53 Studio M23 精确审核发布与本批收尾（2026-11-09 核对入档，Auto verified / Awaiting real publication and unified acceptance）
+
+**实际变更**：增加固定 Think/Build 发布契约、prepare/execute/status 与只读核对/结束回执 API、Web 最终差异与状态页、单任务发布协调和仓库外无正文回执。录入页可直接准备发布，保存草稿不是必需前步。已落地提案清除隐藏候选缓冲并改为真实源引用。Think 复用原校验/读写/序列化投影。Build 增加只替换单条 AST 范围的专用发布投影与保存，保留全部非目标字节/注释，原 CRUD 严格序列化不变。未更改网站源模型、访客界面或真实内容。
+
+隔离 clone 以远端 main 为父，准确绑定提案、候选、整源 revision、两份 diff、目标树、远端与本机 HEAD/index。变化后旧批准拒绝。只上传已核对 SHA 的 blob/tree/commit，使用原子 beforeOid/afterOid、force:false 前移固定 GitHub main，不移动本机分支/暂存区、不全量提交开发工作。固定检查器核对 Node/npm、锁定依赖与浏览器，跑完整项目门槛。源码经原 service 落地后才上传并以 expected_sha/唯一 studio_request dispatch。workflow 在 checkout 前及部署前核对期望/check/远端 SHA，继续部署同一受检 artifact。record.mjs 生成源 SHA 与 dist 哈希目录，不含 Studio 程序/凭据。
+
+最终核验要求唯一正确 run、artifact identity/digest、受限 ZIP/tar 解析、与本机目录相同的文件集合、线上 release-manifest 和每一文件哈希、真实无头 Chromium/WebKit 页面/404/Spotlight。任何不符不称上线。持久化 source/commit/push/dispatch 真实边界，部分失败/未知不自动重放。重启仅读回执，核对/重新验产物不上传或 dispatch。发布进行中协同关闭拒绝并保留窗口。宿主失联在受限当前阶段之后停止下一阶段。补齐 frozen runtime 的固定 helper 和后端独占 GitHub 认证环境。成功只清理核对归属的派生候选，失败证据保留。
+
+**实际 Verification（均退出0）**：
+
+| 检查 | 结果 / 证据 |
+| --- | --- |
+| npm.cmd run lint / typecheck / test / build、studio:build | 根检查零诊断。单元210项（209通过、1原 Windows symlink 权限 skip，真实 junction/hardlink 负例仍运行）。根build9 HTML页。对应 json/log |
+| Studio 完整 Chromium/WebKit | 111通过、1原 WebKit IME 协议 skip。含录入、Build 根/base实际 Astro、AI模拟/取消/迟到、原编辑CRUD冲突、发布取消/直接提案及关闭。studio-browser.log |
+| 私人共享安全回归，两引擎 | 78通过。原加密主文件/四模块/预览/内存清理、备份交付与M18向导不因本批破坏。private-browser.log |
+| 网站根/base完整 + WebKit | 根77、base77。WebKit移动16、私人29、根/base内容smoke各4/4。真实第五私人会话两引擎3/3 |
+| extension/content/design/mobile、release/Vault boundary | 全部0。独立构建不写正式源。对应log/json |
+| 固定发布检查器干净副本全流程 | node studio/server/publish/verify.mjs 在独立冻结候选运行：npm ci、锁定浏览器、lint/types/test/build、根/WebKit/真实私人会话/base及边界、record与再验全部0。fixed-checker.log/json。只有该合成副本本地提交，没有真实远端上传 |
+| 发布专项目录/网关/失败验证 | 精确同文件分离、dirty/index/HEAD保持、提案/源/index/HEAD/远端变化拒绝。检查失败/推送或dispatch丢响应/run不符/产物不符/失联。重启只读恢复、坏回执拒绝。ZIP/tar traversal/链接/CRC/尺寸、对象SHA/CAS及线上错误均负例通过。unit.log及studio-publish*.test.ts |
+| Windows薄宿主与正式编译运行链（无窗口） | locked restore、Release build、C# contract均0。integration.json核对真实编译包、Think/Build首次Astro预览、合成DPAPI自动加载、真实隔离源写入，未启动原生App/读取真实Key |
+| 视觉、文档及范围 | 新录入/发布两引擎截图人工查看，visual.json=0。文档链接/状态/历史/字节范围/旧样本与Git审计见verification.json。git diff --check=0 |
+
+**失败与修复保留**：首次完整Studio发现双标签旧测试的第二页未指定Think而停在新默认录入页，两引擎超时。修正第二页入口，所有冲突/保留缓冲断言不变，重跑完整套件通过，原失败日志/截图在studio-browser-initial.*、studio-initial-results。首次干净固定检查器发现新增API单元用到了预构建Web：API测试改为不载入Web，浏览器测试继续用实际构建。再冻结隔离副本并重跑整个固定检查器通过，失败证据fixed-checker-initial.*及fixed-unit-diagnostic.log保留。不删除检查、不吞pageerror、不以局部成功盖过全量失败。
+
+**范围与统一待验**：本批以M16.3开始的300候选为基线，修改42个既有候选、新增36文件，其余258个SHA保持。源码src/public、真实内容、package-lock、AGENTS、图标及无关旧改动保持。原9.1–9.48和十二份启动手测诊断字节保持。M17旧截图在保存本批回归副本后恢复。HEAD仍9fd8cc8bda5c903c0b897f23a63168764b62899b，暂存区保持原空状态。未控制桌面、实际启动/停止App、读取真实Key/私人资料、真实模型调用、对本仓库提交/推送/发布。M16.3、M19.1、M19.2自动验证完成，M20真实AI与M23实际发布必需反馈未补齐。本批全部保留待统一人工验收，不标Done。M21/M22 Deferred、M16.2旧目标/失败与M18/旧专项待验不变。
+
+**启用与停点**：操作集中在[维护手册统一清单](./MAINTENANCE.md#studio-mainline-manual)，记录准备/日常耗时、App/两模块录入/预览与真实百炼整理。无需重配旧Key。远端须另获提交/发布许可安装本版workflow守卫与record脚本，当前缺失时canExecute=false。真实GitHub权限/同产物/线上全过程仍待授权，不把本批模拟称线上已可用。到M23实现与自动验证收尾停止，不恢复延期功能或擅自发布。
+
+<a id="studio-writing-workbench-record"></a>
+### 9.54 Studio 界面精简验收（2026-11-12）
+
+默认进入 Think，顶栏只显示一个工作区切换入口。编辑区把保存状态、网站预览、标题和正文放在主要位置。新建或属性校验出错时展开属性，AI 建议由作者展开后操作。Build 保留项目分步编辑，Keep 以链接和说明为主，Me 以个人介绍为主。待审保留目标和批准流程，材料来源可展开。发布差异与最终确认保留，回执维护单独折叠。私人模块及锁定、备份、恢复继续从私人资料库访问。
+
+接口、模型、真实内容、依赖及发布机制保持原样。发布和 AI 浏览器用例使用隔离仓库及模拟传输，私人用例使用非敏感隔离密文。首次回归发现点击文章前收起列表筛选会提前移动列表，改为点击处理结束后收起；只读源的原防覆盖断言在两个引擎通过复测。
+
+| 检查 | 结果 |
+| --- | --- |
+| `npm.cmd run lint`、`npm.cmd run typecheck`、`npm.cmd test`、`npm.cmd run build`、`npm.cmd run studio:build` | 全部退出 0。单元 210 项通过，Windows 普通文件符号链接因权限跳过 1 项。 |
+| `npx.cmd playwright test --config tests/studio/playwright.config.ts`，分别运行 Chromium 和 WebKit | Chromium 56 项通过，WebKit 55 项通过。WebKit 跳过 Chromium 专用的 IME 协议用例。覆盖属性校验展开、键盘导航、跨模块编辑缓冲、根路径与 base 下的 Astro 预览、待审和发布确认。 |
+| `npx.cmd playwright test --config tests/studio/private/playwright.config.ts` | 两引擎共 78 项通过。最终构建额外复跑私人切换、锁定、备份恢复及工作区共 6 项通过。 |
+| 访客网站 smoke 和范围检查 | Chromium/WebKit 各 2 项通过，覆盖模块和公开产物边界。文档锚点、差异检查、Git HEAD/暂存区及范围核对通过。 |
+
+验证日志和非敏感截图保存在 `.cache/studio-workbench-simplification/`。Windows 运行包 `101f1c88b39e` 通过 `npm.cmd run studio:prepare` 准备，清单校验及三个 Web 产物的逐字节核对通过。原生 App 窗口未启动，真实 Windows/WebView2 外观可在作者下次重开时核对。工作区已有改动保留，未提交、推送或发布。
+
+<a id="studio-think-writing-record"></a>
+### 9.55 Think Markdown 写作闭环验收（2026-11-12）
+
+默认入口换为 CodeMirror 6 源码工作台，选文、编辑/预览、AI 整理、刷新、保存和发布构成日常界面。元数据可从编辑器开头展开，现有 Think API 与原文件序列化继续处理正式保存。新建不完整原稿在原待审箱使用受限写作记录，保留原有提案的读取和恢复。AI 整理先返回候选供比较，应用和撤销都只改变编辑缓冲。发布使用已有 M23 准备、最终批准、进度及只读核对。私人维护通过 Ctrl+Shift+M 进入，正式宿主移除冗余退出菜单，窗口 X 沿用协同关闭。
+
+| 检查 | 结果 |
+| --- | --- |
+| `npm.cmd run lint`、`npm.cmd run typecheck`、`npm.cmd test`、`npm.cmd run build`、`npm.cmd run studio:build` | 退出 0。单元 210 项通过，1 项 Windows 文件符号链接用例因权限跳过。新增依赖 23 个锁定条目，原锁定依赖保持。Vite 报主包约 771 kB，未测原生启动耗时。 |
+| Studio 公开浏览器配置 | Chromium 61 项通过，WebKit 60 项通过，1 项 Chromium 专用 IME 协议跳过。新 Think 覆盖旧文手改、实际 Astro 根/base 预览、BOM/注释/混合换行保真、原稿重启、AI 审核撤销和版本冲突。 |
+| 最终 Think 定向复核 | 两引擎维护快捷键和 AI 共 4 项通过，部署响应丢失与只读核对共 2 项通过。未就绪凭据、取消确认、隔离发布与不会重放也有浏览器断言。首轮 AI fixture 因响应缺少协议字段未通过，补全模拟响应后重跑通过。 |
+| 私人浏览器和访客网站 | 私人模块与安全回归 78 项通过，访客网站 smoke 4 项通过。 |
+| Windows 包与契约 | 无窗口 C# 契约测试通过。运行包 `ae7c3fbba2f5` 已准备，三个 Web 文件与受测构建逐字节一致。真实 Windows App 外观、输入法和窗口 X 操作留待作者。 |
+
+证据在 `.cache/studio-think-*.log` 和 `.cache/studio-think-writing/`。AI 与发布用模拟传输和隔离样本，正式 Git HEAD、暂存区和公开站点保持。Build、Keep、Me 的转换与 Live Preview 留在后续。本批在 Think 停止。
+
+<a id="studio-think-preview-time-record"></a>
+### 9.56 Think 整理、快速预览与时间验收（2026-11-12）
+
+旧运行包 `ae7c3fbba2f5` 能从 Windows DPAPI 读取配置，启动状态由 AI_INITIALIZING 变为可用。百炼 HTTP 200 的候选为正文提供了多个真实引用，旧本地解析因重复字段返回 502 AI_INVALID_RESPONSE。Think 请求改用百炼 JSON 对象模式。解析逐条检查引用，保留每字段第一条有效引用，虚构引用仍拒绝。真实 WebView2 通过 CodeMirror 输入非敏感样本，实际百炼请求、候选展示、明确应用均通过，源码无写入，未操作作者的窗口。
+
+CodeMirror 源码高亮启用 GFM。快速预览复用 Astro 7 的 Sätteri 默认处理与 Shiki，并共享 Think 正文 CSS。表格增加边框和横向滚动，保留现有 HTML 公式样式。无公开字段也能预览，返回编辑保留选区。隔离层阻止脚本、跳转和远程图片，只解析安全范围内的本机图片。LaTeX 与正式网站一致按字面显示，提示受限语法。完整 Astro 路径和 M23 保持。
+
+同一非敏感样本的本机 API 端到端测量三次。完整 Astro 分别 10,076、9,427、8,983 ms。快速预览分别 492、8、6 ms。实际 WebView2 从触发预览到 iframe 加载约 612、72、75 ms。首个样本包含处理器懒加载。测量未计入 App 启动。
+
+可选 `createdAt` / `updatedAt` 使用 UTC 秒级字符串。原 `date` 和站点日期排序保持，旧文不补猜创建时间。写作台在真实内容保存时才记录文章时间，直接发布使用被冻结的候选时间。写作时长用本机独立原子记录，按草稿 ID 和正式条目标识关联，文件名或 slug 单独变化可找回。
+
+| 验证 | 实际结果 |
+| --- | --- |
+| `npm.cmd run lint`、`typecheck`、`test`、`build`、`studio:build` | 全部退出 0，单元 212 项通过，Windows 普通文件符号链接权限跳过 1 项。 |
+| Studio Chromium / WebKit | 64 / 63 项通过，WebKit 跳过 Chromium 专用 IME 用例。覆盖原稿重启、时间戳与计时迁移、无损保存、正式预览根/base 和 M23。首次加速时钟用例发现请求超时丢计时批次，改为按原批次 ID 保留后复测通过。 |
+| 私人与正式站点 | 私人两引擎共 78 项通过，访客内容和边界共 20 项通过。 |
+| 真实 WebView2 和百炼 | 隔离无可见窗口验证通过。已记录加载、确认应用与源码未写入。作者的前台窗口可在正常重开后复核。 |
+
+证据保存在 `.cache/studio-think-polish/`。Windows 包 `95a1a2151da2` 已准备并通过 Web 文件逐字节校验。真实百炼记录只保存布尔、耗时和固定错误码。测试发布使用隔离仓库与模拟传输。现有文章正文、私人源、Build/Keep/Me 模型、Git HEAD 和暂存区保持。
+
+<a id="studio-think-stability-record"></a>
+### 9.57 Think 稳定化与源码编辑辅助（2026-11-17）
+
+两条实际 M23 回执都未开始写源、提交、推送或触发工作流。只读检查远端 `main` 的 `9fd8cc8`，缺少当前 SHA 守卫和产物脚本。本机命令环境找不到 `gh`，无法实测远端写入和 Actions 授权。在隔离副本通过真实网关准备合成差异，返回 HTTP 200、`canExecute=false`，同时提示 `REMOTE_WORKFLOW_NOT_READY` 与 `GITHUB_CLI_UNAVAILABLE`，回执四环节均为 `not-started`。准备页也区分登录与仓库访问或写入权限。保留原 SHA、对象和部署核对。图片仍须独立审核纳入远端基线，单篇发布保持单文件授权。真实工作流启用、提交和部署需另行授权。
+
+普通正文软换行、Shiki 与 KaTeX 由网站及快速预览共用的 Sätteri 配置处理。快速预览的原生 MathML 存在字形差别，缺少独立源码位置的渲染块定位到邻近有位置的块。编辑切回保留焦点、选区、视口与撤销栈。图片和代码插入各自可撤销。图片上传验证字节类型、大小、尺寸和路径，正式预览和发布既有隔离机制继续生效。
+
+Gemini `gemini-3.5-flash-lite` 用 `generateContent` 的 JSON Schema 约束候选，现有审核流程仍要求明确应用，正文默认保留。中文纠错回归覆盖口语、梗、术语、代码、公式和重复字。合成中文在隔离 WebView2 通过真实百炼整理与确认应用。本机 Gemini DPAPI 配置已读取，Google 模型元数据和生成请求均在建立连接时超时，未收到 HTTP 响应。最终包中的 WebView2 实测显示超时并保留编辑缓冲，Gemini 成功返回仍待验。
+
+| 验证 | 实际结果 |
+| --- | --- |
+| `npm.cmd run lint`、`typecheck`、`test`、`build`、`studio:build` | 公共门槛通过。单元 216 项通过、1 项跳过；Gemini、隔离发布及准备包额外定向 25 项通过。 |
+| Studio Chromium / WebKit | Think 写作与隔离 Astro 套件的其余 26 项通过。双引擎公式断言选择器修正后，公式、源码定位/插入撤销及发布确认定向复测 6 项通过。 |
+| 私人与正式站点 | 合成私人资料双引擎 78 项通过。正式网站公开内容各 5 项通过，复测使用独立结果目录。 |
+| Windows WebView2 | 已准备 `8f233abb300f`。隔离原生控件输入中文并加载预览，未显示或激活窗口。该样本预览 640、42、44 ms，包含首轮懒加载和 iframe 显示。 |
+
+日志在 `.cache/think-stable-*`，原生脱敏证据在 `.cache/think-stable-native/`。现有文章正文、私人源和其他模块的业务模型保持。下一批 Build 可复用 CodeMirror、快速预览位置映射和人工候选审核，项目字段转换与附件的发布范围各自验证。本轮停在 Think。
+
+<a id="studio-gemini-publish-readiness"></a>
+### 9.58 Gemini 与 M23 发布准备核验（2026-11-17）
+
+蓝发入口指向 `Open.ps1`，本机同一受信代理已在 Windows 用户环境可见。旧 Node 后端虽继承变量，`fetch` 缺少代理启用参数。旧链路曾发生连接超时，同版本 Node 加代理参数后，Gemini 模型查询、普通和结构化生成均返回 200。桌面后端现在按已有 HTTP(S) 代理启用 Node 代理，保留原 `NO_PROXY` 并补齐 loopback；启动脚本会补取旧 Explorer 环境缺失的用户代理和 PATH。没有更改系统代理策略或 TLS 校验，也未重配 Key。独立 CONNECT 监听证明外部请求经代理且本机请求直连，模拟旧环境的启动子进程能读到代理并找到 `gh`。
+
+真实完整整理另复现过上游 HTTP 200、`STOP` 但本地返回 `AI_INVALID_RESPONSE`。两条引用文本均可在材料找到，字段路径均不符合合同。Gemini JSON Schema 现在明确列出允许的路径，指令同时要求引用只指向候选中已出现的字段。保留逐字引用核验。发布包 `67d0929f0f0c` 在隔离、无可见窗口的真实 Windows WebView2 通过非敏感中文写入、预览、Gemini 真实候选、人工确认和无源码写入检查。证据在 `.cache/studio-gemini-readiness/webview.json`。网络超时、鉴权、模型不可用、配额、暂时不可用和解析错误均有单独覆盖。
+
+官方 WinGet 已安装 GitHub CLI 2.104.0，原有登录有效。认证只读检查确认仓库 `push/admin`、OAuth `repo`、Actions 已启用、`deploy.yml` active、Pages 使用 Actions 并允许 `main`。没有读取或输出令牌。OAuth 尚无 `workflow` scope，仅在使用该凭据安装工作流时补充。实际触发 Actions 写入需在获批后单独验证。生产网关准备复测返回 HTTP 200、`canExecute=false`，只剩 `REMOTE_WORKFLOW_NOT_READY`，源码、提交、推送、调度均未开始。
+
+远端 `main` `9fd8cc8` 的最小补丁只包含 `.github/workflows/deploy.yml` 和 `scripts/release/record.mjs`，保存在 `.cache/studio-release-review/m23-workflow-bootstrap.patch`。隔离仓库 `git apply --check`、8 个 Bash SHA 守卫正反例、锁文件干净安装、公开 Astro 构建、公开/私人产物边界及 27 文件产物散列通过。安装补丁只触发 push 检查，Pages 部署仍需单独 `workflow_dispatch`，且只部署同一已检产物。本地准备完成，补丁提交与推送、正式站点部署分别等候授权。
+
+回归通过 `lint`、`typecheck`、`test`、`build`、`studio:build`。全量单测 217 通过、1 跳过，最终 AI/代理定向 11 项通过，Chromium/WebKit 真实浏览器的合成 AI 审核和隔离发布确认共 4 项通过。工作区现有改动、Think 编辑/保存/预览流程和其他功能保持。
+
+<a id="studio-think-performance"></a>
+### 9.59 Think 差异、预览与发布性能（2026-11-18）
+
+- AI 审核中原文和拟应用文本使用只读 CodeMirror MergeView；左右共用滚动容器，插删用差异块及占位对齐，点有颜色的改动行定位该块。是否采用建议正文、应用确认及冲突约束保持原样。
+- Think 日常预览继续走 `preview-fast`。工作台收到配对页面后后台预热同一 Sätteri 处理器；只保留当前正文的一个沙箱 iframe，正文变化重新渲染，刷新或切换文章丢弃缓存。预热和切换不保存源码，也不复制真实文章。`Server-Timing` 只含 Markdown 服务用时。
+- M23 在新建隔离仓库只浅抓获批远端基线，不复制开发仓库历史；隔离 Git 使用提交中的行尾，锁定依赖用 `npm ci --prefer-offline`，仍按锁文件全量安装。发布确认、SHA、资源断网验证、root/base 构建、正式 CI、产物核对及失败恢复合同不变。远端两文件补丁已在上一轮单独授权下安装；普通 push CI `44088095292` 成功，Pages 跳过，本轮未改变远端。
+
+同机 1280×900 不可见 Windows WebView2（同桌面后台启动代码，非作者正在使用的快捷方式窗口），同一非敏感输入：首轮点击到 iframe 文档可读取 284.5 → 24.7 ms；点击到请求 1.3 → 1.6 ms，HTTP 等响应头 273.1 → 11.9 ms，后端段 269.0 → 8.6 ms，JSON 已读到 DOM 挂载 1.8 → 2.1 ms，DOM 到 iframe `load` 6.8 → 7.5 ms。相同正文三次切换中位数 12.2 → 0.4 ms（DOM 恢复、无新 HTTP，不计屏幕绘制），编辑后的热预览中位数 11.9 → 12.4 ms。机器负载会影响样本；不将后台预热后的等待减少当成渲染器省掉了同样的 CPU 时间。
+
+M23 隔离同树对照：本机克隆/抓取/检出 2.35 s，初始化/浅抓/检出 0.91 s（不含新增的隔离 Git 配置）；同缓存交错安装两次均值 65.44 → 55.88 s。内容投影 49 ms，独立断网资源守卫 9.59 s。 合成已保存稿对真实 GitHub main 只读准备单次 22.45 s，返回 `canExecute: true`；此前用另一份无效的原稿夹具被本机校验拦下，不计入成功用时。旧远端树在 Windows 隔离验证中的 lint 10.81 s、typecheck 44.10 s，单测 27.83 s 并失败（旧 Think 字节与预览断言）；因此不能以独立构建 12.06 s、产物记录约 0.32 s、公开/私人边界 0.54/0.32 s、正式散列合同 27 文件 41 ms 的通过替代完整候选检查。历史 GitHub 验证任务 9 分 21 秒，先前 Pages 记录从创建到成功 17 秒。没有执行真实 Git 上传、工作流调度、Pages 部署或新产物上线复核。Astro 7.3.8 的实验性增量生成要求静态路由显式 `cacheKey`；共享 catch-all 当前未提供，首页与索引也有跨条目依赖。未启用该实验选项，未复用上一次的 `dist`。
+
+`lint`、`typecheck`、`test`（217 通过、1 跳过）、`build`、`studio:build` 通过。Studio 双引擎完整回归首跑 132 通过、1 跳过，新增差异用例修正后与缓存用例双引擎定向复测 4 通过；正式 Astro 内容和私人边界 smoke 两引擎各 6 通过。计时原始记录在 `.cache/studio-perf/`。M23 最后定向 19 项通过，原生 WebView2 候选显示与取消保留原稿通过；隐藏窗口不用于验证滚动像素，两引擎定向覆盖点击与对齐。当前蓝发窗口未操作，正式准备遇 `DESKTOP_BUSY`；可见窗口的滚动复核和真实发布均未验收。
+
+### 9.60 Think AI 逐项审核与应用（2026-11-23）
+
+Think 写作整理支持单独返回逐字定位的 `before/after`。旧回包没有逐项建议时可从正文候选展示差异；无法唯一定位、可能动到署名、引文、代码或诗句整体的修改不进入可勾选列表。缺乏可靠替换的事项只提示。文章字段逐项显示，缺少依据标为待确认。底部保留「应用选中修改」与「取消」，不能应用时说明原因。应用只更新编辑缓冲，可一次撤销。
+
+以《你是人间的四月天》的隔离副本恢复「教务着变」，用包含「交舞着变」替换、漏改的整篇候选、署名删除及未确认摘要的模拟服务回包测试。真实 Windows WebView2 未显示个人窗口，通过按钮可见、选择性应用、取消及撤销。另一份多项输入通过只应用所选更改，两轮均未改写或新增源码，未将诗稿发给外部 AI。原生证据见 `.cache/studio-ai-review/native.json`，Chromium/WebKit 写作与整理 30 项通过。
+
+<a id="studio-think-v1-freeze"></a>
+### 9.61 Think v1.0 最终封版（2026-11-23）
+
+没有 slug 或 slug 为空的新原稿可应用所选正文与字段。仅编辑缓冲使用容许缺 slug 的 YAML 读写；仍按严格合同校验正式源码、隔离正式预览和发布。原稿按保存写入本机待审存储；取消、撤销、评论和署名保护仍有效。既有正式文章的 slug 与公开状态不可通过此操作改写。
+
+旧远端 `1c73252` 的 13 项定向测试在 Windows `core.autocrlf=true` 时 11 通过、2 失败；改为 false 时 13 通过。两项来自 LF 夹具在检出时被转成 CRLF，测试再构造 CRLF 得到重复回车。限定该夹具的 Git 行尾规则后，以 true 重新检出、旧代码原有断言 13 项全过。`PREVIEW_NOT_READY` 单独在旧隔离树加入原来的不合规测速文件后复现，干净基线不会触发；它是内容目录入口校验的正确拒绝。没有改变正式校验或削弱断言。
+
+全量 lint、typecheck、正式 Astro 与 Studio 构建通过。单元 220 通过、1 跳过（Windows 普通文件 symlink 权限；junction、hardlink 仍验证）；Studio 两引擎 137 通过、1 跳过；正式站点 Chromium / WebKit 各 77，私人编辑 78、合成密文发布站点 8，Windows 桌面消息契约通过。原生 WebView2 的诗稿保护、取消、撤销、新原稿多项应用和只存本机通过，使用受控模拟回包；另以合成输入对已配置的 Gemini 真实生成并应用，通过；正式后端与原生快速预览和复用通过。不发送真实私人稿件。
+
+建议范围以远端 `1c73252` 为基线，工作流与产物记录脚本已经在远端。精确清单见忽略目录 `.cache/think-final/release-scope.md`；包括 Think、共享 Studio 依赖、测试、依赖锁和维护文档。排除未确认诗稿、Compass 及相关站点测试改动、图标提示词、所有私人资料、凭据和生成文件。建议说明：`fix(studio): finalize Think v1.0 authoring and release checks`。未创建提交或标签，主工作区索引不变。
+
+GitHub 只读预检确认有仓库写权限，Actions 启用，Pages 只允许 main；安装工作流的普通 push CI 成功且明确跳过 Pages。隔离合成文章的真实远端只读准备返回 `canExecute: true`，不证明远端写入或调度成功。真正的一键验收须先获批提交、推进远端 main 并等待该 SHA 的 CI；再获批用哪一篇具体内容公开发布，在 Studio 审核该篇差异，最终核对 workflow run、下载产物散列、发布清单的源码 SHA 和线上双引擎页面。本阶段保持待正式验收，不启动下一阶段。
+
+完整 M23 Windows 发布门槛在不含上述排除项的隔离待审代码快照退出 0，包含锁定安装、根与子路径构建、浏览器、私人边界与发布清单。86 个发布文件（含清单，10 个 HTML）逐一核验；没有 Studio 程序、私人包或未确认诗稿。隔离仓没有生成新 Git SHA，清单所载旧基线 SHA 仅用于证明本地核验链路，不能作为正式 v1.0 的产物身份。结论：本地提交审核 Go，正式发布与阶段完成 No-Go，待授权及真实线上验收。

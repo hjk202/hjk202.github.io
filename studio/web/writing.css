@@ -1,0 +1,57 @@
+.writing { min-height: 100vh; height: 100dvh; display: flex; flex-direction: column; background: #fff; color: #222a34; }
+.writing-bar { display: flex; align-items: center; gap: 10px; padding: 9px 20px; border-bottom: 1px solid var(--line); background: #f9fafb; }
+.writing-bar > details > summary { max-width: 38vw; overflow: hidden; text-overflow: ellipsis; }
+.writing-bar .control-menu-content { inset-inline: 0 auto; min-width: 215px; max-width: min(420px, 90vw); }
+.writing-bar .control-menu-content ul { list-style: none; margin: 0; padding: 0; max-height: 38vh; overflow: auto; }
+.writing-bar .control-menu-content button { overflow-wrap: anywhere; }
+.writing-other { display: flex; gap: 14px; margin-top: 5px; padding: 7px; border-top: 1px solid var(--line); }
+.writing-other a { color: var(--blue); }
+.writing-mode, .writing-tools { display: flex; gap: 4px; }
+.writing-tools { margin-left: auto; }
+.writing-mode button[aria-pressed="true"] { background: #e8eef6; border-color: #b8c6d8; }
+.writing-surface { min-height: 0; flex: 1; display: flex; flex-direction: column; padding: 0; container-type: normal; }
+#writing-editor, #writing-preview-pane { height: 100%; min-height: 0; }
+#writing-editor .cm-editor { height: 100%; }
+#writing-editor .cm-content { max-width: 980px; width: 100%; margin-inline: auto; padding: clamp(18px, 4vw, 48px) clamp(20px, 5vw, 64px); font-family: ui-monospace, Consolas, "Microsoft YaHei", monospace; }
+#writing-editor .cm-scroller { font-size: 15px; line-height: 1.8; }
+#writing-editor .cm-focused { outline: none; }
+#writing-editor .writing-fold { min-height: 0; padding: 2px 9px; font: 12px "Segoe UI", sans-serif; color: var(--muted); }
+#writing-editor .cm-panel input { display: inline-block; width: auto; }
+#writing-preview-pane > iframe { height: 100%; border: 0; border-radius: 0; }
+.writing-footer { border-top: 1px solid var(--line); border-bottom: 0; }
+#writing-save-state { margin-right: auto; font-size: 12px; color: var(--muted); }
+#writing-time { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.writing-feedback { padding: 4px 20px 8px; border-top: 1px solid var(--line); background: #f7f9fc; overflow: auto; max-height: 28vh; }
+.writing-feedback ul:empty, .writing-feedback p:empty { display: none; }
+.writing-feedback ul { margin: 6px 0; padding-left: 22px; }
+.writing-feedback details { margin: 4px 0; }
+.writing dialog { width: min(850px, calc(100vw - 32px)); }
+.writing dialog pre, .writing-feedback pre { overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; max-height: 34vh; padding: 10px; border: 1px solid var(--line); }
+.writing dialog input[type="checkbox"] { display: inline-block; width: auto; margin-right: 6px; }
+.writing dialog .toolbar { justify-content: flex-end; margin: 12px 0 0; }
+#writing-ai-review[open] { display: flex; flex-direction: column; overflow: hidden; padding: 16px 20px; max-height: calc(100dvh - 32px); }
+#writing-ai-title { flex: none; margin: 0 0 8px; }
+.writing-ai-scroll { min-height: 0; overflow: auto; }
+#writing-ai-changes { min-width: 0; margin: 0; padding: 0; border: 0; }
+#writing-ai-changes legend { padding: 0 0 6px; }
+#writing-ai-items label { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: start; gap: 4px 6px; margin: 0; padding: 7px 4px; border-top: 1px solid var(--line); cursor: pointer; }
+#writing-ai-items strong { min-width: 0; }
+.writing-ai-values { grid-column: 2; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; min-width: 0; }
+.writing-ai-values > * { padding: 2px 6px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.writing-ai-values del { background: #fbe9e7; }
+.writing-ai-values ins { text-decoration: none; background: #e4f3e9; }
+#writing-ai-notes { overflow-wrap: anywhere; }
+#writing-ai-notes:empty { display: none; }
+.writing-ai-footer { flex: none; border-top: 1px solid var(--line); margin-top: 8px; }
+#writing-ai-status { margin: 7px 0 0; max-height: 15dvh; overflow: auto; overflow-wrap: anywhere; }
+.writing #writing-ai-review .toolbar { margin-top: 6px; }
+.writing-comparison-labels { display: grid; grid-template-columns: 1fr 1fr; margin: 8px 0 4px; color: var(--muted); }
+.writing-comparison-labels span { padding-inline: 8px; }
+#writing-comparison .cm-mergeView { max-height: 48vh; overflow: auto; border: 1px solid var(--line); }
+#writing-comparison .cm-scroller { font: 13px/1.7 ui-monospace, Consolas, "Microsoft YaHei", monospace; }
+#writing-comparison .cm-mergeViewEditor + .cm-mergeViewEditor { border-inline-start: 1px solid var(--line); }
+#writing-comparison .cm-changedLine { cursor: pointer; }
+@media (max-width: 750px) {
+  .writing-bar { padding-inline: 12px; gap: 5px; }
+  .writing-bar button { padding-inline: 7px; }
+}

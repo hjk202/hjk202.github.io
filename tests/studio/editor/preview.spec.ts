@@ -1,3 +1,4 @@
+import { reveal, clickDisclosed } from '../workbench-controls.ts';
 import fs from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { createServer } from 'node:http';
@@ -63,7 +64,7 @@ const test = baseTest.extend<{ repo: Repo; previewBase: string }>({
   },
 });
 test.setTimeout(180_000);
-const selectOriginal = async (page: Page, origin: string) => { await page.goto(origin); await page.locator('#documents button').filter({ hasText: '底层' }).click(); await expect(page.locator('#body')).not.toHaveValue(''); };
+const selectOriginal = async (page: Page, origin: string) => { await page.goto(origin+'/#think'); await page.locator('#documents button').filter({ hasText: '底层' }).click(); await expect(page.locator('#body')).not.toHaveValue(''); };
 const jobs = (repo: Repo) => { const dir = join(repo.root, '.cache/studio/preview'); return fs.existsSync(dir) ? fs.readdirSync(dir) : []; };
 const waitPreview = async (page: Page) => { await expect(page.locator('#preview-state')).toContainText('仅为当前候选', { timeout: 110_000 }); return page.frameLocator('#preview-frame iframe'); };
 function websiteBuild(repo: Repo, base: string, label: string, count: number) {
@@ -81,7 +82,7 @@ for (const previewBase of ['/', '/personal-space/']) test.describe(previewBase, 
     await selectOriginal(page, repo.session.origin);
     const body = await page.locator('#body').inputValue();
     await page.locator('#body').fill(body + '\n## M4_CANDIDATE\n\n```js\nconst value = "<tag> & 中文";\n```\n\n![Fixture image](./probe.svg)\n' + '\n长文段落。'.repeat(30));
-    if (previewBase !== '/') await page.locator('#kind').selectOption('note');
+    if (previewBase !== '/') { await reveal(page, 'think-properties'); await page.locator('#kind').selectOption('note'); }
     const dirty = await page.locator('#save-state').innerText();
     await page.locator('#preview').click(); const frame = await waitPreview(page);
     await expect(frame.locator('[role="math"]')).toBeVisible();
@@ -102,7 +103,7 @@ for (const previewBase of ['/', '/personal-space/']) test.describe(previewBase, 
     await page.locator('#save').click(); await expect(page.locator('#save-state')).toHaveText('已保存（本地源码）');
     expect(fs.readFileSync(repo.source, 'utf8')).toContain('published: false');
     expect(fs.readFileSync(repo.source, 'utf8')).toContain('M4_CANDIDATE');
-    await page.locator('#published').selectOption('true'); await page.locator('#save').click();
+    await reveal(page, 'think-properties'); await page.locator('#published').selectOption('true'); await page.locator('#save').click();
     await expect(page.locator('#save-state')).toHaveText('已保存（本地源码）'); await expect(page.locator('#save')).toBeEnabled();
     const published = websiteBuild(repo, previewBase, 'published-out', 1);
     expect(fs.readFileSync(join(published, 'think/understanding-from-the-bottom/index.html'), 'utf8')).toContain('M4_CANDIDATE');
@@ -125,7 +126,7 @@ for (const previewBase of ['/', '/personal-space/']) test.describe(previewBase, 
     await visitor.getByRole('combobox').fill('底层'); await visitor.getByRole('combobox').press('Enter');
     await expect(visitor).toHaveURL(home + 'think/understanding-from-the-bottom/');
     await visitor.getByRole('link', { name: 'Home', exact: true }).click(); await expect(visitor).toHaveURL(home);
-    await page.locator('#published').selectOption('false'); await page.locator('#save').click();
+    await reveal(page, 'think-properties'); await page.locator('#published').selectOption('false'); await page.locator('#save').click();
     await expect(page.locator('#save-state')).toHaveText('已保存（本地源码）'); await expect(page.locator('#save')).toBeEnabled();
     const hidden = websiteBuild(repo, previewBase, 'hidden-out', 0);
     expect(fs.existsSync(join(hidden, 'think/understanding-from-the-bottom/index.html'))).toBe(false);
@@ -133,7 +134,7 @@ for (const previewBase of ['/', '/personal-space/']) test.describe(previewBase, 
     await expect(visitor.getByRole('link', { name: 'Think, 0 entries', exact: true })).toBeVisible();
     expect((await visitor.request.get(home + 'think/understanding-from-the-bottom/')).status()).toBe(404);
     await visitor.goto(home + 'think/'); await expect(visitor.locator('main')).toContainText('暂无公开文章');
-    page.once('dialog', dialog => dialog.accept()); await page.locator('#delete').click(); await expect(page.locator('#editor')).toBeHidden();
+    page.once('dialog', dialog => dialog.accept()); await clickDisclosed(page, 'think-actions', '#delete'); await expect(page.locator('#editor')).toBeHidden();
     repo.website(websiteBuild(repo, previewBase, 'empty-out', 0));
     await visitor.goto(home + 'think/'); await expect(visitor.locator('main')).toContainText('暂无公开文章');
     expect((await visitor.request.get(home + 'think/understanding-from-the-bottom/')).status()).toBe(404);

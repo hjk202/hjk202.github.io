@@ -5,7 +5,6 @@ import { dirname, extname, isAbsolute, join, relative, resolve, sep } from 'node
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
-import { createSatteriMarkdownProcessor } from '@astrojs/markdown-satteri';
 import type { EditorResult, ThinkDocument } from '../../contracts/think.ts';
 import type { ThinkPreviewResult } from '../../contracts/preview.ts';
 import { PREVIEW_TIMEOUT_MS } from '../../contracts/preview.ts';
@@ -86,7 +85,11 @@ export function createThinkPreview(service: ThinkAuthoring, options: { repositor
         if (!markdown.includes(target)) markdown.push(target);
         // Use the same Markdown processor's image collection before native bundler imports.
         // Node permissions alone do not constrain reads performed inside trusted native addons.
+        // Ordinary editing does not need the Markdown compiler. The first preview pays this cost.
+        const { createSatteriMarkdownProcessor } = await import('@astrojs/markdown-satteri');
+        if (signal?.aborted || abort.signal.aborted || closed) throw new ThinkFileError('PREVIEW_CANCELLED');
         const processor = await createSatteriMarkdownProcessor({ syntaxHighlight: false });
+        if (signal?.aborted || abort.signal.aborted || closed) throw new ThinkFileError('PREVIEW_CANCELLED');
         for (const file of markdown) {
           const source = parseThinkSource(fs.readFileSync(file, 'utf8'));
           const body = source.ok ? source.value.document.body : fs.readFileSync(file, 'utf8');
@@ -97,7 +100,7 @@ export function createThinkPreview(service: ThinkAuthoring, options: { repositor
           }
         }
         fs.writeFileSync(join(project, 'pnpm-workspace.yaml'), 'packages: []\n'); // Stop Vite's upward workspace probing.
-        fs.copyFileSync(new URL('./preview-build.mjs', import.meta.url), join(job, 'build.mjs'));
+        fs.copyFileSync(new URL(/* @vite-ignore */ './preview-build.mjs', import.meta.url), join(job, 'build.mjs'));
         fs.writeFileSync(join(job, 'options.json'), JSON.stringify({ base }));
         const moduleRoot = dirname(dirname(createRequire(import.meta.url).resolve('astro/package.json')));
         const packageFile = join(dirname(moduleRoot), 'package.json');

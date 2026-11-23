@@ -1,3 +1,4 @@
+import { clickDisclosed } from '../workbench-controls.ts';
 import fs from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 import { test, expect } from '@playwright/test';
@@ -23,7 +24,7 @@ test('Agent and Web share one API and protect each other from stale saves', asyn
   page.on('pageerror', error => errors.push(error.message));
   page.on('request', request => { if (new URL(request.url()).origin !== session.origin) external.push(request.url()); });
   try {
-    await page.goto(session.origin);
+    await page.goto(session.origin+'/#think');
     await page.locator('#documents button').filter({ hasText: 'agent-web' }).click();
     await expect(page.locator('#body')).toHaveValue('ORIGINAL_BODY\n');
     await page.locator('#body').fill('WEB_UNSAVED_BUFFER');
@@ -36,7 +37,7 @@ test('Agent and Web share one API and protect each other from stale saves', asyn
     expect(fs.readFileSync(file, 'utf8')).toContain('AGENT_BODY\n');
     await page.screenshot({ path: info.outputPath('agent-web-conflict.png'), fullPage: true });
     page.once('dialog', dialog => dialog.accept());
-    await page.getByRole('button', { name: '重新读取源文件', exact: true }).click();
+    await clickDisclosed(page, 'think-actions', '#reload');
     await expect(page.locator('#body')).toHaveValue('AGENT_BODY\n');
     await page.locator('#body').fill('WEB_CONFIRMED_EDIT\n');
     await page.locator('#save').click();

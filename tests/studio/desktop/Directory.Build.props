@@ -1,0 +1,5 @@
+<Project><PropertyGroup>
+  <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)..\..\..\.cache\studio-m8\contract-tests\obj\</BaseIntermediateOutputPath>
+  <MSBuildProjectExtensionsPath>$(BaseIntermediateOutputPath)</MSBuildProjectExtensionsPath>
+  <OutputPath>$(MSBuildThisFileDirectory)..\..\..\.cache\studio-m8\contract-tests\bin\</OutputPath>
+</PropertyGroup></Project>

@@ -3,13 +3,15 @@ export interface ArticleMetadata {
   title: string;
   summary: string;
   date: string;
+  createdAt?: string;
+  updatedAt?: string;
   published?: boolean;
   kind?: 'article' | 'note';
 }
 
 export interface ArticleFieldIssue {
-  field: 'slug' | 'published' | 'title' | 'summary' | 'date' | 'body' | 'kind';
-  code: 'INVALID_SLUG' | 'INVALID_TYPE' | 'REQUIRED_FIELD' | 'INVALID_DATE' | 'INVALID_KIND';
+  field: 'slug' | 'published' | 'title' | 'summary' | 'date' | 'body' | 'kind' | 'createdAt' | 'updatedAt';
+  code: 'INVALID_SLUG' | 'INVALID_TYPE' | 'REQUIRED_FIELD' | 'INVALID_DATE' | 'INVALID_KIND' | 'INVALID_TIMESTAMP';
   message: string;
 }
 
@@ -17,6 +19,13 @@ export function articleIdentityIssues(data: Record<string, unknown>): ArticleFie
   const issues: ArticleFieldIssue[] = [];
   if (data.published !== undefined && typeof data.published !== 'boolean') issues.push({ field: 'published', code: 'INVALID_TYPE', message: 'published must be boolean' });
   if (typeof data.slug !== 'string' || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(data.slug)) issues.push({ field: 'slug', code: 'INVALID_SLUG', message: 'invalid slug' });
+  for (const field of ['createdAt', 'updatedAt'] as const) {
+    const time = data[field];
+    if (time !== undefined && (typeof time !== 'string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(time)
+      || !Number.isFinite(Date.parse(time)) || new Date(time).toISOString().replace('.000Z', 'Z') !== time)) {
+      issues.push({ field, code: 'INVALID_TIMESTAMP', message: '使用引号括起的 UTC 时间，例如 "2026-11-12T08:00:00Z"。' });
+    }
+  }
   return issues;
 }
 

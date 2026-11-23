@@ -1,0 +1,37 @@
+/** Shared result envelopes only; content models remain module-specific. */
+export type ValidationCode =
+  | 'INVALID_TYPE' | 'UNKNOWN_FIELD' | 'INVALID_SLUG' | 'REQUIRED_FIELD'
+  | 'INVALID_DATE' | 'INVALID_KIND' | 'INVALID_TIMESTAMP' | 'INVALID_FRONTMATTER' | 'UNSUPPORTED_YAML'
+  | 'DUPLICATE_SLUG' | 'INVALID_FILENAME' | 'FILE_EXISTS' | 'SLUG_IMMUTABLE'
+  | 'SOURCE_UNAVAILABLE' | 'SOURCE_TOO_LARGE' | 'DIRECTORY_INVALID';
+
+export interface ValidationIssue {
+  field: string;
+  code: ValidationCode;
+  message: string;
+  severity: 'error' | 'warning';
+}
+
+export interface ValidationReport {
+  canSave: boolean;
+  publishReady: boolean;
+  issues: ValidationIssue[];
+}
+
+export type EditorErrorCode =
+  | 'VALIDATION_FAILED' | 'UNSUPPORTED_FORMAT' | 'INVALID_REQUEST' | 'NOT_FOUND'
+  | 'REVISION_CONFLICT' | 'DUPLICATE_SLUG' | 'FILE_EXISTS' | 'PROTECTED_PATH'
+  | 'DIRECTORY_INVALID' | 'AUTHORING_BUSY' | 'SERVICE_CLOSED' | 'FILE_OPERATION_FAILED' | 'PRIVATE_REFERENCES_UNKNOWN'
+  | 'PRIVATE_UNAVAILABLE' | 'PRIVATE_HANDLE_INVALID' | 'PRIVATE_CONFLICT' | 'PRIVATE_ENVELOPE_INVALID'
+  | 'PRIVATE_FILE_UNSAFE' | 'PRIVATE_BACKUP_INVALID' | 'PRIVATE_WRITE_FAILED' | 'PRIVATE_PUBLIC_CHANGED' | 'PRIVATE_FAILED'
+  | 'DELIVERY_NOT_READY' | 'DELIVERY_STALE' | 'DELIVERY_FAILED'
+  | 'PUBLISH_NOT_READY' | 'PUBLISH_STALE' | 'PUBLISH_FAILED' | 'PUBLISH_UNKNOWN' | 'PUBLISH_BUSY' | 'PUBLISH_TOO_LARGE'
+  | 'PREVIEW_NOT_READY' | 'PREVIEW_FAILED' | 'PREVIEW_TIMEOUT' | 'PREVIEW_CANCELLED'
+  | 'PREVIEW_RESOURCE_BLOCKED' | 'PREVIEW_TOO_LARGE'
+  | 'AI_INITIALIZING' | 'AI_CONFIG_UNAVAILABLE' | 'AI_NOT_CONFIGURED' | 'AI_CONFIG_INVALID' | 'AI_INPUT_TOO_LARGE' | 'AI_AUTH_FAILED'
+  | 'AI_RATE_LIMITED' | 'AI_MODEL_UNAVAILABLE' | 'AI_UPSTREAM_UNAVAILABLE' | 'AI_FAILED' | 'AI_TIMEOUT' | 'AI_CANCELLED' | 'AI_INVALID_RESPONSE' | 'AI_TOO_LARGE';
+
+export type EditorResult<T> =
+  | { ok: true; value: T }
+  | { ok: false; error: { code: EditorErrorCode; message: string; issues: ValidationIssue[]; cleanupPending?: boolean } };
+

@@ -8,8 +8,28 @@ foreach ($module in @('Microsoft.PowerShell.Security', 'Microsoft.PowerShell.Uti
 }
 
 function Get-StudioStorePath {
-    if (-not $env:LOCALAPPDATA) { throw 'LOCAL_CONFIG_UNAVAILABLE' }
-    return [IO.Path]::Combine($env:LOCALAPPDATA, 'PersonalSpaceStudio', 'bailian.json')
+    # Resolve the user's registered folder, independent of the launcher's LOCALAPPDATA string.
+    # This flag does not disable packaged-app file IO virtualization.
+    if (-not ('StudioLocalFolders' -as [type])) {
+        Add-Type -TypeDefinition @'
+using System;
+using System.Runtime.InteropServices;
+public static class StudioLocalFolders {
+    [DllImport("shell32.dll")] static extern int SHGetKnownFolderPath(ref Guid folder, uint flags, IntPtr token, out IntPtr path);
+    public static string LocalAppData() {
+        Guid folder = new Guid("F1B32785-6FBA-4FCF-9D55-7B8E7F157091"); IntPtr path = IntPtr.Zero;
+        try {
+            // KF_FLAG_NO_PACKAGE_REDIRECTION; retain the user's configured folder location.
+            Marshal.ThrowExceptionForHR(SHGetKnownFolderPath(ref folder, 0x00010000, IntPtr.Zero, out path));
+            return Marshal.PtrToStringUni(path);
+        } finally { if (path != IntPtr.Zero) Marshal.FreeCoTaskMem(path); }
+    }
+}
+'@
+    }
+    $directory = [StudioLocalFolders]::LocalAppData()
+    if (-not $directory -or -not [IO.Path]::IsPathRooted($directory)) { throw 'LOCAL_CONFIG_UNAVAILABLE' }
+    return [IO.Path]::Combine($directory, 'PersonalSpaceStudio', 'bailian.json')
 }
 
 function Assert-StudioStorePath([string]$Path) {
@@ -23,7 +43,7 @@ function Assert-StudioStorePath([string]$Path) {
 
 function Assert-StudioAiValues([string]$BaseUrl, [Security.SecureString]$Secret) {
     if ($Secret.Length -lt 1 -or $Secret.Length -gt 512) { throw 'LOCAL_CONFIG_INVALID' }
-    if ($BaseUrl -cne $BaseUrl.Trim() -or $BaseUrl -notmatch '^https://[a-z0-9][a-z0-9-]{0,62}\.(cn-beijing|us-east-1|ap-southeast-1|eu-central-1|ap-northeast-1)\.maas\.aliyuncs\.com/compatible-mode/v1/?$') {
+    if ($BaseUrl -cne 'https://generativelanguage.googleapis.com/v1beta' -and ($BaseUrl -cne $BaseUrl.Trim() -or $BaseUrl -notmatch '^https://[a-z0-9][a-z0-9-]{0,62}\.(cn-beijing|us-east-1|ap-southeast-1|eu-central-1|ap-northeast-1)\.maas\.aliyuncs\.com/compatible-mode/v1/?$')) {
         throw 'LOCAL_CONFIG_INVALID'
     }
     $plain = [Net.NetworkCredential]::new('', $Secret).Password

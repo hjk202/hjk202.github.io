@@ -1,3 +1,4 @@
+import { reveal, clickDisclosed } from '../workbench-controls.ts';
 import fs from 'node:fs';
 import { createServer } from 'node:http';
 import { join, relative, resolve } from 'node:path';
@@ -50,8 +51,8 @@ const test = base.extend<{ repo: Fixture; configured: boolean }>({
 });
 
 const open = async (page: import('@playwright/test').Page, repo: Fixture) => {
-  await page.goto(repo.origin); await page.locator('#documents button').filter({ hasText: 'sample' }).click();
-  await expect(page.locator('#body')).toHaveValue('SOURCE_TEXT\n'); await expect(page.locator('#ai-service')).not.toContainText('正在');
+  await page.goto(repo.origin+'/#think'); await page.locator('#documents button').filter({ hasText: 'sample' }).click();
+  await reveal(page, 'think-ai'); await expect(page.locator('#body')).toHaveValue('SOURCE_TEXT\n'); await expect(page.locator('#ai-service')).not.toContainText('正在');
 };
 
 test('all five suggestions require explicit request/adoption/save and retain published/revision protection', async ({ page, repo }, info) => {
@@ -69,7 +70,7 @@ test('all five suggestions require explicit request/adoption/save and retain pub
     expect(fs.readFileSync(repo.file)).toEqual(repo.original);
   }
   await page.screenshot({ path: info.outputPath('ai-editor.png'), fullPage: true });
-  await page.locator('#validate').click(); await expect(page.locator('#validation-state')).toContainText('可保存');
+  await clickDisclosed(page, 'think-actions', '#validate'); await expect(page.locator('#validation-state')).toContainText('可保存');
   await page.locator('#save').click(); await expect(page.locator('#save-state')).toHaveText('已保存（本地源码）'); await expect(page.locator('#save')).toBeEnabled();
   const saved = fs.readFileSync(repo.file, 'utf8'); expect(saved).toContain('SUGGESTED_generateTitle'); expect(saved).toContain('SUGGESTED_generateSummary'); expect(saved).toContain('SUGGESTED_summarize'); expect(saved).toContain('published: false');
   fs.appendFileSync(repo.file, '\nEXTERNAL_REVISION\n'); const external = fs.readFileSync(repo.file);
@@ -149,7 +150,7 @@ test('cancel and deliberately late completed responses cannot overwrite newer in
 test.describe('unconfigured backend', () => {
   test.use({ configured: false });
   test('AI is unavailable while ordinary editor validation/save still work', async ({ page, repo }) => {
-    await open(page, repo); await expect(page.locator('#ai-service')).toContainText('AI_NOT_CONFIGURED'); await expect(page.locator('#ai-request')).toBeDisabled();
+    await open(page, repo); await expect(page.locator('#ai-service')).toContainText('AI_NOT_CONFIGURED'); await expect(page.locator('#ai-service')).toContainText('不要重复配置'); await expect(page.locator('#ai-service')).not.toContainText('请使用正式桌面入口'); await expect(page.locator('#ai-request')).toBeDisabled();
     await page.locator('#body').fill('EDIT_WITHOUT_AI'); await page.locator('#save').click();
     await expect(page.locator('#save-state')).toHaveText('已保存（本地源码）'); expect(fs.readFileSync(repo.file, 'utf8')).toContain('EDIT_WITHOUT_AI'); expect(repo.calls).toHaveLength(0);
   });

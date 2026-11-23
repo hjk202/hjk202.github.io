@@ -1,0 +1,19 @@
+.think-article .prose { line-height: 1.95; overflow-wrap: anywhere; }
+.think-article .prose p { margin: 1.5rem 0; }
+.think-article .prose h2, .think-article .prose h3 { margin-top: 2.5rem; line-height: 1.5; }
+.think-article .prose li { margin: .5rem 0; }
+.think-article .prose blockquote { margin: 2rem 0; padding-left: 1.25rem; border-left: 2px solid var(--edge); color: var(--muted); }
+.think-article .prose code { font-size: .85em; background: var(--selection); padding: .15em .35em; border-radius: 4px; }
+.think-article .prose pre { max-width: 100%; overflow-x: auto; padding: 1.25rem; border: 1px solid var(--edge); border-radius: 10px; line-height: 1.65; }
+.think-article .prose pre code { padding: 0; background: transparent; }
+.think-article .prose img { max-width: 100%; height: auto; }
+.think-article .prose .attention-equation { display: flex; justify-content: safe center; align-items: center; gap: .5rem; max-width: 100%; overflow-x: auto; padding: 1.5rem 0; font: 1.5rem Georgia, serif; }
+.think-article .prose .attention-equation > * { flex-shrink: 0; }
+.think-article .prose .fraction { display: inline-flex; flex-direction: column; text-align: center; }
+.think-article .prose .fraction > span:first-child { border-bottom: 1px solid currentColor; padding: 0 .3rem .3rem; }
+.think-article .prose .fraction > span:last-child { padding-top: .3rem; }
+.think-article .prose table { border-collapse: collapse; display: block; overflow-x: auto; }
+.think-article .prose th, .think-article .prose td { border: 1px solid var(--edge); padding: .25rem .6rem; }
+.think-article .prose a { color: var(--accent); text-decoration: underline; }
+.think-article .prose :is(ul, ol) { padding-inline-start: 1.7em; }
+.think-article .prose .katex-display { display: block; text-align: center; overflow-x: auto; }

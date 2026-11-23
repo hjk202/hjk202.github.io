@@ -4,7 +4,7 @@ import { test } from 'node:test';
 import { parseFrontmatter } from 'astro/markdown';
 import { publicArticles } from '../../src/modules/think/metadata.ts';
 import type { EditorResult, ThinkDocument } from '../../studio/contracts/think.ts';
-import { parseThinkSource, serializeThinkDocument } from '../../studio/server/think/document.ts';
+import { parseThinkDraftBuffer, parseThinkSource, serializeThinkDocument, serializeThinkDraftBuffer } from '../../studio/server/think/document.ts';
 import { validateThinkDocument } from '../../studio/server/think/validation.ts';
 
 const fixture = readFileSync(new URL('../fixtures/studio/commented-note.md.fixture', import.meta.url), 'utf8');
@@ -17,6 +17,7 @@ function unwrap<T>(result: EditorResult<T>): T {
 }
 
 test('M0 keeps current author source and commented LF/CRLF/BOM fixtures byte-identical on no-op', () => {
+  assert.ok(!fixture.includes('\r'), 'the Git fixture is LF; this test constructs CRLF samples explicitly');
   for (const source of [current, fixture, fixture.replaceAll('\n', '\r\n'), '\uFEFF' + fixture, fixture.replace(/\n$/, '')]) {
     const { document, validation } = unwrap(parseThinkSource(source));
     assert.equal(validation.canSave, true);
@@ -25,6 +26,21 @@ test('M0 keeps current author source and commented LF/CRLF/BOM fixtures byte-ide
     assert.deepEqual(Buffer.from(output, 'utf8'), Buffer.from(source, 'utf8'));
   }
   assert.match(unwrap(parseThinkSource(current)).document.body, /<div class="attention-equation"/);
+});
+
+test('AI review can update an incomplete buffer without relaxing Think source or YAML validation', () => {
+  for (const slug of ['', 'slug: ""\r\n']) {
+    const source = '\uFEFF---\r\n# 原稿注释\r\n' + slug + 'title: "已有标题"\r\n---\r\n第一句有有重复。\n';
+    const draft = unwrap(parseThinkDraftBuffer(source));
+    const edited = { ...draft, body: '第一句有重复。\n' };
+    assert.equal(unwrap(serializeThinkDraftBuffer(edited, source)), source.replace('有有', '有'));
+    assert.equal(parseThinkSource(source).ok, false);
+    assert.equal(serializeThinkDocument(edited).ok, false);
+    const filled = unwrap(serializeThinkDraftBuffer({ ...edited, metadata: { ...edited.metadata, slug: 'draft-note' } }, source));
+    assert.equal(unwrap(parseThinkSource(filled)).document.metadata.slug, 'draft-note');
+  }
+  assert.equal(parseThinkDraftBuffer('---\nslug: bad/slug\n---\n内容').ok, false);
+  assert.equal(parseThinkDraftBuffer('---\ntitle: [' + '\n---\n内容').ok, false);
 });
 
 test('M0 body-only changes preserve the full original frontmatter and omitted fields', () => {

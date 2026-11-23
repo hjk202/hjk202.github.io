@@ -1,7 +1,7 @@
 import { articleIdentityIssues, publishedArticleIssues } from '../../../src/modules/think/metadata.ts';
 import type { ValidationCode, ValidationIssue, ValidationReport } from '../../contracts/think.ts';
 
-export const thinkMetadataFields = ['slug', 'title', 'summary', 'date', 'published', 'kind'] as const;
+export const thinkMetadataFields = ['slug', 'title', 'summary', 'date', 'published', 'kind', 'createdAt', 'updatedAt'] as const;
 
 function record(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)

@@ -1,8 +1,8 @@
 # Personal Space · 内容维护与写作接口手册
 
-更新：2026-10-17。适用于当前 Astro 静态站点与 Windows 本地 Studio，按现有源码核对；本文件中的示例均为非敏感教学数据，不会自动成为网站内容。
+更新：2026-10-30。适用于当前 Astro 静态站点与 Windows 本地 Studio，按现有源码核对；本文件中的示例均为非敏感教学数据，不会自动成为网站内容。
 
-**日常增删文章不需要再开发模块，也不需要开启 Phase 5。** 公开内容修改模块源文件，再验证、构建并按授权发布；私人内容在仓库外编辑完整 JSON，本地加密后只发布密文。公开网站没有在线写入接口；Windows 本地 Studio 已提供 Think 编辑器和隔离预览，操作见第 9 节。
+**日常增删文章不需要再开发模块，也不需要开启 Phase 5。** 公开内容修改模块源文件，再验证、构建并按授权发布；私人内容在仓库外维护，Studio 以加密主文件为唯一作者源，网站只接收密文交付副本。原 JSON/CLI 流程仍可使用，转用 Studio 时需明确迁移，不并行维护两个作者源。公开网站没有在线写入接口；Windows 本地 Studio 的公开/私人四模块操作见第 9 节。
 
 ## 目录
 
@@ -39,6 +39,8 @@ Phase 1–4 已完成，Phase 5 可选增强、Phase 6 内容/旅行摄影扩展
 | 使用 Studio 编辑 Think | 第 9.3.2 节 PC 编辑器、第 9.3.3 节隔离预览、第 9.3.4 节 AI 建议、第 9.3.1 节独立 HTTP；[PLAN 6.8](./PLAN.md#studio-plan) 记录架构/状态 |
 | 配置 AI、启动或停止 Studio | [第 9 节](#editor)；日常可用桌面快捷方式，AI 配置见 [9.3.4](#studio-ai) |
 | 让 Agent 调用 Studio | [第 9.3.5 节](#studio-agent)，复用本机 HTTP API |
+| 查 App、其他模块与私人编辑的验收 | [统一人工清单](#studio-batch-manual)、[PLAN M7–M15](./PLAN.md#studio-next-plan)；实现与自动验证后，真实 App 操作待反馈 |
+| 查启动诊断与下一轮安排 | [启动基线](#studio-startup-baseline)、[M16.2 复测](#studio-startup-optimization)。[主线使用说明](#studio-authoring-usage)、[PLAN M16.1–M23](./PLAN.md#studio-authoring-plan) |
 | 查目录分工、显示被隐藏的生成目录 | [README](./README.md) 的项目结构；[PLAN 仓库组织](./PLAN.md#repository-layout) 说明边界与视图设置 |
 
 <a id="interfaces"></a>
@@ -661,9 +663,10 @@ M0 提供作者契约/内存纯函数，M1 提供独立本地文件服务，M2 �
 | 仅导出 `.md` | 不作为首版路线，不新增 export API | 原格式示例仍可手动使用；不另做一套导出产品 |
 | 可信本地工具 | **M0–M4 已完成**：Windows PC Web → 本地 HTTP API → Think 文件 adapter / 隔离预览 | 同仓库独立 `studio/`，Markdown 为唯一原本；预览不保存源码 |
 | Agent stdio | **M6 已完成**：Node/JSON-lines → 同一 HTTP API | 默认只读，可信启动开写权限；保留 published/revision，无 MCP/发布 |
-| 远程/多设备/原生 App | 首版明确排除 | 不因未来客户端方向增加云服务、同步、账号、Electron/Tauri/PWA 或 MCP |
+| Windows App 窗口 | M8 已实现，In Progress / 待作者手动验收 | WinForms/WebView2 承载原 Web；X/菜单/备用停止走协同关闭，业务仍通过同一 HTTP |
+| 远程/多设备/其他桌面框架 | 仍排除 | 不增加云服务、同步、账号、Electron/Tauri/PWA 或 MCP |
 
-首版只支持 Think 的公开源文章/随记及非敏感草稿，不支持 Vault、Build/Keep/Me 编辑。PLAN 中 M0–M6 全部完成，M5 真实调用与浏览器验收已通过；不是网站 Phase 5/6 的重启。未来不同模块用各自 adapter，不合并内容模型。第 9.4/9.6 节保留的发布/私人设计参考不属于 Studio 已选范围。
+当前已接入 Think、Keep、Me、Build 四个公开模块，模型与 adapter 独立。四个私人模块在独立的本机内存会话编辑，仓库外加密主文件为作者源。M9–M15 的技术证据和人工待验状态见 [PLAN 6.10](./PLAN.md#studio-next-plan)，操作见[私人手册](#studio-private)与[统一人工清单](#studio-batch-manual)。启动、录入审核、AI 整理和发布的阶段状态见 [PLAN 6.11](./PLAN.md#studio-authoring-plan)。Studio 默认打开 Think，完整操作入口见[工作台使用方法](#studio-writing-workbench)。真实发布须满足下方前置并获明确许可。
 
 编辑器必须区分：**本地编辑缓冲、源文件 published、Git 是否提交、线上是否部署**。编辑中不等于已保存，保存不等于上线，未来日期不等于预约发布；保存已有公开文章时不能自动切成草稿或擅自上线。
 
@@ -701,7 +704,7 @@ type EditorResult<T> =
 
 M1 已实现 `SourceRevision = string`（原始字节 SHA-256）和 ThinkSummary/ThinkReadResult/ThinkWriteResult，完整定义以契约源码为准。纯解析/序列化仍只返回其原有两类错误；文件服务扩展 EditorErrorCode，不改变 M0 字段规则。
 
-新文档默认 `published: false`、显式 kind；日期由作者确认。读取旧文档时将显示默认值与实际源表示区分，省略 published/kind 不等于保存时自动补齐。序列化采用 YAML 文档模型保留未改字段/注释，日期写为带引号字符串，正文不自动 trim/格式化/润色；无修改保存保持原始字节。标题里的冒号、引号、换行正确转义，不用字符串拼接生成可执行 TS/JS/MDX。
+新文档默认 `published: false`、显式 kind；Web 新建时填本机本地当天日期，仍可手动改或清空，跨天后新建会重新取当天。API/Agent 不自动补日期；已有源保留原日期或省略状态，不用今天覆盖。读取旧文档时将显示默认值与实际源表示区分，省略 published/kind 不等于保存时自动补齐。序列化采用 YAML 文档模型保留未改字段/注释，日期写为带引号字符串，正文不自动 trim/格式化/润色；无修改保存保持原始字节。标题里的冒号、引号、换行正确转义，不用字符串拼接生成可执行 TS/JS/MDX。
 
 M0 的 `parseThinkSource` / `serializeThinkDocument` 处理字符串与 DTO/诊断，不读写文件。slug 始终必须合法；M1 服务额外检查目录内唯一性。草稿允许 title/summary/date 尚未完成、正文为空，已提供字段必须类型正确（显式 undefined/null 也拒绝），非空日期必须有效、kind 必须合法。published:true 仍须通过现有全部公开规则。`canSave` 与 `publishReady` 分开：合法但不完整的草稿返回 warning、canSave:true/publishReady:false，已给出的非法日期/类型返回 error。这是作者层规则，网站既有草稿提前过滤行为保留。
 
@@ -742,21 +745,84 @@ revision 对原始字节计算，注释/换行变化也算变更；旧版编辑/
 
 M1 另有 INVALID_REQUEST、PROTECTED_PATH、DIRECTORY_INVALID、AUTHORING_BUSY、SERVICE_CLOSED、FILE_OPERATION_FAILED；本地函数自身不含 HTTP 状态码，M2 负责映射。请求拒绝额外字段/任意路径，key/revision 都必须是 64 位小写 hex。作者文件资源上限为 **16 MiB UTF-8 字节（含 frontmatter）**，不是网站新增长度规则；M0 纯校验仍不限制公开文章长度。扫描不递归，不把 assets 子目录里的 Markdown 当文章；`.MD` 等不兼容扩展以诊断呈现，临时 `.tmp` 不当文章。
 
-仓库锁固定为 `.cache/studio/think-authoring.lock`，内容仅版本、pid 与随机 token。整个实例生命周期排他，另一个对象或进程均返回 AUTHORING_BUSY；不用 pid 存活猜测自动抢陈旧锁。异常退出/初始文件错误可能遗留锁：先确认该仓库所有 Studio 调用方已停止且没有在写，再由作者在本机手动移除**这一个**锁文件，重新打开；不要删整个 `.cache/studio` 或不明 `.tmp`。目前没有 unlock 命令/HTTP 端点，不把未证实陈旧的锁当作可自动删除。
+仓库锁固定为 `.cache/studio/think-authoring.lock`，内容仅版本、pid 与随机 token。整个实例生命周期排他，另一个对象或进程均返回 AUTHORING_BUSY；adapter 不用 pid 存活猜测抢锁。桌面启动器仅按[下文严格归属核对](#studio-windows)恢复可证实的已退出桌面实例，不改变 adapter 排他规则。独立终端/未知来源的遗留锁仍须作者先确认全部调用方已停止、没有写入后，再只处理这个已核对文件；不要删整个 `.cache/studio` 或不明 `.tmp`。没有 unlock 命令/HTTP 端点。
 
 路径检查覆盖真实目录及其身份、junction/symlink、hardlink、Windows 保留设备名/ADS/尾点空格/大小写、无效 UTF-8。更新使用同目录 wx 临时文件、完整写入/fsync/关闭后重验，再 rename；新建用不覆盖目标的 link，删除用核对后的 unlink。拒绝危险静态路径和检测到的中途替换，但普通 Node API 不提供对恶意同权限进程任意时刻替换目录/文件的绝对隔离或原子 CAS，也不承诺断电持久性。依据：[Node 文件系统](https://nodejs.org/download/release/latest-jod/docs/api/fs.html)、[Windows 命名规则](https://learn.microsoft.com/en-gb/windows/win32/fileio/naming-a-file)。
 
 M1 验证入口为 `node --experimental-strip-types tests/verify-studio-think.mjs`（隔离 CRUD/构建）及 `node tests/studio/think-files.smoke.mjs`（读取前一命令的忽略产物、两引擎实际浏览器）；浏览器安装/路径按 PLAN 的本轮记录配置。这些是测试命令，不是作者编辑器或 Studio HTTP 服务。
 
-#### Windows 桌面日常入口（v0）
+<a id="studio-windows"></a>
+#### Windows 桌面日常入口（M7 已验收；M8 App 待手动验收）
 
-桌面 **Personal Space Studio** 双击即可打开，第一次冷启动先构建独立 Web，再后台启动本机服务并打开浏览器；以后再次双击复用同一个实例。关闭浏览器不会自动停止服务。保存全部编辑缓冲后，双击 **Stop Personal Space Studio** 可正常停止并释放仓库锁；更新源码后也应先停止再打开，既有手动终端实例仍需在原终端 Ctrl+C。
+启动图标使用 [蓝发二次元头像 PNG](./studio/desktop/assets/studio-blue-hair.png) 及 [Windows ICO](./studio/desktop/assets/studio-blue-hair.ico)，ICO 含 16/24/32/48/64/128/256 七种尺寸；同一图标嵌入 exe 并用于窗口。生成方式与完整提示词保存在 [资产元数据](./studio/desktop/assets/studio-blue-hair.prompt.txt)。只有正常退出再启动后，已运行 App 才会载入新图标；无需为图标重录 Key。
 
-首次配置或更换 Key：运行 `npm.cmd run studio:configure`，输入兼容 Base URL 和隐藏的 API Key。凭据仅以 Windows 当前用户 DPAPI 密文存到 `%LOCALAPPDATA%\PersonalSpaceStudio\bailian.json`，不放仓库、.env、Git、浏览器或命令参数。正常重开不需再次输入；换 Windows 用户/机器、系统凭据保护变化或百炼 Key 失效时需重新配置。可用 `npm.cmd run studio:open` / `studio:stop` 代替快捷方式；重建快捷方式用 `powershell.exe -NoProfile -ExecutionPolicy RemoteSigned -File studio/windows/Install-Shortcuts.ps1`。
+若桌面仍显示旧 Stop 且删除提示找不到内容，可能是已不存在文件的显示残留。2026-10-23 对本机用户/公共桌面、注册表桌面位置及已存在的 OneDrive 桌面做只读核对，只找到本仓库启动快捷方式，未找到旧 Stop 或同名脚本；这不冒充屏幕显示验收。可由作者手动刷新桌面后核对；不要为此删除图标缓存、重启 Explorer、批量删快捷方式或结束 Node。安装器仍拒绝处理同名外部入口。
 
-来源：[Microsoft SecureString/DPAPI](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.security/convertto-securestring)。本地已能运行的同用户程序不是被隔离的攻击者。启动器只读取这个指定存储，不扫描其他凭据库；解密结果经私有子进程管道进入内存和后端子进程环境，绝不转发到控制台/日志/API。构建先于解密，构建子进程不继承 AI Key。缺少配置仍可普通编辑；坏配置明确失败，不能假装 AI 已配置。
+桌面只保留 **Personal Space Studio** 启动图标，沿用原快捷目标，现在由 Launcher 启动 Windows App；重复点击激活已有窗口。窗口 X 和菜单“退出 Studio”走同一流程：有未保存内容时选择“保存并退出 / 放弃修改并退出 / 取消”，无修改时直接开始正常停机，等待本实例 API、端口与锁释放后关闭窗口。桌面不再创建停止图标；`npm.cmd run studio:stop` 是命令行备用的同一退出请求，不绕过窗口确认；取消是正常结果，服务继续运行。M7 的双击反馈只覆盖旧浏览器方式，M8 状态见 [PLAN](./PLAN.md#studio-m8-record)。
 
-后台生命周期仅提供带本地随机令牌的命名管道 status/stop，不能执行文件/终端命令；状态在忽略的 `.cache/studio/desktop-session.json`，不含 API Key。异常强杀可能留下 `desktop-start.lock` / `desktop-session.json` 及原作者锁：先确认所有 Studio 与构建子进程都停止，再由作者核对后只移除这些确定遗留文件；不要自动抢锁或清理整个缓存。固定错误码在 `.cache/studio/desktop-error.json`，无正文、密钥或原始异常。脚本仅对子进程设置 RemoteSigned，不更改系统/用户执行策略，不绕过组织组策略。 快捷方式依赖当前仓库路径、Node 与已安装依赖；移动仓库后在新位置重新运行 Install-Shortcuts.ps1，不是独立桌面 App。
+运行 App 需要 Windows x64、项目 Node、.NET 8 Desktop Runtime 与 WebView2 Evergreen Runtime；自动构建还需要 `studio/desktop/global.json` 指定的 .NET SDK 8.0.404（latestPatch）及首次 NuGet 联网还原条件。当前机器已完成锁定构建；换机器仍须准备这些条件，启动器不会自动安装系统组件。WebView2 包精确为 1.0.4258.31，`packages.lock.json` 必须保留，不用 `dotnet add package` 擅自升级。
+
+退出中的写入/删除/读取/校验或中文组合输入会先等待结果，可取消退出，不能把断线当回滚。保存失败、revision 冲突或响应未知时，窗口与缓冲保留；先取消退出并核对诊断/源文件，不自动重试写入。预览/AI 在取消退出后继续，明确退出时取消；选择保存并退出会先取消它们再保存。原终端启动的服务仍在原终端 Ctrl+C；App 遇到它会报 USE_TERMINAL_CTRL_C。若旧版浏览器 host 仍运行则报 APP_MODE_CONFLICT，先保存全部标签页，再经旧 Stop 正常停止后重开 App；不默默接管。
+
+**日常直接双击原蓝发图标**，也可在仓库根运行 `npm.cmd run studio:open`。首次缺少运行包时，启动器自动准备，完成后打开窗口。首次准备会检查 SDK 和 NuGet，可能比日常启动慢。已经准备好的版本直接运行，文章修改也可直接打开。
+
+开发更新或手动修复运行包时，保存并正常退出，在仓库根运行：
+
+```powershell
+npm.cmd run studio:prepare
+```
+
+准备检查源码、SDK 与锁定依赖，构建并冻结一套宿主、Web 与 Node 后端到忽略的 `.cache/studio/prepared/`，核验成功后才切换 current.json。失败不替换原完整版本；活动 App 会拒绝准备，不强关窗口。旧完整版本仅在其依赖/环境身份仍匹配时可继续运行。请勿清理正在使用的版本或 WebView profile。准备不读取 Key，不打开窗口。
+
+日常启动只校验已准备程序的文件与运行环境。窗口标题的短版本号表示实际运行版本，正文仍从当前 Markdown/data.ts 读取。看到 `PREPARED_INVALID` 时，请保存并退出后手动准备。看到 `NUGET_SOURCE_UNAVAILABLE` 时，恢复对 `api.nuget.org` 的访问后重试。日常运行需要 .NET Desktop Runtime 与 WebView2，SDK 供准备时使用。
+
+启动窗口、编辑器与 AI 配置分别就绪；AI_INITIALIZING 时文章可继续编辑，AI_CONFIG_UNAVAILABLE 表示读取失败，原配置保留，勿重复录 Key。首次预览/次级面板仍按需加载。无窗口宿主消息契约可运行 `dotnet run --project tests/studio/desktop/ContractTests.csproj --configuration Release`，不代替实际 App 操作。
+
+首次配置或更换 Key：在**普通 Windows PowerShell / Windows Terminal** 中运行 `npm.cmd run studio:configure`，输入兼容 Base URL 和隐藏的 API Key。凭据仅以 Windows 当前用户 DPAPI 密文存到用户 LocalAppData 下的 `PersonalSpaceStudio\bailian.json`（通常为 `%USERPROFILE%\AppData\Local\PersonalSpaceStudio\bailian.json`），不放仓库、.env、Git、浏览器或命令参数。配置与读取共用 Windows Known Folder 定位，不直接拼接 LOCALAPPDATA。该 API 只统一路径，不能关闭宿主进程的 Windows 打包应用文件虚拟化；不要让 Codex 内的工具进程代为录入，以免文件实际写入隔离存储。正常重开不需再次输入；换 Windows 用户/机器、系统凭据保护变化或百炼 Key 失效时需重新配置。可用 `npm.cmd run studio:open` / `studio:stop` 代替快捷方式；更新/重建唯一启动图标用 `powershell.exe -NoProfile -ExecutionPolicy RemoteSigned -File studio/windows/Install-Shortcuts.ps1`；安装器只移除可确认属于本仓库的旧停止图标，同名外部目标拒绝处理并保留。
+
+2026-10-23 已对本机这份历史隔离存储做一次性恢复：仅复制原 DPAPI 密文到正式桌面 App 的用户目录，原文件保留，不覆盖已有目标，不重录 Key。作者正常重开后，正式后台已确认可用并完成非敏感润色请求；临时恢复入口与诊断均已移除。日常启动不扫描其他目录，也不依赖 Codex；无需再执行恢复脚本。证据与边界见 [PLAN](./PLAN.md#studio-m8-credential-recovery-record)。
+
+在 Think 打开一篇文章，展开正文下方的“AI 建议”。面板显示“后端已配置”且正文非空时可以请求建议。只读源、进行中操作或组合输入时请求按钮会禁用。缺配置显示 AI_NOT_CONFIGURED，格式错误显示 AI_CONFIG_INVALID，请求失败在面板显示错误码。若已保存 Key 却显示 AI_NOT_CONFIGURED，先保存文章并正常退出，再用蓝发图标重开。仍失败时保留原密文并排查启动链。隔离测试服务使用测试配置。
+
+Windows 的普通 `npm.cmd run studio` 也复用保存配置：未显式提供任一百炼环境变量时使用同一 DPAPI 读取能力；若显式提供任一变量则保留该环境含义，不暗中混搭或覆盖。App 在构建完成后，经私有 Node IPC 的 `studio:start` 消息明确指定本机凭据存储，由 API 后端自行读取、解密；不再依赖把明文 Key 传入子进程环境。该路径不是 HTTP、Agent 或 native 消息参数。测试明确指定自己的存储或不指定存储，不回退读取真实 Key；直接调用 startStudioHttp 的 API/测试契约不变。坏存储报 LOCAL_CONFIG_INVALID/UNSAFE，保留原文件；启动器在配置读取期间失联时不留下自有服务/作者锁。
+
+来源：[Microsoft SecureString/DPAPI](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.security/convertto-securestring)。本地已能运行的同用户程序不是被隔离的攻击者。只读取这个指定存储，不扫描其他凭据库；解密结果经后端与 PowerShell 的私有子进程管道进入后端内存，绝不转发到控制台/日志/HTTP/native，也不放入 App 启动环境。构建先于解密，构建子进程不继承 AI Key。缺少配置仍可普通编辑；坏配置明确失败，不能假装 AI 已配置。
+
+后台只提供认证命名管道 status/stop/activate，不能执行文件/终端命令，没有 HTTP shutdown。状态在忽略的 `.cache/studio/desktop-session.json`，其中有本机控制 token，请勿上传或粘贴；没有 AI Key。固定错误记录 `.cache/studio/desktop-error.json` 只有日期、pid、错误码，不记录正文/token/Key/原始异常。native 只收有限生命周期消息，不接业务文件路径、shell、Key 或配对 token；仅接受精确 Studio 顶层 origin，禁止外部导航/新窗口、下载、权限和 host objects，预览仍 sandbox。业务继续走原 HTTP。
+
+窗口进程异常会触发自有 API 正常关闭，但崩溃不承诺恢复内存草稿。后台 host 意外退出时自有 API 经 IPC 断开关闭，native 窗口独立于 Node 的 Windows job，保留缓冲并显示失联提示；先复制需要保留的内容，再明确取消/放弃退出。API 自身异常时同样先保留窗口与控制归属，不自动重试保存。停机清理无法确认时保留匹配状态供下次严格恢复，不把错误当已完成停机。启动器不强杀，也不自动清理未知辅助进程。
+
+**旧状态恢复条件**：只核对固定 `desktop-start.lock`、`desktop-session.json`、`think-authoring.lock`；普通单链接文件及目录身份合法、启动锁与会话 token 对应、作者锁 pid 对应该 API、记录的进程均确认已退出、管道不存在、端口空闲，并在删除前重验文件身份和字节，才清除本次匹配的残留。无会话时只可恢复可证实的已退出启动锁；孤立作者锁不自动恢复。Windows 退出后端口尚未释放时，打开最多额外等待 3 秒逐次重验，忙时保留证据。活进程、坏 JSON、来源不明、链接/目录跳转、持续占端口或中途变化均拒绝，不抢锁、不清空缓存。PID 复用时宁可拒绝，普通 Node 文件 API 仍不承诺隔离同权限恶意进程。
+
+| 启动/停止错误码 | 处理方式 |
+| --- | --- |
+| NODE_NOT_FOUND / NODE_VERSION_UNSUPPORTED / DEPENDENCIES_MISSING | 按 `.node-version` 准备 Node，在根执行 `npm.cmd ci`；重建快捷方式以更新固定 Node 路径 |
+| WEB_BUILD_FAILED / WEB_SOURCE_CHANGED | 用 `npm.cmd run studio:build` 查看独立构建错误；完成源码更新后重试，失败不启动旧 UI |
+| USE_TERMINAL_CTRL_C | 使用已有终端服务，在其原终端 Ctrl+C；桌面停止不会误停它 |
+| PORT_UNAVAILABLE / AUTHORING_BUSY / DESKTOP_BUSY | 核对已知服务来源，保存后经其正常入口停止；不批量结束 Node，不删除活锁 |
+| DESKTOP_STATE_INVALID / DESKTOP_STATE_CHANGED / DESKTOP_RECOVERY_REQUIRED | 保留现场，只提供错误码；核对本仓库全部 Studio、构建进程及端口。无法证明归属时停止操作，请求针对性检查，不凭文件存在删锁 |
+| DESKTOP_START_TIMEOUT / DESKTOP_STOP_TIMEOUT / DESKTOP_STOP_FAILED / DESKTOP_UNAVAILABLE | 不视为已经启动/停止，先保留缓冲，核对实例后再重试；没有强制结束或自动重试写入 |
+| LOCAL_CONFIG_INVALID / LOCAL_CONFIG_UNSAFE | 保留原加密配置，核对当前 Windows 用户和普通文件位置；仅在有意更换配置时运行 studio:configure |
+| DOTNET_SDK_MISSING / APP_BUILD_FAILED / APP_SOURCE_CHANGED | 准备锁定 SDK，运行上面的无窗口构建命令；可在 studio/desktop 下用 dotnet restore --locked-mode / build --no-restore --configuration Release 定位，完成源码更新后重试 |
+| WEBVIEW2_RUNTIME_MISSING / APP_START_FAILED / APP_EXITED | 核对 .NET Desktop Runtime、WebView2 Evergreen Runtime；不以安装 Edge 代替 Runtime 检测 |
+| APP_MODE_CONFLICT | 保存旧浏览器 host 的全部缓冲，使用其原停止入口正常关闭后再打开 App |
+| APP_START_TIMEOUT | 保留当前实例，手动检查窗口是否就绪；重复打开只检查/激活，不批量结束进程 |
+
+脚本错误会显示固定代码和处理建议；命令行检查可加 `-NoDialog` 避免启动器错误弹窗，此开关不会跳过 App 的保存/退出确认。脚本仅对子进程设置 RemoteSigned，不更改系统/用户执行策略或绕过组织组策略。快捷方式固定仓库与 Node 路径，Node 旧路径不存在时再查 PATH；移动仓库或更换 Node 后在新位置重建入口。安装器先核对启动及旧停止文件的普通文件身份、项目描述、仓库、PowerShell 目标与完整参数；删除旧停止图标前再次核对内容字节。现有启动目标无需更名；旧停止图标迁移通过上述安装命令完成。
+
+<a id="studio-m8-manual"></a>
+#### M8 手动验收（待作者反馈）
+
+以下均由作者操作，代理不再控制桌面。先保存其他正在编辑的内容；只用非敏感测试文字，勿修改真实文章或私人资料。若上一轮隔离窗口仍显示“本机服务连接已中断”，可先在它点 X → 取消，确认测试缓冲还在；再点 X → 放弃修改并退出。该失联窗口的最后确认尚未验收；若已关闭，请注明“未复验”，不要强杀真实服务来制造故障。
+
+1. 核对 **Personal Space Studio** 启动入口的蓝发头像；若仍显示找不到文件的旧 Stop，可先手动刷新桌面再核对。双击启动应出现独立 App，无终端常驻；正常退出重开后窗口也应使用蓝发图标。最小化后再次双击，应恢复/激活同一个窗口。旧浏览器或终端服务冲突时，按上文经原入口先保存、正常停止。
+2. 新建草稿，应默认本机当天日期；改成另一天确认可编辑。暂不填 slug，正文输入中文测试句；点 X → 取消，应保留文字且可继续编辑。再点 X → 保存并退出，应报校验问题并留在窗口；取消后能看到诊断。用菜单“退出 Studio” → 放弃修改并退出，应正常关闭且不创建文章。
+3. 重开，用一个全新 slug（如 `m8-manual-check`）创建非敏感草稿，按校验提示填好标题、摘要和日期，保持 **draft**；点 X → 保存并退出。再开后应能读回同样正文和 draft 状态。只在确认是自己刚建的测试草稿时按现有删除流程处理，不删除其他文章；若继续下面的预览/AI 检查，先保留测试草稿。
+4. 修改测试缓冲，可在终端运行备用 `npm.cmd run studio:stop`：应出现同一退出对话框；取消后 App/服务继续。最后明确放弃或保存退出，再重开应可用。退出后可在仓库根只读检查：`Get-NetTCPConnection -LocalPort 4322 -State Listen -ErrorAction SilentlyContinue` 应无监听；`.cache/studio/` 下 `desktop-start.lock`、`desktop-session.json`、`think-authoring.lock` 正常退出后应不存在。若仍有错误/残留，保留现场并反馈错误码。
+5. 重开后打开测试草稿，展开“AI 建议”应显示已配置。输入正文后请求按钮应可用。用非敏感正文预览，构建中点 X → 取消，结果仍能返回。再预览并明确退出，应正常关闭。若要验收 AI 运行中退出，可对同一测试正文请求建议（真实百炼调用可能计费），分别检查取消退出继续请求、明确退出取消请求。
+6. 终端服务归属若需本机复验：先正常退出 App，再 `npm.cmd run studio`，然后双击 App，应明确拒绝接管、原终端服务继续工作；在原终端 Ctrl+C 后才重开 App。无需结束其他 Node 进程。
+
+反馈可按“单窗口启动 / 取消与保存失败 / 保存和放弃退出 / 备用停止与重开 / AI 配置与运行中退出 / 失联窗口最终退出”逐项写通过、失败或未测，附错误码即可，不发送 Key、控制 token 或真实正文。响应丢失、进行中写入、桥消息负例已有隔离自动测试；原生外部导航/桥来源的完整运行时负例及失联最终交互未全部签收，不能凭浏览器模拟或本清单存在把 M8 标 Done。这些专项仍保留待验，不要求用真实服务强杀或私人数据自行构造。2026-10-23 已核对本清单与文档，尚未收到新的 App 实测反馈；验收状态统一在 [PLAN M8 记录](./PLAN.md#studio-m8-record) 维护。
 
 #### 9.3.1 M2 本地 HTTP 启动、配对与调用
 
@@ -791,7 +857,7 @@ M2 验证：`npm.cmd run test` 自动发现 `tests/unit/studio-http.test.ts`（�
 #### 9.3.2 M3 基础 PC Web Editor 操作
 
 1. 启动后在本机浏览器手动打开根页。左侧查看全部/draft/published 列表；筛选或“刷新列表”只更新列表，**不重载右侧缓冲**。只读/坏源带诊断，不会当空文档覆盖。
-2. 点文章读取 metadata/正文与文件名/revision；已有 slug 只读，标题可改而 URL 不变。点“新建文章”只创建内存草稿，默认 draft/article，日期由作者确认；尚未在磁盘创建文章。
+2. 点文章读取 metadata/正文与文件名/revision；已有 slug 只读，标题可改而 URL 不变。点“新建文章”只创建内存草稿，默认 draft/article 和本机当天日期，仍可修改；尚未在磁盘创建文章。旧文章不补填或更新日期。
 3. 编辑 Slug（仅新建）、标题、摘要、YYYY-MM-DD 日期、article/note、候选公开状态与 Markdown。已有 kind/published 省略时显示“源中省略”，不因显示默认值自动补写；仅修改正文不会补全缺省 metadata。清空可选文字字段代表移除该字段，公开必填规则仍由后端校验。
 4. 点“校验”查看字段错误/警告、canSave 与 publishReady；校验不写文件，不替代全站 build。修改输入后旧报告清除；正在校验时再输入，迟到报告不会应用到新版本。
 5. 点“保存”或 Ctrl/⌘+S，提交完整快照和读取时 revision。界面分别显示未保存/已保存（本地源码）、源 draft/published 与候选状态；published 不表示已上线。保存期间可继续输入；完成后只把提交快照记为已保存，后续修改仍标未保存。组合输入中不提交，Enter 不隐式保存。
@@ -835,15 +901,15 @@ interface ThinkPreviewResult {
 
 2026-10-17 作者已在本机配置并完成非敏感五项实测；现已核验成功记录，并在原 Studio 服务上完成一次真实 Chromium 润色/采纳/校验，无保存源文件。真实记录与本轮确定性回归分开保存，完整验收见 [PLAN 9.15](./PLAN.md#studio-m5-acceptance)，原 M5/M6 历史证据保留；剩余公共门槛与范围审计全部通过，M5 Done。
 
-当前只接入阿里云百炼 `deepseek-v4.1-flash`，不自动切换其他模型/服务。页面显示后端可用状态；点击“请求建议”才发送只读快照中的**当前 Markdown 正文**。不发送 metadata、文件名、revision、其他文章或 Vault；不发送私人资料。请求可能计费，输入最多 32 KiB UTF-8，固定非流式/关闭思考、输出最多 4096 token，超时 60 秒，没有重试/队列/联网工具或对话历史。
+M5 首次接入阿里云百炼 `deepseek-v4.1-flash`。当前 Think 可在配置时显式选择 Gemini 或百炼，使用方法见[工作台与写作](#studio-writing-workbench)。页面显示后端可用状态；点击“请求建议”才发送只读快照中的**当前 Markdown 正文**。请求不包含 metadata、文件名、revision、其他文章或 Vault。请求可能计费，输入最多 32 KiB UTF-8，非流式，百炼请求关闭思考，输出最多 4096 token，超时 60 秒，没有重试、队列、联网工具或对话历史。
 
 v0 润色提示词明确要求修正病句与不自然表达、减少重复和冗余、改善句段衔接，同时保留事实、核心含义和个人语气，不为改而改。润色结果与请求时正文完全相同时，页面显示“本次未产生修改”、禁用采纳，正文/未保存状态/文件均不变；不 trim 或归一化比较，空白差异仍是可采纳的实际建议。
 
 润色/改写/概括的采纳目标是**替换正文**；生成标题/摘要分别替换 title/summary。先核对结果，再点“采纳”写入当前编辑缓冲；结果是只读文本，不执行 HTML。采纳不写文件、不改 published，仍须人工核对事实、校验后显式保存，旧 revision 冲突照常阻止覆盖。点“丢弃”保留原文；编辑/保存/切换/改操作会清除旧建议并取消请求，迟到响应不会覆盖新内容。取消不能撤回已送达模型的内容或保证不计费；不自动落盘/公开。
 
-**后端配置**：后端本身仍仅从启动 Studio 的同一进程环境读取 `DASHSCOPE_API_KEY` 和 `DASHSCOPE_BASE_URL`。后者是本工具配置名，值取百炼控制台对应业务空间/地域的兼容 Base URL，例如 `https://<业务空间ID>.cn-beijing.maas.aliyuncs.com/compatible-mode/v1`（需替换实际 ID）；当前仅接受官方 workspace HTTPS 地址，不支持任意代理/HTTP/URL 凭据/查询参数。Key 与地域/业务空间须对应，并已开通所选模型。依据：[百炼 DeepSeek API](https://help.aliyun.com/zh/model-studio/deepseek-api)。
+**后端配置**：终端支持启动进程环境中的 `DASHSCOPE_API_KEY` 和 `DASHSCOPE_BASE_URL`，Windows App 按上述可信启动协议直接读取保存的 DPAPI 配置，Windows 终端未显式配置环境时也可复用。后者是本工具配置名，值取百炼控制台对应业务空间/地域的兼容 Base URL，例如 `https://<业务空间ID>.cn-beijing.maas.aliyuncs.com/compatible-mode/v1`（需替换实际 ID）；当前仅接受官方 workspace HTTPS 地址，不支持任意代理/HTTP/URL 凭据/查询参数。Key 与地域/业务空间须对应，并已开通所选模型。依据：[百炼 DeepSeek API](https://help.aliyun.com/zh/model-studio/deepseek-api)。
 
-不要把 Key 放聊天、仓库、`.env`、浏览器、命令参数或日志。后端不加载 `.env`、不扫描系统凭据；桌面启动器按作者本轮授权读取上述指定 DPAPI 密文，再只给后端子进程提供配置；启动后修改配置需停止并重启。无配置显示 AI_NOT_CONFIGURED、坏配置 AI_CONFIG_INVALID；不影响已有 CRUD/校验/预览。
+不要把 Key 放聊天、仓库、`.env`、浏览器、命令参数或日志。后端不加载 `.env`、不扫描系统凭据；桌面启动器仅指定上述 DPAPI 密文存储，后端直接读取，native 窗口与构建进程不接触凭据；启动后修改配置需正常退出并重开。读取中显示 AI_INITIALIZING、读取失败 AI_CONFIG_UNAVAILABLE；无配置显示 AI_NOT_CONFIGURED、坏配置 AI_CONFIG_INVALID；不影响已有 CRUD/校验/预览。
 
 在本机 PowerShell 的仓库根可以用以下方式隐藏输入，只在该终端/子进程内临时保留 Key；命令历史不包含 Key 字面值。**五项真实验收会各调用一次付费服务，只发送脚本内非敏感测试文本**，不会读取作者文章。现有环境值在结束后恢复。不要把录入的 Key 回传给 AI。
 
@@ -864,7 +930,7 @@ try {
 }
 ```
 
-脚本只写 `.cache/studio-m5/live.json` 的时间、模型、五项操作/成功/输出字节数与固定错误码，不存 Key、端点、输入或原始响应。已核验的 `2026-10-17T05:08:45.404Z` 记录五项均成功、simulated:false、complete:true，本轮只读取/复制该记录，没有重复五次调用；另作了一次独立真实 UI 非敏感润色，采纳/校验后未保存，原文章不变。手动终端模式仍按进程环境配置，验收不会让其他终端自动获得 Key；桌面模式则从本机 DPAPI 存储加载，不需日常重复录入。以后仅在需要显式复验时运行上述付费脚本，不把模拟上游当作真实调用。
+脚本只写 `.cache/studio-m5/live.json` 的时间、模型、五项操作/成功/输出字节数与固定错误码，不存 Key、端点、输入或原始响应。已核验的 `2026-10-17T05:08:45.404Z` 记录五项均成功、simulated:false、complete:true，本轮只读取/复制该记录，没有重复五次调用；另作了一次独立真实 UI 非敏感润色，采纳/校验后未保存，原文章不变。手动终端模式可显式使用进程环境；Windows 未提供百炼环境变量时也加载同一本机 DPAPI 存储，不需日常重复录入，其他终端不会因此获得环境变量。以后仅在需要显式复验时运行上述付费脚本，不把模拟上游当作真实调用。
 
 **独立 API**：认证 `GET /api/authoring/v1/think/suggest` 返回 `{service,model,available,issue}`，无凭据/URL；`POST` 只接受 `{operation,input}`，operation 为 polish/rewrite/summarize/generateTitle/generateSummary，结果 `{operation,text}` 在原 EditorResult envelope 内。无文件路径/模型/Key/命令参数；AI 服务不持有文件 adapter 或 CRUD，未来客户端不能用建议接口保存文章。
 
@@ -924,21 +990,44 @@ document 仍为第 9.2 节的 ThinkDocument，不新增文章模型。key/expect
 
 验证入口：`npm.cmd run test` 中的 [studio-agent.test.ts](./tests/unit/studio-agent.test.ts)运行真实子进程/stdin/stdout、API-only、权限/冲突/路径/限额与写后断线测试；`npm.cmd run studio:test` 中的 [agent.spec.ts](./tests/studio/editor/agent.spec.ts)在 Chromium/WebKit 验证 Agent/Web 双向冲突和缓冲保留。全部使用隔离的非敏感 fixture，不修改真实文章；本轮验收记录在 PLAN 9.14。
 
-### 9.4 验证、Git 与发布 adapter（未选的远期参考）
+<a id="studio-keep"></a>
+#### 9.3.6 Keep 公开收藏编辑器（M9，自动验证后统一人工验收）
 
-本节保留此前远期参考，**不属于已认可 Studio M0–M6 的实施范围**，不提供相关 API/按钮/占位。当前校验/提交/推送/发布仍按第 7 节由作者依授权分别执行；任何未来自动化必须重新规划独立受权操作：
+在 Studio 顶部选择 Keep，点击列表读取已有收藏，或“新建收藏”。填写 slug、标题、说明、来源链接、说明段落，可选分类 ID/名称与类型；公开状态区分省略、draft、published。说明段落各自支持换行，新增/删除段落不会改写其他条目。保存前先校验；草稿也要求字段结构、文字和来源链接合法，保存不等于发布。已有 slug 首版不可修改。Think 与 Keep 切换会保留各自内存缓冲，关闭时“保存并退出”显式处理两者；取消退出保留全部缓冲。
 
-| 操作（未实现） | 安全与完成约束 |
-| --- | --- |
-| `validateCandidate({expectedWorktreeRevision})` | 只执行固定允许的 lint/typecheck/test/build/相关浏览器脚本；返回 job id、状态、候选身份和脱敏报告；不是通用 shell |
-| `getJob({jobId})` | `queued/running/succeeded/failed/cancelled` 及步骤结果；不能把后台已启动视为已通过 |
-| `commitCandidate({validatedCandidate, paths, message})` | 路径白名单、工作区版本未变化、精确差异已审阅；不夹带其他用户工作；返回提交 SHA |
-| `pushCandidate({commitSha})` | 单独授权，推送预定仓库/分支；无强推、无浏览器自带长期凭据 |
-| `publishCandidate({commitSha})` | 明确发布授权后触发现有 main 手动 Actions；运行绑定该 SHA，返回 run URL；跟踪最终部署和线上验证 |
+“预览收藏”使用候选在隔离副本中调用原 Keep Astro 模板，预览 draft 时仅在副本中临时纳入公开，不保存源码、根 dist 或 published。可取消预览；修改候选使旧结果失效。删除需确认；重新读取会询问是否放弃当前修改。保存/删除发生版本冲突或结果不明时保留缓冲、阻止盲重试；先核对源码，重新读取并人工合并。刷新列表不会更新当前编辑版本以绕过冲突。
 
-`expectedWorktreeRevision` 应覆盖允许输入的内容哈希及 Git 状态，校验完成后源有变化就使候选失效，重新验证。构建/预览在隔离受控目录运行，避免覆盖作者生产产物；多个发布任务串行处理。GitHub 凭据仅由可信本地凭据存储或独立服务端持有，最小权限，不写进公开页面/仓库。
+源仍是 src/modules/keep/data.ts。后端只解析原 publicBookmarks([...]) 的受支持字面量，不执行候选；读完整数组、保留 draft 和顺序。无修改保存保持原始字节，修改只替换受管理表达式，外围 imports/代码/注释保持；表达式内注释无法保留时阻断写入，不静默丢弃。源结构不支持时显示错误，不能保存为空集合替代。原子写入仍有最终检查与外部编辑器写入之间的既有限制。
 
-当前 Studio 不实现这些操作。不能为了“将来完整”提前建立任务数据库、通用命令中心或统一内容服务。
+作者 API 位于 /api/authoring/v1/keep，使用既有同源/token 规则和 EditorResult envelope，界面不读写文件。GET /documents 返回 {entries,revision}；GET /documents/:slug 返回 {bookmark,revision}；POST /documents 与 PUT /documents/:slug 接收 {bookmark,expectedRevision}；DELETE /documents/:slug 接收 {expectedRevision}；POST /validate、/preview 接收 {bookmark,key?}。revision 覆盖完整 data.ts，因此不同收藏的外部修改也会冲突。客户端没有路径、源码、命令、模型或凭据参数；现有 AI 和 stdio Agent 仍仅支持 Think，不自动获得 Keep 写权限。
+
+<a id="studio-me"></a>
+#### 9.3.7 Me 公开资料编辑器（M10，统一人工验收）
+
+在顶部选择 Me，读取唯一资料。编辑姓名、介绍、介绍段落、可选链接和公开状态；段落各自支持换行，链接按原顺序维护。省略或 draft 只取消公开，仍保留资料源；“清空资料”须确认，并将源显式保存为 null。源为 null 时显示空态，不自动创建姓名或介绍；只有点击“新建资料”才出现空表单。新资料默认 draft，实际文字由作者填写。字段/链接不合法时阻断保存；缺省 links/published 不因打开表单而补写。
+
+保存仍写入 me/data.ts 的 publicProfile(...) 数据表达式，不执行候选源码。revision 覆盖完整文件；清空与保存都检查它。无修改保存保持字节；注释、不支持 AST、原子失败与路径边界沿用已验证的受限源能力。冲突或写入结果不明保留缓冲，需显式重新读取并核对，不自动覆盖或重试。跨模块切换不丢缓冲，关闭时按明确决定保存/放弃；不产生第二份 Profile 或新增 slug。
+
+“预览资料”在隔离副本使用原 Me 模板，draft 仅在副本临时纳入；null 展示真实空态，不写正式源或根 dist，预览 iframe 禁脚本/无同源权限。Me 不使用 Think 的 AI/Agent 权限。
+
+HTTP 边界为 /api/authoring/v1/me：GET /profile 返回 {profile,revision}；PUT /profile 接收 {profile,expectedRevision}，profile 必须是对象，不能借此隐式清空；POST /clear 仅接收 {expectedRevision}；POST /validate、/preview 接收 {profile}（允许 null 候选）。沿用既有认证、同源、错误 envelope、请求限额和取消；无任意路径/源码/命令输入。模型字段仍以 src/modules/me/profile.ts 为准，保存、公开状态、Git 与发布彼此独立。
+
+<a id="studio-build"></a>
+#### 9.3.8 Build 公开项目编辑器（M11，统一人工验收）
+
+顶部选择 Build，读取项目或“新建项目”。分步表单包括基本信息、技术内容、阶段目标、进展记录、问题与复盘；切换步骤不保存也不丢字段。基本信息维护 slug/标题/摘要、可选周期/状态/关键词/链接及公开状态；技术内容按章节维护可选标题、段落、列表和原样代码；记录分别使用原模型的阶段/更新/问题字段。新增空行或记录后须填写合法内容才可保存，不生成项目成果或统计。日期、状态与链接由后端复用原 projects.ts 规则校验，草稿也要求完整合法；已有 slug 首版不可改。
+
+保存原 build/data.ts 的 publicProjects([...])，不转换为 Markdown 或 JSON 源。所有未编辑项目、可选字段、省略与空数组、代码换行、各数组顺序保持；整文件 revision 冲突不会自动合并。无修改字节保持，外围源码/注释保留，不支持的 AST 或无法保留的内部注释阻断。删除须确认；失败/断线/结果未知保留缓冲并阻止盲重试。预览仅在派生副本调用原项目 Astro 模板，保留代码与记录展示，输出无脚本 sandbox，不改源、公开状态或根 dist。
+
+**私人关联保护**：正式 public/vault/bundle.json 存在时，后端无法在不解密的前提下证明没有私人 supplements.publicSlug 关联，因此阻止已有公开项目的删除和取消公开，返回 PRIVATE_REFERENCES_UNKNOWN。仍可编辑其公开字段或管理普通 draft；没有强制覆盖按钮，不自动解密。存在性占位、未知包或异常路径都不能被解释为“无关联”。请先由作者在本机核对，不能靠重复请求绕过保护。
+
+HTTP 位于 /api/authoring/v1/build：GET /documents 返回 {entries,revision}，GET /documents/:slug 返回 {project,revision}；POST /documents、PUT /documents/:slug 接收 {project,expectedRevision}；DELETE /documents/:slug 接收 {expectedRevision}；POST /validate、/preview 接收 {project,key?}。使用 Project 自有 DTO、既有 token/同源/错误 envelope，不接受任意路径、源码或命令。现有 AI/stdio Agent 仍只支持 Think；公开 Build 与私人 Build 不是同一模型，不能混用 slug/id。
+
+### 9.4 验证、Git 与发布边界
+
+公开 Think/Build 的固定审核发布已实现，操作与恢复见[发布手册](#studio-publish)。手工命令仍见[第7节](#workflow)。发布能力实现不等于实际发布已获许可。本批没有提交、推送或上线。Keep/Me/私人仍没有自动发布，原 Agent 不新增发布权限，不提供通用 shell/Git 工作流。
+
+原 source of truth、source revision、dirty/index 保护保持。新提案可直接准备发布，不必先另点保存草稿。一次最终确认只授权页面显示的精确范围，变化重新准备。GitHub 认证只在后端，不复用百炼 Key。未知结果先核对，不宣称全部回滚。
 
 ### 9.5 Studio 本地文件、HTTP 与预览约束
 
@@ -951,21 +1040,85 @@ M1 文件服务、M2 本地 HTTP 与 M4 隔离预览已接入（启动/配对见
 - 首版按按钮触发隔离 Astro 构建，复用 Think 原模板/样式/Markdown，保留现有 HTML 公式；草稿完整校验后仅临时副本参与渲染。`.cache/studio/` 内派生副本可丢弃，不是第二套正文，不修改真实 published/源码/根 dist。预览用禁脚本、无同源权限的 sandbox，资源受限；不预览其他模块/Vault/网站交互脚本。
 - 构建期及浏览器端都禁止预览偷偷请求远程资源；无远程图片代理，不发内容到统计/AI 服务。错误/日志无正文与 token。编辑缓冲只在内存，预览耗时/超时需反馈，旧预览不能覆盖新候选；未经单独授权不做浏览器自动持久化正文。
 
-### 9.6 私人编辑器的额外接口边界（未选的远期参考）
+<a id="studio-private"></a>
+### 9.6 私人编辑器的额外接口边界
 
-本节保留此前安全参考，**不属于 Studio M0–M6 范围**，不是私人编辑功能授权。当前私人维护仍使用第 5–6 节既有仓库外工作流；未来若另行选择私人编辑器，才适用以下建议。
+私人 Think、Keep、Me、Build 与密文交付已实现，App 操作最后统一人工验收；阶段状态与自动验证证据见 [PLAN M12–M15](./PLAN.md#studio-next-plan)。真实资料不自动迁移或导入；既有 CLI 仍可按第 5–6 节使用，转用 Studio 时须明确选择唯一加密主文件。
 
-先只支持作者本机：内存编辑完整 payload → 用既有模块规则校验 → 交互输入口令 → 复用协议加密 → 导出 bundle。读取现有密文也应在本地内存完成，不将明文送到在线站点或远程 API。
+日常只需：打开私人资料库 → 选择模块编辑 → 校验/预览 → 保存私人资料库。资料库就是仓库外的加密主文件，是唯一作者源；仅本机使用可停在保存。供网站使用时，另点“准备网站更新”，按下方向导操作。现有密文也在本机内存解密，不将明文送到在线站点或远程 API。
 
-可以规划本地函数 `validatePrivatePayload(value)`、`encryptPrivatePayload(value, passphrase)`、`decryptPrivateEnvelope(envelope, passphrase)`；必须同时复用第 6.2 节模块校验和第 6.3 节协议，不能只调用原始 AES。它们目前不是现成编辑器服务，也不能由静态浏览器直接 import Node 的 `operations.mjs`；浏览器应使用安全共享代码与独立模块 adapter。
+M12 隔离原型已增加 `studio/private/`：`validatePrivatePayload(value, publicBuildSnapshot)` 校验完整包、资产引用及当前公开项目关联；`PrivateSession` 提供纯内存 create/unlock/snapshot/replaceCandidate/validate/seal/markSaved/lock。局部未完成表单可以暂留内存，仍受完整包尺寸与 JSON 编码限制；预览与加密前须完整业务校验，schema 的排序或归一化结果不覆盖未编辑原数据。迟到解密/加密不能恢复已锁定会话，口令不存入会话对象。浏览器复用原纯 Web Crypto，不导入 Node `operations.mjs`。
 
-保留 PBKDF2 参数、随机盐/IV、AAD、尺寸、MIME、口令规则与两端兼容；不要自造密码算法。口令不放 URL、localStorage/IndexedDB、后台 API 或日志；锁定/关闭/取消清理预览 DOM、引用和 Blob。明文原本若需保存，由作者明确选择仓库外位置，本地保存；不做项目内自动保存、云端草稿或后台上传。
+保留 PBKDF2 参数、随机盐/IV、AAD、尺寸、MIME、口令规则与两端兼容；不要自造密码算法。口令不放 URL、localStorage/IndexedDB、后台 API 或日志；锁定/关闭/取消清理预览 DOM、引用和 Blob。Studio 不提供明文文件导入或保存功能；既有明文原本由作者在仓库外自行处理，不做项目内自动保存、云端草稿或后台上传。
 
-未来本地文件权限与“作者本地明文源”的选择必须清楚显示，不能让“保存”按钮有时保存明文到仓库。导出密文和替换正式包分开；完整包缺其他模块/资产时提示影响，不默默清空。
+`studio/server/private/files.ts` 只管理密文：可信 Windows 文件选择器在仓库外选择 JSON，通过受限 native → launcher → backend 通道绑定为单个随机 handle；浏览器拿不到文件路径，不能自行绑定路径。打开只接受合法 envelope，创建只接受尚不存在的目标，重新选择使旧 handle 失效。曾存在的主文件被外部删除后报冲突，不静默改成空包或重新创建。保存检查 SHA-256 整文件 revision，使用拥有身份的临时文件原子替换，并保留旧密文 `.studio-vault-backup-<revision>.json`；链接、跳转目录、硬链接、设备名和 ADS 均拒绝。backend 只能验证 envelope，不能声称已验证其中业务明文。
+
+仓库外加密主文件是私人作者源，网站 bundle 仅为派生交付副本。已有 JSON 仍可使用第 5–6 节的本地 CLI；如转用 Studio，先在仓库外加密、验证并保留密文备份，再由作者显式选择密文主文件，之后不并行维护两个可编辑源。本路线不增加明文导入/导出接口。Vault 口令不沿用 AI Key 的 DPAPI 记住机制，不接 AI/Agent；私人预览不能进入 Astro 构建或缓存目录。浏览器私人状态不写 localStorage、sessionStorage、IndexedDB 或日志，锁定撤销 Blob/清理 DOM。测试中的配置目录与 canary 均为非敏感隔离样本，不是用户资料。
+
+原生宿主禁止继承外部 WebView2 profile/debug/security 环境覆盖。私人资产只允许既有 PNG/JPEG/WebP 模型，Studio CSP 允许内存 Blob 图片，连接仍仅同源，原生资源过滤只放行本服务拥有的 Blob URL。无窗口 WebView2 原型验证正常锁定/退出后的配置目录中无测试 canary，不代表能抵抗同权限恶意程序、OS 内存取证、崩溃转储或备份软件；不承诺 JavaScript 字符串物理清零。真实选择器与 App 人工操作最后统一验收。
+
+#### 私人 Think 操作（M13，人工待验）
+
+1. 正常退出重开 App 后，点顶部“私人”。独立浏览器入口不提供文件选择，不要用它代替正式 App 验收。
+2. “打开私人资料库”由 Windows 选择仓库外合法密文 JSON；“新建私人资料库”选择尚不存在的仓库外 JSON。不会创建明文文件。选择前即锁定并清理内存；选择器若使页面隐藏，锁定照常执行，只保留本次选择的随机事务和非敏感句柄。返回可见 App 后现有密文重新读文件、输入口令解锁；新文件建立空内存包，首次保存时设置口令。取消选择或取消口令均保持锁定，不自动写入文件。
+3. 选择私人文章或新建。字段沿用原私人模型：稳定 id、title、summary、date、kind、body；不添加 slug/published。新日期默认本机当天且可改。暂缺字段可留在内存，完整校验不通过时不能预览或保存。
+4. 点“校验资料库”或“内存预览私人文章”。校验所有模块、资产及最新公开 Build 关联；预览使用原私人受控 DOM/Markdown，原始 HTML 当文字显示。图片仅内存 Blob，预览链接不导航，不启动 Astro，不发正文给服务器。
+5. “保存私人资料库”重新输入并确认口令，保存至少 16 个字符，沿用原口令字符/字节规则；无记住口令功能。保存检查密文 revision 和当前公开 Build 源 revision，保留其他条目/模块/资产和旧密文备份；不替换网站 bundle。
+6. 私人修改的删除先确认，写入主文件仍须显式加密保存。冲突、清理未确认或发送后结果未知保留内存候选并禁止盲重试；请先核对外部文件，再明确锁定/放弃并重新选择或解锁，不能强行覆盖。
+7. 手动锁定或切换公开模块时，未保存内容先确认；取消可继续编辑。后台隐藏、页面离开或闲置十分钟立即锁定，清除未保存缓冲、口令输入、预览 DOM 和 Blob，请及时保存。关闭 App 的“保存并退出”会单独询问私人口令；取消口令不会冒充保存成功，需回到退出对话框选择取消或明确放弃。
+
+#### 私人 Keep 操作（M14.1，人工待验）
+
+在已解锁的私人面板点“私人 Keep”，可编辑收藏列表、标题、说明、来源链接、说明段落、可选类型和分类；所有修改仍只在当前完整包内存中，切换私人 Think/Keep 保留各自候选。新建收藏生成稳定的 32 位 id，不提供公开 slug/published。删除先确认，再经“保存私人资料库”落盘。
+
+来源必须为合法 HTTP/HTTPS，说明段落至少一项非空。私人分类 id 同样是 32 位十六进制，不是公开分类的短 slug；“添加私人分类”生成 id，可修改以复用已有分类，但同 id 的分类名称必须一致。“移除私人分类”仅移除当前收藏的可选字段。预览复用原私人收藏 DOM，链接被阻止导航；校验、冲突、锁定、退出与完整包保存规则同上，不新增接口或第二份源。
+
+#### 私人 Me 操作（M14.2，人工待验）
+
+在私人面板点“私人 Me”，选择“私人介绍”或显式“新建 / 编辑私人介绍”。仅支持原私人模型的 paragraphs 和可选 links：可以增删段落、保留段落换行和链接顺序，不提供公开资料的 name/description/published/null。空源保持缺省，显式新建只得到空段落数组，不补造介绍。
+
+“省略私人介绍 links 字段”明确移除可选字段；不操作时保留原有省略状态。“清空私人介绍”确认后仅从完整包候选移除私人 Me，再加密保存才落盘；取消保留缓冲，公开 Me 和其他模块/资产保持。空介绍预览为空，非空预览复用原受控 Me 客户端，在 Studio 当前挂载位置显示，不更改真实路由；链接不导航。非法链接、版本冲突、锁定与退出规则沿用同一私人会话，不新增 HTTP 接口。
+
+#### 私人 Build 操作（M14.3，人工待验）
+
+在私人面板点“私人 Build”，列表分别显示“项目”和“补充”。“新建私人项目”创建独立私人项目；“新建公开项目的私人补充”创建 supplement，仅填写已有公开项目 slug，不创建或公开项目。两种记录都使用稳定的私人 id，不能修改公开项目自身的 slug/published。
+
+独立项目支持 title/summary、可选 period/status/keywords/links、sections 以及 milestones/updates/issues；补充支持 title/publicSlug 与原有章节/记录，不添加独立项目专有字段。嵌套字段复用实际 Build 控件，代码/换行/数组顺序及未触碰的可选字段保持。进展日期默认本机当天，可修改；全包验证会拒绝非法日期、状态和缺失资产。
+
+每次校验、预览、加密保存重新读取当前公开 Build 关联；输入口令期间公开源变化也会阻断落盘。原模型允许不同 id 的多条补充关联同一公开 slug，重复 id 或不存在的目标拒绝。预览复用原私人 Build 客户端、链接不导航，不发正文到 Astro/HTTP；确认删除只修改目标候选，其他项目/补充/模块/资产保留。保存不替换网站 bundle，锁定/退出/冲突规则同上。
+
+<a id="studio-private-delivery"></a>
+#### 准备网站更新、备份与恢复（M18 向导，实际选择器待验）
+
+**资料库是唯一作者源，更新文件是一次交付副本，本地网站文件是派生包。** 日常界面只需认识这三种角色，技术版本和 SHA 放在“文件版本与恢复详情”里。本节替代旧版同时展示四个交付按钮的操作方法；底层 M15 的密文、备份和版本保护保持。
+
+1. 打开资料库，完成四模块编辑，点“校验资料库”及“保存私人资料库”。必须已保存、无冲突和未确认写入；未编辑模块、稳定 id、数组顺序和资产完整保留。仅本机使用可结束，不用生成更新文件。
+2. 点“准备网站更新”展开三步向导，再选“选择新的更新文件位置”。Windows 选择器只接受仓库外**尚不存在**的 JSON；选择前锁定，返回可见 App 后须重新解锁已保存资料库。取消会保持锁定，资料库未变；可点顶部“解锁所选资料库”后重新进入向导。位置句柄不改变作者源，不接受浏览器路径，不覆盖旧更新文件。
+3. 第 2 步点“校验并生成更新文件”，输入并确认**当前资料库口令**。App 再查完整包、最新公开项目关联与资料库当前版本，并核对口令后重新加密；不用于换口令。成功只生成仓库外更新文件，网站未改。详情显示资料库、更新文件及本地网站预期版本。
+4. 第 3 步点“确认更新本地网站”，核对最后对话框再确认，才替换固定 public/vault/bundle.json；取消不替换，可“返回资料库”。后台仍检查资料库/更新文件/公开关联/网站目标版本，修改、保存、锁定或切换源会使已有准备失效，须重新准备。
+5. 旧网站密文先备份到**仓库外资料库同目录**的 .studio-delivery-backup-<旧包SHA256>.json；资料库保存备份另为 .studio-vault-backup-<revision>.json。已有同名备份须字节/身份匹配，不覆盖坏备份。成功只显示本地已更新、尚未上线；不会提交、推送或部署。
+6. 断线、响应异常或 cleanupPending 不能当回滚。展开“文件版本与恢复详情”，点“读取本地网站文件状态”只读核对；若版本等于刚尝试的更新可确认本地已更新。未确认前不能换一份文件绕过网站替换的不确定结果，不自动重试。生成更新文件若结果未知，只能核对后明确选择另一个尚不存在的新位置，不能覆盖旧文件；无法确认时保留现场。原 prebuild 仍拒绝 public/vault/ 中除 bundle 外的文件，不能跳过。
+
+恢复时先保留当前密文及其口令，将选定的旧**密文备份复制为仓库外另一个新的主文件名**，不要直接把备份文件当可编辑源。显式选择、用对应旧口令解锁，核对四模块/资产及当前公开项目关联，保存并重新导出新候选，再按上面确认流程替换本地正式包。恢复不等于网站回退；若要上线，另按第 7 节取得提交/发布授权。旧备份依然使用旧口令，不会远程撤销。
+
+#### 密文 HTTP 边界
+
+仅可信启动代码可向 `startStudioHttp` 注入 `privateFiles` 与 `createPrivateDelivery`，CLI 独立服务默认无该能力；文件绑定只走原生选择通道，不是 HTTP 参数。原生仅接受 open/create/export 三种有限选择消息，浏览器只得到随机句柄。所有下列路由仍要求原同源/Host/Token/限额规则，不扩大现有 Agent/AI 范围：
+
+| 操作 | 请求 | 返回 |
+| --- | --- | --- |
+| 最新公开关联快照 | `GET /api/studio-private/public-build` | `revision` 与已公开项目 slugs，无私人数据 |
+| 读取所选主文件密文 | `GET /api/studio-private/files/{handle}` | `handle/revision/envelope`，新文件 envelope 为 null |
+| 保存所选主文件密文 | `PUT /api/studio-private/files/{handle}`，仅 `envelope/expectedRevision/publicRevision` | `revision/backupCreated/cleanupPending` |
+| 只读正式包版本 | `GET /api/studio-private/delivery/status` | `targetRevision`，尚未配置为 null |
+| 导出新密文候选 | `POST /api/studio-private/delivery/export`，仅 `handle/masterHandle/masterRevision/publicRevision/envelope` | `id/revision/masterRevision/publicRevision/targetRevision` |
+| 显式替换固定正式包 | `POST /api/studio-private/delivery/replace`，仅 `candidateId/expectedTargetRevision` | `revision/backupRevision/cleanupPending` |
+
+没有接受路径、口令、明文 payload、单篇私人文章或强制覆盖的端点。backend 不解密，提交前再次检查公开 Build 文件 revision；密文与跨文件关联不承诺对同权限恶意进程提供全文件系统事务隔离。
 
 ### 9.7 验收与当前停点
 
-Studio 已选范围的逐项 Done Criteria/Verification 现集中在 [PLAN 6.8](./PLAN.md#studio-plan)，不在本手册维护另一套 milestone 状态。下表保留能力核对索引；发布/Private 行仅适用于以后另行选定的工作。
+Studio 逐项 Done Criteria/Verification 集中在 [PLAN 6.8](./PLAN.md#studio-plan)、[6.10](./PLAN.md#studio-next-plan) 与 [6.11](./PLAN.md#studio-authoring-plan)，不在本手册维护另一套 milestone 状态。下表保留能力核对索引。M9–M15 自动验证后仍需下方统一人工反馈，公开 Think/Build 的 Git/部署能力见本批手册，实际发布尚未验收。
 
 | 能力 | 至少应验证 |
 | --- | --- |
@@ -978,11 +1131,225 @@ Studio 已选范围的逐项 Done Criteria/Verification 现集中在 [PLAN 6.8](
 
 Studio M0–M6 全部 Done；M5 于 2026-10-17 完成真实五项记录核验、真实 UI 与余下验证。随后作者授权的 v0 润色优化、本机 DPAPI 凭据与桌面启动，以及 WebKit 预取最小修复、提交/正式部署与最终验收均已完成；基线为 studio-v0 / 224eea0，状态与证据见 PLAN 6.9 / 9.16 起的记录。Studio 服务仍只在本机，发布的仍是静态网站。真人输入法候选窗与恶意项目 OS 沙箱未验收；既有首版证据见 PLAN 9.12，AI 不能用模拟结果冒充真实接通。
 
+<a id="studio-next-usage"></a>
+### 9.8 扩展使用方式与统一验收
+
+本节集中列出统一人工步骤；阶段 Scope、状态和自动验证证据在 [PLAN 6.10](./PLAN.md#studio-next-plan)，不在手册复制历史记录。作者自行操作，代理不控制桌面；自动通过不代替以下本机反馈。
+
+- **启动/退出**：桌面使用一个 **Personal Space Studio** 图标，重复点击激活已有窗口；正常关闭先处理未保存内容及写入，再停止本次 App 拥有的服务。保留命令行备用停止，不接管终端实例，使用与恢复见[桌面操作](#studio-windows)。作者已确认日常操作，原生专项保留最后统一验收；关闭独立浏览器页仍不会停服务。
+- **其他公开模块**：Keep/Me/Build 已有专属表单与隔离预览；AST 解析/序列化受支持的数据表达式，不执行用户提交代码。revision 覆盖整份源文件，保留草稿、其他条目和未编辑字段；已有 slug 首版保持。
+- **私人内容**：四个私人面板编辑同一个完整内存包，其他模块与资产保持；不新增资产编辑器。私人 Build 关联在本机核对，不能由后台密文结构检查冒充完整业务校验。
+- **交付**：按[密文交付步骤](#studio-private-delivery)执行；主文件保存、候选导出、正式密文替换与 Git/部署分别处理。Agent 仍只有既有 Think 权限，AI 仍仅用于公开 Think。
+
+<a id="studio-batch-manual"></a>
+#### M8 专项与 M9–M15 统一人工验收
+
+先保存现有工作，仅用非敏感测试文字；不要导入真实私人资料，不向聊天发送 Key、口令、控制 token、文件路径或真实正文。私人试验使用仓库外的新密文主文件及新候选名，自己的口令自行保管。测试后仅清理明确属于本次的测试记录，保留其他未提交修改。可以分次完成；未测写“未测”，无需为制造故障强杀真实服务。
+
+1. **启动、单窗口与配置**：双击桌面蓝发 **Personal Space Studio** 图标，应出现独立窗口且无常驻终端。重复双击应激活同一窗口，最小化再打开也如此。打开 Think 文章并展开“AI 建议”，检查是否显示已配置。正常退出后再开应可用，必要时按 [M8 清单](#studio-m8-manual)只读核对服务与锁退出状态。
+2. **公开编辑与预览**：分别在 Think、Keep、Build 新建自己能识别的临时 **draft**，使用中文、换行及合法链接；日期默认今天且可修改，校验、隔离预览、保存/重新读取、删除取消与确认应正常。Build 加一个章节/进展，Keep 加一段说明。公开 Me 是现有单例，**只在未保存缓冲中**试编辑/校验/预览，然后明确放弃，避免覆盖真实个人介绍。确认现有文章/收藏/项目/介绍完整。中文输入法组合输入与 Ctrl+S 需要真人检查；不要将测试稿改成 published。
+3. **私人主文件与四模块**：点“私人”→“新建私人资料库”，在仓库外选一个新 JSON 名；选择器取消后应能继续。分别新建 Think、Keep、Me、独立 Build，输入非敏感字段；Build 可加章节/代码/进展，并增加一条关联现有公开项目 slug（如 `nemu`）的私人补充。切换私人面板应保留各自内容；非法 URL/日期等应阻止完整校验/预览。修正后每个面板预览、加密保存（至少 16 字符口令）、锁定再解锁，四模块应全部还在。测试记录删除/Me 清空须确认，取消应保留；保存后重解锁应只改变指定记录。没有资产编辑按钮是本轮范围，已有资产保持已由自动测试验证。
+4. **隐私与关闭**：先保存私人包，再预览并“立即锁定”，应无旧正文、字段或预览；重新解锁后最小化/切换后台应锁定。闲置十分钟亦应锁定，**未保存私人缓冲会被清除**。有修改时切换公开模块，取消应留在私人面板，确认离开应清理。点 X 取消退出应保留缓冲；“保存并退出”应分别处理公开稿与私人口令，取消口令不能冒充成功；正常退出重开可读回已加密内容。AI Key 仍保留，Vault 口令不会自动记住。
+5. **交付与取消**：保存主文件后，按上文选择一个仓库外新候选位置并重新加密导出。选文件不应把主文件切走；错误口令不生成候选。确认显示 SHA 和目标版本。点击替换按钮后，在**实际仓库选择取消**，网站 bundle 应保持，主文件仍可继续使用。修改源候选后旧交付应失效。正向替换、旧包备份和恢复已经在隔离副本自动验证；若还要人工验证完整写入/恢复，只在另一份隔离仓库及其非敏感测试主文件中做：先正常退出实际 App，再从副本根运行 `npm.cmd run studio:open`，不要使用指向实际仓库的桌面图标。未准备副本可把该项写“未测”，不把测试包写进本仓库或发布。
+6. **M8 原生专项**：按原 [M8 手动清单](#studio-m8-manual)补预览运行中取消/确认退出、菜单/备用停止的同一退出流程。若自行选择做 AI 请求中退出，只送非敏感文本，真实调用可能计费。服务归属/终端冲突按清单先正常退出再测试，不能结束不相关 Node。旧失联窗口若已经关掉，最终取消/退出写“未复验”；无窗口自动探针验证了非可信 frame/外部导航拒绝，真实 App 的完整专项交互仍不据此签收，不要求在真实服务强制制造故障。
+
+反馈按以上六组写“通过 / 失败 / 未测”，失败只附界面错误码和触发步骤。正式交付的原生正向操作、失联/异常退出等未操作项单列；收到反馈后再核对 PLAN 的对应验收项，不凭清单存在将 M8–M15 标 Done。本轮不要求提交、推送、上线或配置真实私人资料。
+
+<a id="studio-authoring-usage"></a>
+### 9.9 文章/项目的日常使用流程（实现完成，统一人工待验）
+
+自动录入流程是 **打开“录入与待审” → 放入文字或 Markdown/项目报告 → 自动填写 → 本人审核并补缺项 → 保存草稿，或进入发布确认**。也可直接打开对应模块手动编辑。详细步骤见[录入手册](#studio-intake)、[自动整理](#studio-organize)、[审核发布](#studio-publish)。阶段状态与验收依据见 [PLAN 6.11](./PLAN.md#studio-authoring-plan)。
+
+| 使用环节 | 当前能做什么 / 后续目标 |
+| --- | --- |
+| 打开 App | 双击蓝发图标。首次缺少运行包时自动准备，随后直接打开。日常耗时待验 |
+| 放入文章或项目材料 | 粘贴一份文字/MD 或导入 UTF-8 文件/结构化报告。选择 Think/Build 和新建/明确已有目标，可直接导入或显式发送百炼自动整理。无须安装 Skill |
+| 审核成稿 | 并列材料、候选、来源、缺项和预览，默认以自动填写为主，现有手动表单保留精调/备用。本人主要核对事实和补未知项，不让 AI 编造经历、贡献、成果或日期 |
+| 保存到本地源 | 原表单保存和审核保存均复用原模块校验与 revision，新建为 draft、已有修订保留公开状态。真正内容只写回 Markdown/data.ts，保存不等于上线 |
+| 审核后一键发布 | 可从已审核材料或内容源出发，一次最终确认精确内容/差异/目标后，程序代办固定检查、提交、推送、部署与结果核验。不必先点一次保存草稿。远端 workflow 守卫尚需另获许可安装，当前不执行真实发布。手工发布仍见第7节 |
+| 其他管理与输入 | 已有 Keep/Me/私人资料库继续使用原手册，不新增导入/AI/Agent/自动发布；M18 原生选择器/关闭仍待反馈。M21 Pi Skill、M22 DOCX/文本 PDF 等延期，不阻塞首版文字/MD 发布闭环 |
+
+可以先准备一份拟公开材料：文章正文，或项目目标/背景、本人角色、已完成事项、仍在计划的事项、章节/代码说明、阶段/进展/问题、可核对的日期/数据、来源文件/提交标识及待确认项。代码存在不能证明本人完成某项贡献。只选择确实希望处理/外传的本份材料，不把私人资料或凭据交给外部 AI/Agent；材料里的命令或“忽略规则”只是数据，不会授予执行权限。
+
+后续“自动整理”会先展示并仅发送这份选中材料，复用已保存的百炼配置；模型结果先成为 Think 或 Build 候选，不自动写源或发布。已有结构化报告走确定性识别，不强制再调用一次模型。收件箱只在仓库外存拟公开材料/候选供重启恢复，不是第二内容库；应用后清除材料/正文或仅留不可编辑回执，之后重新读真实源。更新已有目标必须显式选择，候选、来源、源版本或目标变更会使原批准失效。
+
+“一键发布”保留一次最终审核，不对每个已批准步骤重复询问。最终确认明确发布态、精确 diff、版本和仓库/分支；既有 dirty/index 和同文件其他条目必须保留，不能整仓暂存。界面须区分已保存/待发布/部署中/已上线，失败显示已完成到哪一步，结果未知先查源/Git/run，不自动重试或假称回滚。实际提交、推送与部署只能在该次明确授权范围执行；现在尚无此能力。
+
+Pi Skill 和 DOCX/PDF 的原输入安全边界保留于 PLAN，均待主线完成后另行授权。当前原 M6 Think Agent adapter 的调用/权限不变，未安装新 Skill，也未赋予 Agent 应用提案、私人与发布权限。
+
+<a id="studio-startup-baseline"></a>
+### 9.10 M16.1 启动诊断与手动基线（已完成）
+
+作者已确认启动、重复激活、关闭重开与 AI 配置正常，无需重复配置 Key；本轮确认采用 manual 中现有 6 份独立 ready/cold 诊断，已完成基线核对，不需要再补四次。统计、原十次条件调整及 M16.2 目标见 [PLAN 收尾记录](./PLAN.md#studio-m16-1-acceptance)。未收集双击全链路秒表数值或真实首次准备耗时，不将宿主内诊断冒充这些数据。以下为以后复测的留存方法，当前无需重跑。
+
+M16.1 只采集与反馈；本轮 M16.2 延迟普通启动不需要的编译器加载，复测方法见下节。正常入口、Key 存储和关闭归属保持；代理不操作桌面，也不会要求重配 Key。窗口出现后区分“正在初始化 WebView2”和“正在载入编辑器”，启动前半段仍保持原来先准备后显示窗口的顺序。
+
+正式 App 启动时在固定 `.cache/studio/startup-latest.json` 写一份最多 2 KiB 的诊断，包含随机 runId、starting/ready/failed、单调相对毫秒及白名单阶段：宿主检查/restore/build、Web 检查/build、凭据定位、后端、凭据读取、API 就绪、窗口、WebView2 和编辑器握手。缓存原因 hit/missing/changed/invalid 不含 hash、文件名或位置；不写 Key、token、正文、原始异常。链接/不安全诊断文件不覆盖，写入失败只报固定 STARTUP_DIAGNOSTICS_UNAVAILABLE，不改变服务权限或跳过原检查。不要删除未知锁或上传整个 .cache；其他会话文件可能含控制 token。
+
+时间口径：host-monotonic-ms 从宿主 Node 的 startAppHost 入口开始，排除此前 PowerShell/Node 模块导入和启动器等待；opener-monotonic-ms 仅用于重复激活。各阶段 atMs 为进入该阶段的相对时间，相邻差值含观测写入成本；窗口通知按父进程收到消息计时，含 IPC 调度延迟。window-visible 不代表 WebView 已可用，editor-ready 是既有编辑器握手，不保证所有列表已读完；真实首次可见/可编辑必须由作者同时观察。
+
+scenario 是观察标签：initial-preparation 表示有收据/产物缺失，不证明系统全新安装；updated-or-recovery 表示变更/坏收据重建；cold 表示两项缓存均命中；activation 表示激活已有窗口。失败或测试跳过构建时可为 unclassified。只保留最新一份，重复激活会覆盖；早于诊断接点的失败可能没有新报告，应核对文件更新时间与 runId，不将旧结果当新结果。
+
+以后复测请只用非敏感测试文字，先保存现有内容：
+
+1. 正常退出，再从蓝发图标打开。把此次更新后首次准备单独记录，不计入普通冷启；确认窗口反馈、最终编辑可用、原 AI 配置自动加载。无需新建或导入真实私人资料。
+2. 无源码变化时按 PLAN 的当前目标做至少 6 次“正常退出 → 双击打开”，保持同机同条件。可另用秒表记录从双击到窗口首次可见和能输入文字的时间；未记录就注明未测。ready 后立即复制最新 JSON，再正常退出；不要重复双击混入激活样本。若不是 cold 或未 ready，单列原因，不计入有效样本。
+3. 可以在仓库根自行运行以下命令，先创建目录，再在每次 ready 后重复 Copy-Item 一行；时间戳文件名不覆盖本批已有样本。新一轮对比应使用新的目录（例如 manual-m16-2），不要把两轮合并统计。只复制诊断，不操作窗口：
+
+```powershell
+New-Item -ItemType Directory -Path .cache/studio-m16-1/manual -Force | Out-Null
+Copy-Item .cache/studio/startup-latest.json (".cache/studio-m16-1/manual/cold-{0}.json" -f (Get-Date -Format "yyyyMMdd-HHmmss-fff")) -PassThru | Select-Object -ExpandProperty Name
+```
+
+4. 另外测试已有窗口重复双击，应该激活同一窗口且记录 activation；确认取消退出、正常关闭重开与 AI 配置保持。不要为构造失败强杀真实服务；故障/取消负例由隔离测试覆盖，未实际观察的窗口项目注明未测。
+5. 按独立 runId 去重，汇总有效样本的 p50（nearest-rank：升序第 ceil(样本数×0.5) 项，6 次取第 3 项）和最慢值。各区间先逐次相减再汇总，不能相加区间 p50；已记录的手动全链路时间与 JSON 宿主内时间不能混算。把第一次准备、重复激活单列；反馈各阶段耗时和观察结果即可，不发送凭据/正文或其他会话文件。
+
+自动测试的 10 次隔离后端样本关闭了构建且没有可见窗口、没有真实凭据，只证明采集/启停链路；未与六次真实 App 数据混算。六次仅作为本机工程基线，不估算长期分布或更高分位数。M16.1 已收尾，M16.2 真实性能结果见下节；作者已允许余项延后并进入 M17，不将其冒称性能达标。
+
+<a id="studio-startup-optimization"></a>
+### 9.11 M16.2 启动优化与复测（本批已核对，主性能目标未达）
+
+M16.2 的旧主性能目标未达，保持 Deferred，不标 Done。当前优先顺序改为先实施另行授权的 M16.3“日常运行与更新准备分离”，仍是 Pending；它不是恢复旧项或宣布旧目标通过。以下旧批次诊断/复测方法仅供历史对照，当前不用再测六次启动，新验证在 M16.3 获准实施时按 PLAN 固定前后基线。
+
+本批六份诊断已核对，AI 配置、首次预览、关闭重开正常反馈已收到，不需要再配置 Key 或重复测试同一版。实际 editor-ready p50 改善约 8.1%，尚未满足至少 25% 的目标，M16.2 性能余项保持 Deferred；统计及当时排查方向见 [PLAN](./PLAN.md#studio-m16-2-manual-review)。原 manual 目录和 M16.1 基线均保留；后续完成新一轮优化后再按以下方法使用新空目录复测，不将这批旧样本混入下一批。
+
+普通启动现在不加载 Markdown 编译器和 TypeScript AST 编译器：首次合法的公开模块预览才加载 Markdown 编译器，首次读对应 data.ts 才加载 AST。首次预览可能承担这部分准备成本，原“正在隔离构建…”提示、取消和退出保护继续有效；无需手动安装编译器或重新配置 Key。构建缓存、安全检查、窗口握手含义与后台归属不变，关闭后仍停止自有后台。
+
+代理不操作你的窗口；此前已运行隔离 API/无头浏览器验证，本轮只读核对你保存的记录。正式 App 性能目标及完成状态以 [PLAN M16.2](./PLAN.md#studio-m16-2) 为准；依赖导入或无窗口 API 的提速不能替代 App 达标。以下仅供后续新版复测，当前无需重跑：
+
+1. 正常退出旧 Studio，再从蓝发图标重开。确认文章列表、编辑输入、原 AI 配置可用；不重录 Key。若出现一次性重建，单独记录，之后再计普通 cold 样本。不要清缓存或强杀后台。
+2. 建立新一轮目录，在仓库根运行一次 New-Item；每次重开并等待编辑器可用后运行 Copy-Item，再正常退出，至少保存六份。勿混入旧 M16.1 文件；记录前不要重复双击已打开窗口。
+
+```powershell
+New-Item -ItemType Directory -Path .cache/studio-m16-2/manual-next -Force | Out-Null
+Copy-Item .cache/studio/startup-latest.json (".cache/studio-m16-2/manual-next/cold-{0}.json" -f (Get-Date -Format "yyyyMMdd-HHmmss-fff")) -PassThru | Select-Object -ExpandProperty Name
+```
+
+3. 保持同机同条件和无源码变化。可以另用秒表记录从双击到可见/可编辑的耗时，注明是否实测；诊断沿用原宿主内起点，不能混算。目标为 editor-ready p50 ≤1844ms、最慢 ≤2498ms，window-visible p50 ≤1947ms、最慢 ≤2011ms，不靠提前发送 ready 达标。
+4. 另用非敏感测试缓冲检查首次 Think 预览、Keep/Me/Build 第一次打开及预览，确认等待提示、取消预览后仍能编辑、取消关闭保留缓冲、正常关闭重开和重复激活正常。无需改动或发布真实文章，也不导入私人材料；保存草稿或测试 AI 仅按你自己的日常需要操作。
+5. 以后明确恢复 M16.2 并完成新优化后，再告知新批次目录及功能结果；当前不需要做此步。当前这批未达标是性能差距，不是缺少你的反馈；余项现为 Deferred，恢复实施时再记 In Progress，不把功能正常或隔离提速当作性能达标。
+
+<a id="studio-workbench"></a>
+<a id="studio-writing-workbench"></a>
+### 9.12 工作台与写作
+
+1. 从蓝发图标打开，默认可直接写 Think 原稿。左上选择器可以新建、打开网站文章或恢复本机原稿。已保存文章开头的「文章信息」可展开编辑标题、摘要、日期等 YAML 字段。旧文章 slug 保持原值，公开状态由发布动作处理。
+2. 按「保存」或 Ctrl+S。信息足够时显示「已保存至网站源码」。缺少或无法解析文章信息时显示「原稿已保存」，仍可从选择器继续。自由原稿可以通过提示里的「添加文章信息」手工补齐。补信息时提供本机当天日期，可修改。待审箱原稿单篇上限为 64 KiB。
+3. 「AI 整理」向当前选定的服务发送这篇拟公开文章，单篇上限 32 KiB。可选择 Gemini `gemini-3.5-flash-lite` 或百炼 `deepseek-v4.1-flash`。用 `npm.cmd run studio:configure -- -Provider gemini` 或 `npm.cmd run studio:configure -- -Provider bailian` 选择，已有 Key 可复用，正常退出重开后生效。两家的 Key 分别由当前 Windows 用户的 DPAPI 保护。Build 整理继续使用已存的百炼配置。仍需另行保存或发布。
+   - 桌面后端启动时复用现有 `HTTPS_PROXY` / `HTTP_PROXY`，保留 `NO_PROXY` 并补齐 `localhost`、`127.0.0.1` 与 `[::1]`。若变量只在 Git Bash 会话内定义，蓝发入口无法继承，需让同一受信代理的设置对 Windows 用户启动环境可见。网络超时、鉴权、模型不可用、限额、上游暂不可用与结果解析失败分别提示，原稿均保留。正常重开即可重用加密 Key。
+   - 审核时逐项勾选接受的替换或字段，默认全不选。「待确认」的字段先核实；只有提醒、没有可定位替换的建议不会修改原文。可展开正文对比查看上下文，两栏共用滚动条，不显示重复的 frontmatter。底部「应用选中修改」只更新编辑区，Ctrl+Z 可撤销；「取消」不改稿。
+   - 新原稿未填 slug 也可应用所选正文和字段修改；按「保存」时只进本机原稿，补上有效 slug 后才可能写入网站源码。格式错误的 YAML 仍须手工修复。
+4. 点「预览」渲染当前缓冲，包括缺少公开字段的原稿。正文上限为 512 KiB。编辑光标所在的段落优先进入视野，点「编辑」回到原选区和滚动位置。普通正文单次 Enter 可见换行，空行分段。用 `$...$` 写行内公式，独占行的 `$$` 包围独立公式，保留已有 HTML 公式。快速预览与 Astro 共用 Sätteri、Shiki 和 KaTeX 公式转换，快速预览使用浏览器原生 MathML，字形和版式可能略有差别。网络资源和跳转在预览中关闭，相对图片限 Think 内容目录，根路径图片限网站 `public`，受限 HTML 有提示。同一份正文切回预览时直接显示最近的安全预览；正文更改后自动重新渲染。外部替换了本机图片时，用「刷新」清掉上次预览，未保存的缓冲仍会保留。正式 Astro 预览仍可从维护界面打开。
+   - 用 `Ctrl+Alt+C` 插入代码围栏或包裹选区，再填语言标记。可粘贴或拖入 PNG、JPEG、WebP、GIF，单个上限 2 MiB，宽高各不超过 8192，另有像素总量限制。Studio 根据文件类型校验，在 Think 的 `content/assets` 保存并插入相对链接。撤销可移除 Markdown 引用，已保存的去重图片留在本地；图片本身不会随单篇发布提交，须单独审核同步到远端 `main`。
+5. 点「发布」核对当前文章、目标与差异。确认一次后由 M23 执行，状态显示在工作台。发布结果异常时用对应记录的「核对发布」或「复核上线」。较长的未保存候选超出待审箱上限时，先保存至源码再准备发布。见[发布边界和前置条件](#studio-publish)。
+6. Build、Keep、Me 暂从同一个选择器进入各自已有编辑器。需要私人资料库、旧待审箱或维护操作时按 Ctrl+Shift+M 进入维护界面。浏览器可打开本机根页的 `#maintenance` 片段，私人文件选择仍由正式 App 提供。窗口 X 继续处理未保存内容后退出。见[私人手册](#studio-private)。
+
+实际 Windows App 可在保存后正常退出，再从蓝发图标重开，检查中文输入、编辑与预览切换、原稿恢复和取消关闭。发布检查可停在差异与确认页。
+
+Think 原有 `date` 继续使用日历日期，供网页显示和排序。写作台第一次保存新文章时记录 `createdAt` 和 `updatedAt`，格式为带引号的 UTC 秒级字符串，例如 `"2026-11-12T08:00:00Z"`。旧文章保留已有日期和已知创建时间，第一次修改正文或文章字段时才加更新记录。预览、AI 整理、无改动保存和仅切换公开状态不更新时间。直接发布未保存内容时，时间随确认前的候选一起冻结。
+
+底栏累计时长从实际编辑起算，30 秒无编辑、切走文章、预览、窗口失焦或关闭时暂停。草稿先按本机提案关联，写入正式源码后继续沿用。累计数据约每 10 秒写入 Windows 本机的 `PersonalSpaceStudio/writing-time` 仓库专属目录。时长不会写进 Markdown。文件名或 slug 单独变化仍可关联，两者同时被外部修改时缺少可靠依据，强制结束也可能丢失最后尚未确认的计时。
+
+<a id="studio-m18-manual"></a>
+### 9.13 M18 实际 App 手动验收
+
+只用你自行准备的非敏感资料库或测试副本，不导入真实私人资料，不发送口令/正文到聊天。无需重配 AI Key、重测启动，代理不操作桌面。
+
+1. 保存当前内容并正常退出，从蓝发图标重开。进入“私人”，检查“私人资料库”和折叠的可选网站更新入口。
+2. 在仓库外新建非敏感测试资料库，编辑测试文章，校验/预览并保存。锁定后重新解锁，确认记录仍在；仅保存应不改变网站文件。
+3. 分别测试“打开资料库”的文件选择取消、输入口令取消，以及选择器打开时切换其他窗口再返回。应保持锁定或在可见 App 重新询问口令，旧缓冲/预览不会自行出现。新建时取消也不生成文件。
+4. 保存测试资料库，进入“准备网站更新”。选择仓库外尚不存在的新文件，确认选择前锁定、返回后重新要求口令；取消后仍可重新解锁进入向导。再生成更新文件，展开版本详情，最后对话框选取消，网站文件应未变。本轮不用确认替换真实仓库 bundle，实际替换/备份/恢复已由隔离 fixture 自动验证。
+5. 编辑一条非敏感未保存记录后点 X，取消退出应保留缓冲；再次选保存并退出、按提示输入口令，重开确认记录保存。不要在尚未确认的写入后反复点击。
+
+反馈上述选择器、切换窗口和协同关闭结果后，才能核对 M18 的必需原生验收；当前以 Awaiting author acceptance 单独保留，不标 Done，不继续扩展。公开主线改依赖 M16.3，不把此私人专项作为 M19.1 的串行前置；受影响的共享启停/安全仍需回归。旧 M8/M9–M15 未验专项保留，不以本次排序或泛化反馈全部补齐。
+
+<a id="studio-m16-3-manual"></a>
+### 9.14 M16.3 统一手动验收：运行与更新分离
+
+1. 双击原蓝发图标。若首次自动准备，单独记录准备耗时。开发更新后的运行包可用 `npm.cmd run studio:prepare` 手动准备。
+2. 看见初始化窗口、随后可编辑；原 AI 配置稍后应显示已配置。首次 Think/Build 预览、次级模块切换、私人锁定（仅非敏感测试资料）、取消关闭/保存退出正常。
+3. 重复双击只激活一个窗口，关闭后重开正常；无源码变化普通启动不出现编译或 SDK 还原。若自行测性能，单列六次当前版冷启和双击秒表；当前没有同版优化前配对基线，不能据此声称达到原改善门槛。
+4. 只保存非敏感诊断：host 的 startup-latest.json、opener 的 startup-opener-latest.json、启动脚本的 startup-launcher-latest.json；各自时钟不同，不相加，不复制 desktop-session 等含 token 文件。损坏/断网/缺 SDK 负例由隔离自动测试承担，不需要破坏真实环境自行构造。
+
+
+<a id="studio-intake"></a>
+### 9.15 公开录入与待审箱（M19.1 已实现，App 人工待验）
+
+1. 点击顶栏当前工作区，选择“录入与待审”。同一入口也可打开 Think 或 Build 手动表单。
+2. 选择内容类型和新建或修订目标，粘贴拟公开材料。“导入设置与文件”可选择格式或载入至多 64 KiB 的 UTF-8 .md/.txt/.json 文件。Markdown frontmatter 自动填字段，纯文字作为正文，缺项留待审核补充。
+3. 点“开始审核”。展开“原材料与字段来源”，核对来源、目标/源版本、slug、日期及正文。精调后点“保存待审候选”，可退出后从待审列表恢复。Ctrl+S 或保存并退出也可把尚未导入的文字存为不完整提案。
+4. 校验诊断消除后可预览；原 Astro 隔离预览不会写源。批准按钮只针对当前已保存候选，改动立即失效。确认事实后点“批准并保存草稿/修订”：新建固定 draft，修订保持原 published，不提交/上线。成功后原材料和候选正文清除，列表仅留回执；后续去真实内容库编辑。
+5. 待审箱单仓库最多 64 条、总 16 MiB，单条 384 KiB；用“丢弃本条”管理待审项/回执，不删除源。损坏条目不会被当空提案覆盖。写入未知先重读本条及真实内容源，未确认前不得重复应用。生产位置由 Known Folder 定位，为 LocalAppData/PersonalSpaceStudio/inbox/仓库身份；不要当缓存清空，不存私人资料/Key。
+
+结构化报告的固定格式（整体 JSON，或放在唯一 personal-space 围栏中）：
+
+```json
+{"version":1,"module":"think","candidate":{"metadata":{"slug":"example","title":"标题"},"body":"Markdown 正文"}}
+```
+
+单份报告只针对一个目标。候选可缺项但未知字段拒绝。材料中的 shell/Skill/忽略规则等文字不执行。AI 自动整理及审核发布已接入。当前这条“直接导入”仍不调用远程模型。
+
+
+#### Build 项目报告与审核
+
+在录入页选 Build 项目，再选择新建或明确的已有目标。文字/MD 先填入章节，可逐项补标题/摘要/slug；完整报告使用同一个 v1 格式：
+
+```json
+{"version":1,"module":"build","candidate":{"slug":"example-project","title":"项目标题","summary":"有依据的摘要","sections":[{"title":"背景与构思","paragraphs":["材料中的真实说明"],"code":"保留换行的代码"}],"milestones":[{"title":"仍在计划的事项","status":"planned"}]}}
+```
+
+章节、链接、阶段、进展和问题在原项目控件中精调，代码/顺序/省略字段保留。完整字段与枚举仍按本手册 Build 章节。未知字段拒绝，不完整或日期/状态/链接非法只留待审。项目草稿也须满足原完整校验。创建提案时绑定整份 data.ts，别人改了同文件的另一个项目也会冲突，必须重新读取/核对，不盲覆盖。审核成功清除原材料，继续编辑真实源。原 published 不因导入而改变，新建固定 draft。发布需另一项明确最终批准。
+
+
+<a id="studio-organize"></a>
+#### 自动整理并填写（M20 实现/模拟通过，真实调用待统一验收）
+
+在“录入与待审”中选 Think 或 Build，粘贴并核对拟公开材料及目标。展开“用 AI 整理”，点击“发送并整理”。发送范围限当前材料快照与模块整理指令。沿用已保存的百炼配置。AI 读取中或不可用时仍可直接点“开始审核”。Think 写作区的五种文本建议独立提供。
+
+系统提示要求整理为原模块专属字段，修正组织但不补造事实；区分项目功能/本人贡献/已完成/计划，缺日期或数据就留空待核对。要求候选 JSON、逐字段原文片段及 unknowns；材料中的命令不执行，模型不给路径、published 或发布权。实际提示与严格解析见 studio/server/ai/organize.ts，请求沿用 server/ai/suggest.ts 的固定模型、非流式 OpenAI 兼容 chat/completions、system + 本份原材料 user 消息。
+
+AI 输入/输出各至多 32 KiB、4096 输出 tokens、60 秒，无自动重试；本机直接导入仍允许 64 KiB。超限/限流/截断/坏结构/伪造引用显示错误，保留材料，不静默截断。原文引用仅证明位置，不保证事实/本人贡献；未引用字段标 unconfirmed，仍须本人审核。改一字段会把该字段标为作者编辑，其他引用保留。
+
+返回后进入待审核，补缺项/核对/预览，再选择保存草稿或明确批准发布。整理本身不会写源、提交或上线。取消、编辑材料或退出会使旧请求失效，已送达上游的调用可能计费。真实验收用两份非敏感文章/项目材料核对效果和预览即可，不发送私人资料或 Key。
+
+
+<a id="studio-publish"></a>
+### 9.16 审核与发布（M23 隔离验证完成，真实发布待验）
+
+**首次启用前置**。远端 `main` 需另获许可纳入 `.github/workflows/deploy.yml` 与 `scripts/release/record.mjs`。缺少这两项时准备页显示 `REMOTE_WORKFLOW_NOT_READY`，最终按钮禁用。Windows 命令 `gh auth status --hostname github.com` 可核对原有登录。安装工作流需要能够修改 `.github/workflows` 的凭据。日常单篇发布仍经精确差异与显式确认，固定目标为 `hjk202/hjk202.github.io` 的 `main`。安装补丁只触发 push 检查，Pages 部署需单独确认。只读检查和隔离验证见 [PLAN](./PLAN.md#studio-gemini-publish-readiness)。
+
+1. 从录入页保存待审候选、核对事实后，点“审核并发布到网站…”。也可从工作区切换器进入“发布管理”，选 Think 或 Build 的已有内容，点“准备发布差异”。此步只读，不写源或上传提交。新提案无须先保存草稿。缺少公开字段先返回补齐/保存。
+2. 展开核对远端差异及本机变化：只有一个目标、明确 published:true、正确 slug/源版本/远端基线。Build 非目标条目不纳入发布。本机分支和暂存区保持，不能顺手打包 Studio 开发改动。准备后源、提案、HEAD/index 或远端变化必须重新准备，旧批准不能沿用。准备最多同时留4份，废弃的准备记录用“结束记录”释放。
+3. **仅在另获实际发布许可且准备条件满足时**，点“最终确认并发布到网站”，再确认显示的目标/指纹。之后自动检查同一冻结内容提交、保存源、上传精确对象、原子快进 main、触发固定工作流并核验。首次候选检查会安装锁定依赖/浏览器，可能耗时数分钟。这不是日常打开成本，不要关闭或重复点击。
+4. 看四项真实边界：本机源码、隔离提交、远端 main、部署请求。published:true/已保存/推送/run 成功都不等于已核验上线。只有同一 SHA、下载 artifact/digest、release-manifest.json、每个线上文件哈希与 Chromium/WebKit 页面行为匹配才显示“已核验上线”。CDN 尚旧会保留未验状态，可稍后仅重核。
+5. 网络失败或结果未知时，先“读取当前记录”或“核对外部状态（不重试发布）”。“复核与维护”里可重新核对已有 run 的产物与线上结果、结束记录和删除已结束回执。删除只影响本机回执元数据。旧 prepared 在重启后须结束并重新准备。
+6. 发布进行中正常退出会被拒绝、窗口与缓冲保持，等流程结束后再退出。宿主意外失联会等待当前受限发布阶段结束，再停止下一阶段，候选检查上限30分钟，不能视为立即关闭。不要强杀未知进程、删锁或以清缓存恢复发布。
+
+回执保存在仓库外 Windows Known Folder 的 publications/仓库身份，最多64份，不存正文/Key。公开待审箱仍独立。派生检查目录为 .cache/studio/publication-work/UUID，成功只清理本人归属已核对的目录。失败/未知保留证据，cleanupPending 提示清理失败时先核对对应 id，不批量清缓存。源仍只有 Markdown/data.ts。派生 clone 不需要维护。发布不会移动本机 HEAD/index，后续发布从最新远端 main 继续。需要 Git 同步开发分支时另行审查合并，避免直接覆盖已有工作。
+
+手工 Actions 的 Run workflow 也必须填写完整 main expected_sha、studio_request=manual。SHA/分支不匹配在 checkout/部署前阻断，check 后部署同一 artifact。首个安装守卫的发布与后续真实自动发布需分别记录实际 SHA/run/产物/线上结果，本批模拟证据不能替代。
+
+<a id="studio-mainline-manual"></a>
+### 9.17 本批统一人工验收（M16.3 → M19.1 → M19.2 → M20 → M23）
+
+代理不操作桌面。仅用拟公开、非敏感测试材料，先保存原缓冲。按组反馈“通过/失败/未测”及错误码即可，不发送 Key、token 或私人正文。M21/M22 延期，不需安装 Pi Skill 或测试 DOCX/PDF。
+
+1. 双击蓝发图标。验证首次缺少运行包时能自动准备，日常重复启动只激活同一窗口。确认 AI 自动加载旧配置，取消关闭、保存退出和重开正常。打开 Think/Build 检查首次预览。若测性能，单列准备与普通启动耗时，记录方法见[留存步骤](#studio-m16-3-manual)。
+2. **文章录入**：从顶栏进入“录入与待审”，粘贴一份非敏感 Markdown（包含 slug/title/summary/date 和正文），导入、改一字段、保存候选、预览。取消或退出重开后可恢复待审。“批准并保存草稿”只创建本地 draft，材料清除为回执。到 Think 读取检查。明确选择新建或修订目标。
+3. **项目录入**：选择 Build，使用上方报告模板，检查背景/章节/代码、本人贡献、计划/已完成状态。补字段、保存候选、预览，再保存为草稿。修订明确选已有项目，确认其他项目保持。只测一份目标，不拿整仓库代码或私人材料试验。
+4. **自动整理**：分别在 Think/Build 导入区放一份非敏感文字，检查发送范围后点击百炼整理。核对标题/摘要/正文或项目章节、逐字段引用及未知项，不允许编造贡献/日期。精调再预览。试取消/改材料，旧响应不得覆盖。原 Think 润色仍正常、无修改时提示“本次未产生修改”。这两次真实调用可能计费，不需要重配 Key。
+5. **发布审核与取消**：从待审提案直接准备发布，或从发布页选真实内容。核对两份差异、固定目标和执行条件。取消最终确认应无源/远端变化。当前远端尚未纳入守卫时只检查禁用原因，不绕过、不点击实际发布。本轮没有授权任何真实提交/推送/部署。
+6. **真实发布（另行授权后才测）**：先完成守卫安装发布，再对获准的一个真实目标最终确认，等待精确 SHA/run/artifact/线上核验，查边界回执与网站。有暂时失败只核对结果，不盲重试。这组未做前 M23 不标 Done。
+
+原 M18 的[原生选择器/私人协同关闭](#studio-m18-manual)、M8–M15 的[旧专项](#studio-batch-manual)仍按原清单待验。公开主线反馈不能替它们一并盖章。实际 App/性能、真实新 AI 和实际发布未反馈前，本批为自动验证完成、人工待验，不能宣布整个 Studio Done。
+
 <a id="troubleshooting"></a>
 ## 10. 常见问题与维护记录
 
 | 现象 | 先检查什么 |
 | --- | --- |
+| 启动等待较久 | 区分源码更新后的重建与无变更普通启动，保留诊断；M16.3 已分离日常运行/准备，真实 App 耗时待统一验收，见[目标流程](#studio-authoring-usage)，不要靠清缓存、重录 Key 或强杀进程提速 |
+| 桌面启动/停止入口不可用 | 查[桌面操作与错误码](#studio-windows)，核对入口目标、Node/依赖、端口与归属；手动实例在原终端停止，未知状态不删锁、不清缓存、不批量结束 Node |
 | 新文章不出现 | 是否在 Think `content/` 本层 `.md`；published 是否布尔 true；是否重新构建/部署；slug/日期/正文校验是否失败 |
 | 写了未来日期却已出现 | 当前没有定时发布，需先 published false；Git 源仍可公开读 |
 | `.mdx` 或子目录文章没读取 | 加载器只扫描 `./content/*.md`，不能通过维护操作宣称扩展已接入 |

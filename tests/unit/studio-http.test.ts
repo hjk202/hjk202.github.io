@@ -258,6 +258,14 @@ test('M2 actual CLI boots from its own repository, logs no credential/body, stop
   fs.writeFileSync(join(web, 'style.css'), '');
   fs.mkdirSync(join(root, 'src/modules/think'), { recursive: true });
   fs.copyFileSync('src/modules/think/metadata.ts', join(root, 'src/modules/think/metadata.ts'));
+  fs.mkdirSync(join(root, 'src/modules/keep'), { recursive: true });
+  fs.copyFileSync('src/modules/keep/bookmarks.ts', join(root, 'src/modules/keep/bookmarks.ts'));
+  fs.mkdirSync(join(root, 'src/modules/me'), { recursive: true });
+  fs.copyFileSync('src/modules/me/profile.ts', join(root, 'src/modules/me/profile.ts'));
+  fs.mkdirSync(join(root, 'src/modules/build'), { recursive: true });
+  fs.copyFileSync('src/modules/build/projects.ts', join(root, 'src/modules/build/projects.ts'));
+  fs.mkdirSync(join(root, 'src/core/vault'), { recursive: true });
+  for (const file of ['crypto.ts', 'validation.ts', 'passphrase.ts']) fs.copyFileSync('src/core/vault/' + file, join(root, 'src/core/vault', file));
   fs.writeFileSync(join(root, 'package.json'), '{"type":"module"}');
   const run = async () => {
     const child = fork(join(root, 'studio/server/main.ts'), ['--port', String(port)], { cwd: resolve('.cache'), execArgv: ['--experimental-strip-types'], silent: true });
@@ -265,6 +273,7 @@ test('M2 actual CLI boots from its own repository, logs no credential/body, stop
     child.stdout!.on('data', chunk => { output += chunk.toString(); });
     child.stderr!.on('data', chunk => { output += chunk.toString(); });
     t.after(() => { if (child.exitCode === null) child.kill(); });
+    child.send({ type: 'studio:start' });
     await new Promise<void>((resolve, reject) => {
       const timeout = setTimeout(() => reject(new Error('CLI startup timed out (output redacted)')), 10_000);
       child.stdout!.on('data', () => { if (output.includes('Studio API:')) { clearTimeout(timeout); resolve(); } });
