@@ -27,7 +27,7 @@ for(const mode of ['fast','fast-artifact-fail'] as const)test('M23 '+mode+' dele
   value(await f.publisher.execute(plan.id,{bindingHash:plan.bindingHash,approvePublication:true}));
   const result=await finished(f.publisher,plan.id);
   assert.equal(f.fullChecks(),0);
-  assert.equal(await git(f.bare,['diff','--name-only',base,'HEAD']),'src/modules/think/content/checked-think.md');
+  assert.equal(await git(f.bare,['diff','--name-only',base,'refs/heads/main']),'src/modules/think/content/checked-think.md');
   assert.equal(await git(f.root,['rev-parse','HEAD']),head);assert.deepEqual(fs.readFileSync(join(f.root,'.git/index')),index);
   if(mode==='fast-artifact-fail'){
     assert.equal(result.live,false);assert.equal(result.pushState,'confirmed');assert.equal(result.dispatchState,'confirmed');
