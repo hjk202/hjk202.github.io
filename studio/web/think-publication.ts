@@ -130,7 +130,8 @@ export function thinkPublication(request: ReturnType<typeof writingRequest>, get
     async restore() {
       if (busy || dialog.open || status && (status.live || active(status.phase) && !uncertain)) return;
       const statuses = await request<PublicationStatus[]>('GET', 'publish');
-      const next = statuses.find(item => !['closed', 'complete', 'prepared'].includes(item.phase)) ?? statuses.find(item=>item.live);
+      const next = statuses.find(item => active(item.phase) || awaitingPages(item.phase) || item.phase === 'unknown'
+        || item.phase === 'failed' && item.sourceState === 'confirmed') ?? statuses.find(item => item.live);
       if (next) await show(next);
     },
   };

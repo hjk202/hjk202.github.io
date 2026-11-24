@@ -442,6 +442,15 @@ for (const mode of ['success', 'fast'] as const) base(`Think publish (${mode}) r
     expect(fs.readFileSync(file, 'utf8')).toContain('published: true');
     expect(repo.calls).toEqual({ push: 1, dispatch: 1, verify: 1 });
     expect(repo.fullChecks()).toBe(mode === 'fast' ? 0 : 1);
+    if (mode === 'fast') {
+      const receipts = join(repo.root, 'receipts');
+      const live = fs.readdirSync(receipts).map(name => JSON.parse(fs.readFileSync(join(receipts,name), 'utf8'))).find(row => row.live);
+      const abandonedId = '00000000-0000-4000-8000-000000000001';
+      fs.writeFileSync(join(receipts, abandonedId+'.json'), JSON.stringify({...live,id:abandonedId,live:false,phase:'failed',
+        sourceState:'not-started',pushState:'not-started',dispatchState:'not-started',runId:undefined}));
+      await page.reload();
+      await expect(page.locator('#writing-publication-state')).toHaveText('已上线');
+    }
     expect(errors).toEqual([]);
   } finally { for (const cleanup of cleanups) await cleanup(); }
 });
