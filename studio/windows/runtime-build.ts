@@ -14,7 +14,7 @@ await build({configFile:false,root,publicDir:false,logLevel:'error',
   },
 });
 for(const [source,target]of [['studio/server/think/preview-build.mjs','preview-build.mjs'],['studio/server/think/preview-build.mjs','think/preview-build.mjs'],
-  ['studio/server/publish/verify.mjs','verify.mjs'],['studio/server/publish/live-smoke.mjs','live-smoke.mjs'],
+  ['studio/server/publish/verify.mjs','verify.mjs'],
   ['studio/windows/Read-Credentials.ps1','Read-Credentials.ps1'],['studio/windows/Credentials.ps1','Credentials.ps1']] as const){
   fs.mkdirSync(join(output,target,'..'),{recursive:true});fs.copyFileSync(join(root,source),join(output,target));
 }

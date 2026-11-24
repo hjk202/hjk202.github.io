@@ -6,7 +6,8 @@ export type ProposalBinding={id:string;revision:string;candidateHash:string};
 export type PublicationSelection=
   |{module:'think';document:ThinkDocument;key?:string;expectedSourceRevision:string|null;proposal?:ProposalBinding}
   |{module:'build';project:Project;key?:string;expectedSourceRevision:string;proposal?:ProposalBinding};
-export type PublicationPhase='prepared'|'committing'|'checking'|'saving'|'pushing'|'dispatching'|'deploying'|'verifying'|'complete'|'failed'|'unknown'|'closed';
+export type PublicationPhase='prepared'|'committing'|'checking'|'saving'|'pushing'|'dispatching'|'waiting'|'deploying'|'verifying'|'complete'|'failed'|'unknown'|'closed';
+export const awaitingPages = (phase: PublicationPhase) => phase === 'waiting' || phase === 'deploying' || phase === 'verifying';
 export type PublicationBoundary='not-started'|'in-flight'|'confirmed'|'unknown';
 export interface PublicationStatus{
   version:1;id:string;bindingHash:string;module:'think'|'build';slug:string;

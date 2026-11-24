@@ -1,4 +1,4 @@
-import fs from 'node:fs';import {join,relative,resolve}from'node:path';import{createHash}from'node:crypto';import{spawn}from'node:child_process';
+import fs from 'node:fs';import {relative,resolve}from'node:path';import{createHash}from'node:crypto';import{spawn}from'node:child_process';
 import type{EditorErrorCode}from'../../contracts/result.ts';
 export class PublishError extends Error{readonly code:EditorErrorCode;constructor(reason:string,code:EditorErrorCode='PUBLISH_FAILED'){super(reason);this.code=code;}}
 export class PublishCommandError extends PublishError {
@@ -12,8 +12,6 @@ export function fileBytes(path:string,limit=32*1024*1024):Buffer{
   const before=fs.lstatSync(path,{bigint:true});if(!before.isFile()||before.isSymbolicLink()||before.nlink!==1n||before.size>BigInt(limit)||relative(path,fs.realpathSync.native(path))!=='')throw new PublishError('UNSAFE_FILE');
   const bytes=fs.readFileSync(path),after=fs.lstatSync(path,{bigint:true});if(before.dev!==after.dev||before.ino!==after.ino||after.isSymbolicLink()||after.nlink!==1n||before.mtimeNs!==after.mtimeNs||before.ctimeNs!==after.ctimeNs||BigInt(bytes.length)!==after.size)throw new PublishError('FILE_CHANGED');return bytes;
 }
-export function publicPath(value:string){if(!value||Buffer.byteLength(value)>1024||value.includes('\\')||value.includes(':')||value.startsWith('/')||value.split('/').some(p=>!p||p==='.'||p==='..')||/[\r\n\0]/.test(value))throw new PublishError('INVALID_ARTIFACT_PATH');return value;}
-export function catalog(directory:string):Record<string,string>{const result:Record<string,string>={};let total=0;function walk(dir:string){safeDirectory(dir);for(const name of fs.readdirSync(dir).sort()){const path=join(dir,name),stat=fs.lstatSync(path);if(stat.isDirectory())walk(path);else{const key=publicPath(relative(directory,path).replaceAll('\\','/')),data=fileBytes(path);total+=data.length;if(Object.keys(result).length>=512||total>128*1024*1024)throw new PublishError('ARTIFACT_LIMIT','PUBLISH_TOO_LARGE');result[key]=sha(data);}}}walk(directory);return result;}
 /** Never inherits AI credentials into any Git, build, compiler or browser helper. */
 export function commandEnvironment(build=false):NodeJS.ProcessEnv{
   const env={...process.env,GIT_OPTIONAL_LOCKS:'0',GIT_TERMINAL_PROMPT:'0',GCM_INTERACTIVE:'Never',GH_PROMPT_DISABLED:'1',GH_PAGER:'',GIT_PAGER:'',ASTRO_TELEMETRY_DISABLED:'1'};

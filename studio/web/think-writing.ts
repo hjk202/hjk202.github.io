@@ -141,8 +141,9 @@ export function startThinkWriting() {
   const publication = thinkPublication(request, get, render, async value => {
     const item = acceptedPublication;
     if (!item || value.id !== item.id || item.confirmed || editor.text() !== item.text) return;
+    const revision = version;
     const read = await api.read(value.sourceKey);
-    if (!read.editable || read.revision !== value.sourceAfterRevision) return;
+    if (revision !== version || acceptedPublication !== item || !read.editable || read.revision !== value.sourceAfterRevision) return;
     item.confirmed = true;
     source = read;
     target = { mode: 'update', key: read.key, expectedSourceRevision: read.revision };
@@ -188,7 +189,7 @@ export function startThinkWriting() {
     return { code, message: known[code] ?? ('操作未完成（' + code + '）。当前文字保留。'), issues: error instanceof ApiError ? error.issues : [] };
   }
   function maintenance(hash: string) {
-    if (aiDialog.open || originalDialog.open || writeUnknown || publication.uncertain() || !mayOpen()) return;
+    if (aiDialog.open || originalDialog.open || writeUnknown || !mayOpen()) return;
     closeApproved = true; location.hash = hash; location.reload();
   }
   function report(error: unknown) {
@@ -233,7 +234,7 @@ export function startThinkWriting() {
     button('preview').disabled = disabled || readOnly || !hasText || pending?.kind === 'preview';
     button('organize').disabled = disabled || readOnly || conflict || !hasText || !!pending;
     button('save').disabled = disabled || readOnly || writeUnknown || !hasText;
-    button('publish').disabled = disabled || readOnly || writeUnknown || conflict || publication.uncertain() || !hasText;
+    button('publish').disabled = disabled || readOnly || writeUnknown || conflict || publication.uncertain() || publication.pending() || !hasText;
     button('refresh').disabled = locked() || closing;
     button('new').disabled = disabled;
     button('cancel-task').hidden = !pending;
@@ -568,7 +569,7 @@ export function startThinkWriting() {
     }
   }
   async function publish() {
-    if (locked() || closing || editor.composing() || conflict || writeUnknown || readOnly || publication.uncertain()) return;
+    if (locked() || closing || editor.composing() || conflict || writeUnknown || readOnly || publication.uncertain() || publication.pending()) return;
     const text = editor.text();
     working = true; clock.pause(); cancelTask(); say('正在准备发布差异…'); render();
     try {
@@ -628,11 +629,11 @@ export function startThinkWriting() {
     if (!aiDialog.open && !originalDialog.open) void save();
   });
   window.addEventListener('beforeunload', event => {
-    if (!closeApproved && (dirty() || locked() || writeUnknown || publication.uncertain())) event.preventDefault();
+    if (!closeApproved && (dirty() || locked() || writeUnknown)) event.preventDefault();
   });
   window.addEventListener('pagehide', cancelTask, { once: true });
   installDesktopExit({
-    dirty, unsettled: () => locked() || editor.composing(), uncertain: () => writeUnknown || publication.uncertain(),
+    dirty, unsettled: () => locked() || editor.composing(), uncertain: () => writeUnknown,
     canSave: () => !readOnly && !writeUnknown && !locked(),
     save: async () => { await save(true); },
     closing: value => { closing = value; if(value)clock.pause(); render(); },

@@ -5,7 +5,7 @@ const project=(slug:string)=>({slug,title:slug,summary:'NON_SENSITIVE_FIXTURE',p
 import{publicationFixture}from'../studio/publish-fixture.ts';
 import { saveThinkImage } from '../../studio/server/think/image.ts';
 import { checkFastThink } from '../../studio/server/publish/think-fast.ts';
-async function finished(publisher:ReturnType<typeof createPublisher>,id:string){let s:PublicationStatus;for(let n=0;n<1000;n++){s=value(await publisher.status(id));if(!publisher.busy())return s;await new Promise(r=>setTimeout(r,10));}throw new Error('Fixture publication did not settle');}
+async function finished(publisher:ReturnType<typeof createPublisher>,id:string){let s:PublicationStatus;for(let n=0;n<1000;n++){s=value(await publisher.status(id));if(!publisher.busy())return s.phase==='waiting'?value(await publisher.reconcile(id)):s;await new Promise(r=>setTimeout(r,10));}throw new Error('Fixture publication did not settle');}
 test('M23 only approved Build entry reaches remote; dirty index, non-target source bytes and local branch are preserved',async t=>{
   const f=await publicationFixture(t),beforeHead=await git(f.root,['rev-parse','HEAD']);const raw=fs.readFileSync(f.buildFile,'utf8').replace('"slug":"other","title":"other"','"slug":"other","title":"USER_OTHER_DIRTY"');fs.writeFileSync(f.buildFile,raw);fs.writeFileSync(join(f.root,'unrelated.txt'),'USER_STAGED_CHANGE');await git(f.root,['add','unrelated.txt','src/modules/build/data.ts']);const index=fs.readFileSync(join(f.root,'.git/index')),source=value(f.build.listBuild());
   const plan=value(await f.publisher.prepare({module:'build',key:'target',expectedSourceRevision:source.revision}));assert.equal(plan.canExecute,true,JSON.stringify(plan.issues));assert.ok(!plan.remoteDiff.includes('USER_OTHER_DIRTY'));assert.equal(fs.readFileSync(f.buildFile,'utf8'),raw);assert.deepEqual(fs.readFileSync(join(f.root,'.git/index')),index);
@@ -58,6 +58,27 @@ test('M23 lightweight check requires committed local images and routes raw HTML 
   await git(f.root, ['-c', 'commit.gpgsign=false', 'commit', '-m', 'fixture: approve image']);
   assert.equal(await checkFastThink(f.root, path, 'test-resources'), true);
 });
+for (const mode of ['fast-wait','fast-ci-fail'] as const) test(`M23 ${mode} persists Git boundaries and continues only by read-only refresh`, async t => {
+  const f=await publicationFixture(t,mode);
+  const draft=value(await f.intake.create({format:'markdown',material:'---\nslug: pending-publication\ntitle: 合成文章\nsummary: 等待发布测试\ndate: 2026-11-24\n---\n仅供回归验证的正文。'}));
+  const plan=value(await f.publisher.prepare({proposalId:draft.id,expectedProposalRevision:draft.revision}));
+  value(await f.publisher.execute(plan.id,{bindingHash:plan.bindingHash,approvePublication:true}));
+  const result=await finished(f.publisher,plan.id);
+  assert.equal(result.phase,mode==='fast-wait'?'waiting':'failed');
+  assert.equal(result.sourceState,'confirmed');assert.equal(result.pushState,'confirmed');assert.equal(result.live,false);
+  const reopened=await f.restart();
+  assert.equal(value(await reopened.status(plan.id)).phase,result.phase);
+  assert.equal((await reopened.execute(plan.id,{bindingHash:plan.bindingHash,approvePublication:true})).ok,false);
+  assert.deepEqual(f.calls,{push:1,dispatch:1,verify:0});
+  if(mode==='fast-wait'){
+    f.setDeployment('deploying');assert.equal(value(await reopened.reconcile(plan.id)).phase,'deploying');
+    f.setDeployment('success');assert.equal(value(await reopened.reconcile(plan.id)).live,true);
+    assert.deepEqual(f.calls,{push:1,dispatch:1,verify:1});
+    const article=value(f.think.readThink({key:result.sourceKey}));
+    const same=value(await reopened.prepare({module:'think',key:article.key,expectedSourceRevision:article.revision}));
+    assert.equal(same.canExecute,false);assert.ok(same.issues.some(issue=>issue.startsWith('NO_PUBLICATION_CHANGES')));
+  }
+});
 test('M23 blocks a Think attachment outside the approved remote tree without writing source or pushing', async t => {
   const f = await publicationFixture(t);
   const png = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aJ9sAAAAASUVORK5CYII=';
@@ -73,7 +94,7 @@ test('M23 blocks a Think attachment outside the approved remote tree without wri
   assert.deepEqual(f.calls, {push:0,dispatch:0,verify:0});
 });
 for(const mode of ['checks-fail','push-lost','dispatch-lost','artifact-fail','run-mismatch'] as const)test('M23 '+mode+' records real boundary and never blindly retries',async t=>{
-  const f=await publicationFixture(t,mode),before=fs.readFileSync(f.buildFile),source=value(f.build.listBuild()),plan=value(await f.publisher.prepare({module:'build',key:'target',expectedSourceRevision:source.revision}));value(await f.publisher.execute(plan.id,{bindingHash:plan.bindingHash,approvePublication:true}));const s=await finished(f.publisher,plan.id);assert.equal(s.live,false);assert.ok(['failed','unknown'].includes(s.phase),JSON.stringify(s));assert.equal((await f.publisher.execute(plan.id,{bindingHash:plan.bindingHash,approvePublication:true})).ok,false);
+  const f=await publicationFixture(t,mode),before=fs.readFileSync(f.buildFile),source=value(f.build.listBuild()),plan=value(await f.publisher.prepare({module:'build',key:'target',expectedSourceRevision:source.revision}));value(await f.publisher.execute(plan.id,{bindingHash:plan.bindingHash,approvePublication:true}));const s=await finished(f.publisher,plan.id);assert.equal(s.live,false);assert.ok(['failed','unknown','verifying'].includes(s.phase),JSON.stringify(s));assert.equal((await f.publisher.execute(plan.id,{bindingHash:plan.bindingHash,approvePublication:true})).ok,false);
   if(mode==='checks-fail'){assert.deepEqual(fs.readFileSync(f.buildFile),before);assert.equal(f.calls.push,0);}if(mode==='push-lost'){assert.equal(s.pushState,'unknown');assert.equal(f.calls.dispatch,0);assert.equal(await f.gateway.head(),s.commitSha);}if(mode==='dispatch-lost'){assert.equal(s.dispatchState,'unknown');value(await f.publisher.reconcile(plan.id));assert.equal(f.calls.dispatch,1);}if(mode==='artifact-fail'||mode==='run-mismatch'){assert.equal(s.pushState,'confirmed');assert.equal(s.live,false);}
 });
 test('M23 active checks refuse unsafe abandonment boundaries and owner loss stops before source/push',async t=>{
@@ -108,7 +129,6 @@ test('M23 restart reads body-free boundaries; readonly proof recovery does not r
   const f=await publicationFixture(t,'artifact-fail'),source=value(f.build.listBuild()),plan=value(await f.publisher.prepare({module:'build',key:'target',expectedSourceRevision:source.revision}));
   value(await f.publisher.execute(plan.id,{bindingHash:plan.bindingHash,approvePublication:true}));const failed=await finished(f.publisher,plan.id);assert.equal(failed.live,false);assert.equal(failed.runId,1);
   const reopened=await f.restart();assert.equal(value(await reopened.status(plan.id)).pushState,'confirmed');assert.equal((await reopened.execute(plan.id,{bindingHash:plan.bindingHash,approvePublication:true})).ok,false);
-  f.gateway.verify=async()=>{f.calls.verify++;return{artifactId:42,artifactDigest:'sha256:'+'a'.repeat(64)};};
   value(await reopened.reconcile(plan.id));const recovered=value(await reopened.verifyAgain(plan.id));assert.equal(recovered.live,true);assert.equal(value(await reopened.status(plan.id)).phase,'complete');assert.equal(f.calls.push,1);assert.equal(f.calls.dispatch,1);assert.equal(f.calls.verify,2);
   const path=join(f.root,'receipts',plan.id+'.json'),raw=JSON.parse(fs.readFileSync(path,'utf8'));raw.sourceState='unknown';fs.writeFileSync(path,JSON.stringify(raw));assert.equal((await reopened.status(plan.id)).ok,false);assert.equal((await reopened.list()).ok,false);assert.equal(f.calls.push,1);
 });

@@ -18,5 +18,4 @@ await step('WebKit private',pw('--grep','Vault|private|Unlock|opening and reopen
 await step('isolated private session',['tests/verify-vault-session.mjs']);await browser('real private adapter',{E2E_DIST:fs.readFileSync('.cache/vault-session-output.txt','utf8').trim(),E2E_SESSION_PROBE:'1'});
 await step('extension',npmRun('test:extension'));for(const name of ['content','design','mobile'])await step(name,['tests/verify-'+name+'.mjs']);
 await step('base build',npmRun('build','--','--base','/personal-space/','--outDir','.cache/base-dist'));await browser('base Chromium',{E2E_BASE_PATH:'/personal-space/',E2E_DIST:'.cache/base-dist'});
-await step('release boundary',['tests/verify-release.mjs']);await step('vault boundary',['--experimental-strip-types','tests/verify-vault-release.mjs']);
 await step('release identity',['scripts/release/record.mjs']);await step('recorded release boundary',['tests/verify-release.mjs']);await step('recorded vault boundary',['--experimental-strip-types','tests/verify-vault-release.mjs']);

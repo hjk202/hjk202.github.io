@@ -1,9 +1,10 @@
 import type { PublicationPlan, PublicationStatus } from '../contracts/publish.ts';
+import { awaitingPages } from '../contracts/publish.ts';
 import type { writingRequest } from './writing-request.ts';
 import { ApiError } from './api.ts';
 
 type Reference = { module: 'think'; key: string; expectedSourceRevision: string } | { proposalId: string; expectedProposalRevision: string };
-const active = (phase: PublicationStatus['phase']) => ['committing', 'checking', 'saving', 'pushing', 'dispatching', 'deploying', 'verifying'].includes(phase);
+const active = (phase: PublicationStatus['phase']) => ['committing', 'checking', 'saving', 'pushing', 'dispatching'].includes(phase);
 
 export function thinkPublication(request: ReturnType<typeof writingRequest>, get: <T extends HTMLElement = HTMLElement>(id: string) => T,
   notify: () => void, landed: (value: PublicationStatus) => Promise<void>) {
@@ -20,14 +21,16 @@ export function thinkPublication(request: ReturnType<typeof writingRequest>, get
     report.hidden = !requestFailed && (!status || reviewing || status.phase === 'closed');
     if (requestFailed) state.textContent = '发布状态待核对，请先读取记录。';
     else if (status) {
-      state.textContent = status.live ? '已上线' : active(status.phase) && !uncertain ?
-        status.phase === 'deploying' ? '已推送 · 正在部署' : status.phase === 'verifying' ? '正在核对线上产物' :
-          status.phase === 'dispatching' ? '已推送 · 正在请求部署' : '正在准备发布…' :
-        status.pushState === 'confirmed' ? '已推送，部署待核对' : status.sourceState === 'confirmed' ? '源码已保存，发布未确认' : '发布未完成，内容保留';
+      state.textContent = status.live ? '已上线' :
+        status.phase === 'verifying' ? '已部署，等待核验' : status.phase === 'deploying' ? '正在部署' :
+        status.phase === 'waiting' || status.phase === 'dispatching' ? '已推送，等待部署' :
+        status.phase === 'failed' && status.runId ? '发布失败，请查看 GitHub' :
+        status.pushState === 'confirmed' ? '已推送，部署待核对' :
+        active(status.phase) ? '尚未推送，正在准备' : status.phase === 'unknown' ? '发布状态待核对' : '尚未推送';
       get('writing-publication-detail').textContent = [status.message, ...(status.observations ?? [])].join('\n');
     }
     button('writing-publication-check').hidden = !status || !uncertain && !['unknown', 'failed'].includes(status.phase);
-    button('writing-publication-verify').hidden = !status?.runId || (!status.fileHashes&&status.verification!=='github-think-v1') || status.live;
+    button('writing-publication-verify').hidden = !status?.runId || status.live || !['verifying','failed','unknown'].includes(status.phase);
     button('writing-publication-end').hidden = !status || status.live || !uncertain && !['unknown','failed','prepared'].includes(status.phase);
     for (const id of ['check', 'verify', 'end']) button('writing-publication-' + id).disabled = busy || !!status && active(status.phase) && !uncertain;
     notify();
@@ -40,14 +43,22 @@ export function thinkPublication(request: ReturnType<typeof writingRequest>, get
   async function show(value: PublicationStatus) {
     clearTimeout(timer);
     status = value; requestFailed = false; uncertain = value.phase === 'unknown' || value.phase === 'failed' && value.sourceState === 'confirmed';
-    if (value.sourceState === 'confirmed') await landed(value);
     render();
-    if (active(value.phase)) timer = setTimeout(() => { void poll(); }, 1_000);
+    if (active(value.phase) || awaitingPages(value.phase)) timer = setTimeout(() => { void poll(); }, active(value.phase)?1_000:6_000);
+    if (value.sourceState === 'confirmed') await landed(value);
   }
   async function poll() {
     if (!status) return;
-    try { await show(await request<PublicationStatus>('GET', 'publish/' + status.id)); }
-    catch (error) { failed(error); }
+    const current=status;
+    try {
+      const remote=awaitingPages(current.phase);
+      const next=await request<PublicationStatus>(remote?'POST':'GET','publish/'+current.id+(remote?'/reconcile':''),remote?{}:undefined);
+      if(status?.id===current.id)await show(next);
+    } catch(error){
+      if(status?.id!==current.id)return;
+      if(error instanceof ApiError&&error.code==='PUBLISH_BUSY'){timer=setTimeout(()=>{void poll();},2_000);return;}
+      failed(error);
+    }
   }
   async function end(id: string) {
     const current = await request<PublicationStatus>('GET', 'publish/' + id);
@@ -99,6 +110,7 @@ export function thinkPublication(request: ReturnType<typeof writingRequest>, get
   window.addEventListener('pagehide', () => clearTimeout(timer), { once: true });
   return {
     busy: () => busy || dialog.open || (!!status && active(status.phase) && !uncertain),
+    pending: () => !!status&&awaitingPages(status.phase),
     uncertain: () => uncertain,
     async prepare(reference: Reference, title: string) {
       busy = true; notify();
@@ -107,7 +119,7 @@ export function thinkPublication(request: ReturnType<typeof writingRequest>, get
         approved = plan;
         status = await request<PublicationStatus>('GET', 'publish/' + plan.id);
         get('writing-publish-target').textContent = title + ' → ' + plan.site + (plan.verification ? ' · 单篇 Think，GitHub 构建和验证' : '');
-        get('writing-publish-diff').textContent = plan.remoteDiff || '网站内容无差异。确认后仍会检查并部署这一版本。';
+        get('writing-publish-diff').textContent = plan.remoteDiff || '网站内容无差异。';
         get('writing-publish-local').textContent = plan.localDiff || '本机源码无变化。';
         get('writing-publish-issues').textContent = plan.issues.join('\n');
         button('writing-publish-confirm').disabled = !plan.canExecute;
@@ -118,7 +130,7 @@ export function thinkPublication(request: ReturnType<typeof writingRequest>, get
     async restore() {
       if (busy || dialog.open || status && (status.live || active(status.phase) && !uncertain)) return;
       const statuses = await request<PublicationStatus[]>('GET', 'publish');
-      const next = statuses.find(item => !['closed', 'complete', 'prepared'].includes(item.phase));
+      const next = statuses.find(item => !['closed', 'complete', 'prepared'].includes(item.phase)) ?? statuses.find(item=>item.live);
       if (next) await show(next);
     },
   };

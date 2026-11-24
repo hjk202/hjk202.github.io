@@ -72,8 +72,8 @@ Studio 默认打开 Think 的 Markdown 写作台。选文章或直接写，可�
 - **Studio M9–M15 实现与自动验证完成，统一人工待验**：四个公开/私人模块、密文候选交付与外部备份恢复已接入，真实内容源保持。请按[统一人工验收清单](./MAINTENANCE.md#studio-batch-manual)检查 App 启停、中文编辑、四模块保存/预览、私人锁定和交付取消；M8 原生专项也在清单中。收到反馈前不标 Done，范围与证据见 [扩展计划](./PLAN.md#studio-next-plan)。
 - **Studio M17 已完成，M18 原生操作单独待验**：M18 实现及自动验证保持，选择器/协同关闭仍按[手动步骤](./MAINTENANCE.md#studio-m18-manual)检查，未标 Done，不再阻塞公开主线。旧专项待验保留。
 - **Studio Markdown 写作闭环**先交付 Think，使用 CodeMirror 6 源码模式。Build、Keep、Me 的转换按后续批次实施。[范围与验收](./PLAN.md#studio-think-writing)
-- **Think v1.0 封版**：没有 slug 的原稿可应用 AI 修改并留在本机。Gemini 已通过真实 WebView2 候选审核。GitHub 发布工作流已在远端；正式交付等待提交、推送和部署各自授权。[封版记录](./PLAN.md#studio-think-v1-freeze)
-- **主线批量实施、人工最后统一验收**：M16.3 准备/运行分离已实现并通过自动验证，真实 App/性能待验。Think/Build 文字、Markdown 和结构化报告录入审核已实现、自动验证通过。M20 显式百炼整理通过模拟与浏览器验证，真实整理效果待统一验收。M23 精确差异、最终批准、固定发布协调与失败恢复通过隔离验证，真实发布仍待验。M21/M22 按作者确认保持延期，旧专项状态保持。远端工作流守卫已单独获批安装；文章真实一键发布仍未执行，需另行批准。
+- **Think v1.0 · Completed**。Markdown 写作、AI 审核、正式预览和真实文章发布已完成。日常单篇走内容快速发布，程序更新保留完整 CI。[最终收尾](./PLAN.md#studio-think-v1-completed)
+- **其他 Studio 主线**：M16.3 性能与 M20 真实整理继续按各自记录验收。M21/M22 保持延期，其他模块后续单独安排。
 - **随记四行预览 N1 已发布并通过线上验证**；仍待你检查手机效果。[查看效果](https://hjk202.github.io/think/?v=2a8ff37)，[验收记录](./PLAN.md#notes-n1)。
 - **真实私人资料尚未配置**；私人功能已完成，入口提示未配置属正常行为。维护步骤见 [私人内容操作](./MAINTENANCE.md#private-operations)。
 

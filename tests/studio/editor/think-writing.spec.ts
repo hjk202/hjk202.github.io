@@ -460,7 +460,27 @@ base('Think shows the confirmed push when a deployment response is lost and reco
     await sourceSaved(page);
     await expect(page.getByRole('button', { name: '发布', exact: true })).toBeDisabled();
     await page.getByRole('button', { name: '核对发布' }).click();
-    await expect(page.getByRole('button', { name: '复核上线' })).toBeVisible();
-    expect(repo.calls).toEqual({ push: 1, dispatch: 1, verify: 0 });
+    await expect(page.locator('#writing-publication-state')).toHaveText('已上线');
+    expect(repo.calls).toEqual({ push: 1, dispatch: 1, verify: 1 });
+  } finally { for (const cleanup of cleanups) await cleanup(); }
+});
+
+base('Think can keep writing and close after the deployment request is confirmed', async ({ page }) => {
+  base.setTimeout(90_000);
+  const cleanups: (() => void | Promise<void>)[] = [];
+  const repo = await publicationFixture({ after: fn => cleanups.push(fn) }, 'fast-wait');
+  const session = await repo.startHttp();
+  try {
+    await page.goto(session.origin);
+    await cm(page).fill(structured('pending', '隔离发布稿件。'));
+    await page.getByRole('button', { name: '发布', exact: true }).click();
+    await page.getByRole('button', { name: '确认发布', exact: true }).click();
+    await expect(page.locator('#writing-publication-state')).toHaveText('已推送，等待部署', { timeout: 30_000 });
+    await sourceSaved(page);
+    await cm(page).fill(structured('pending', '等待远端时我可以继续写作。'));
+    await expect(page.getByRole('button', {name:'保存', exact:true})).toBeEnabled();
+    await expect(page.getByRole('button', {name:'发布', exact:true})).toBeDisabled();
+    expect((await session.close()).ok).toBe(true);
+    expect(repo.calls).toEqual({push:1, dispatch:1, verify:0});
   } finally { for (const cleanup of cleanups) await cleanup(); }
 });

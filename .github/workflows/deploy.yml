@@ -34,6 +34,9 @@ jobs:
   check:
     name: Verify static candidate
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: read
     outputs:
       checked_sha: ${{ steps.identity.outputs.sha }}
     steps:
@@ -65,7 +68,7 @@ jobs:
         run: |
           set -euo pipefail
           # STUDIO_THINK_FAST_V1: both events recompute the scope from Git.
-          # The push is scope-only; the approved dispatch builds and verifies once.
+          # The push is scope-only; the approved dispatch checks content and builds once.
           if [[ "$GITHUB_EVENT_NAME" != "push" && "$GITHUB_EVENT_NAME" != "workflow_dispatch" ]] ||
              [[ "$GITHUB_REF" != "refs/heads/main" || "${STUDIO_REQUEST:-}" == "manual" || "${EVENT_FORCED:-}" == "true" ]]; then exit 0; fi
           parent="$(git cat-file commit HEAD | sed -n '/^$/q; s/^parent //p')" || exit 0
@@ -85,7 +88,23 @@ jobs:
             echo 'push_only=true' >> "$GITHUB_OUTPUT"
           else
             echo "article=${diff[1]}" >> "$GITHUB_OUTPUT"
+            echo "parent=$parent" >> "$GITHUB_OUTPUT"
           fi
+      - name: Require a verified parent for the content-only gate
+        id: content_gate
+        if: steps.think_scope.outputs.article != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PARENT_SHA: ${{ steps.think_scope.outputs.parent }}
+        run: |
+          set -euo pipefail
+          [[ "$PARENT_SHA" =~ ^[a-f0-9]{40}$ ]] || exit 0
+          repo="repos/$GITHUB_REPOSITORY/actions"
+          run="$(gh api "$repo/workflows/deploy.yml/runs?branch=main&head_sha=$PARENT_SHA&status=success&per_page=10" --jq '[.workflow_runs[] | select(.event == "push" or .event == "workflow_dispatch")][0] | [.id, .run_attempt] | @tsv')" || exit 0
+          IFS=$'\t' read -r id attempt <<< "$run"
+          [[ "$id" =~ ^[0-9]+$ && "$attempt" =~ ^[0-9]+$ ]] || exit 0
+          verified="$(gh api "$repo/runs/$id/attempts/$attempt/jobs" --jq '[.jobs[] | select(.name == "Verify static candidate" and .conclusion == "success") | .steps[] | select(.name == "Record the checked root artifact" and .conclusion == "success")] | length')" || exit 0
+          if [[ "$verified" == '1' ]]; then echo 'fast=true' >> "$GITHUB_OUTPUT"; fi
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         if: steps.think_scope.outputs.push_only != 'true'
         with:
@@ -93,7 +112,7 @@ jobs:
           cache: npm
       - name: Use the project npm version
         if: steps.think_scope.outputs.push_only != 'true'
-        run: npm install --global npm@10.9.8
+        run: if [[ "$(npm --version)" != '10.9.8' ]]; then npm install --global npm@10.9.8; fi
       - name: Install locked dependencies
         if: steps.think_scope.outputs.push_only != 'true'
         run: npm ci
@@ -103,48 +122,48 @@ jobs:
           APPROVED_ARTICLE: ${{ steps.think_scope.outputs.article }}
         run: node --experimental-strip-types scripts/release/check-think.mjs "$APPROVED_ARTICLE"
       - name: Lint
-        if: steps.think_scope.outputs.push_only != 'true'
+        if: steps.think_scope.outputs.push_only != 'true' && steps.content_gate.outputs.fast != 'true'
         run: npm run lint
       - name: Typecheck
-        if: steps.think_scope.outputs.push_only != 'true'
+        if: steps.think_scope.outputs.push_only != 'true' && steps.content_gate.outputs.fast != 'true'
         run: npm run typecheck
       - name: Unit tests
-        if: steps.think_scope.outputs.push_only != 'true'
+        if: steps.think_scope.outputs.push_only != 'true' && steps.content_gate.outputs.fast != 'true'
         run: npm run test
       - name: Build the publishable artifact
         if: steps.think_scope.outputs.push_only != 'true'
         run: npm run build
       - name: Install test browsers
-        if: steps.think_scope.outputs.push_only != 'true'
+        if: steps.think_scope.outputs.push_only != 'true' && steps.content_gate.outputs.fast != 'true'
         run: npx playwright install --with-deps chromium webkit
       - name: Verify the actual root artifact
-        if: steps.think_scope.outputs.push_only != 'true'
+        if: steps.think_scope.outputs.push_only != 'true' && steps.content_gate.outputs.fast != 'true'
         run: npm run test:e2e
       - name: Verify WebKit mobile interactions
-        if: steps.think_scope.outputs.push_only != 'true'
+        if: steps.think_scope.outputs.push_only != 'true' && steps.content_gate.outputs.fast != 'true'
         run: npm run test:e2e
         env:
           E2E_BROWSER: webkit
           E2E_MOBILE: '1'
       - name: Verify WebKit private interactions
-        if: steps.think_scope.outputs.push_only != 'true'
+        if: steps.think_scope.outputs.push_only != 'true' && steps.content_gate.outputs.fast != 'true'
         run: npm run test:e2e -- --grep "Vault|private|Unlock|opening and reopening"
         env:
           E2E_BROWSER: webkit
       - name: Verify isolated real private adapter and session
-        if: steps.think_scope.outputs.push_only != 'true'
+        if: steps.think_scope.outputs.push_only != 'true' && steps.content_gate.outputs.fast != 'true'
         run: |
           node tests/verify-vault-session.mjs
           E2E_DIST="$(cat .cache/vault-session-output.txt)" E2E_SESSION_PROBE=1 npm run test:e2e
       - name: Verify isolated extension and content contracts
-        if: steps.think_scope.outputs.push_only != 'true'
+        if: steps.think_scope.outputs.push_only != 'true' && steps.content_gate.outputs.fast != 'true'
         run: |
           npm run test:extension
           node tests/verify-content.mjs
           node tests/verify-design.mjs
           node tests/verify-mobile.mjs
       - name: Verify a project base without rebuilding dist
-        if: steps.think_scope.outputs.push_only != 'true'
+        if: steps.think_scope.outputs.push_only != 'true' && steps.content_gate.outputs.fast != 'true'
         run: |
           npm run build -- --base /personal-space/ --outDir .cache/base-dist
           npm run test:e2e
@@ -154,8 +173,6 @@ jobs:
       - name: Record the checked root artifact
         if: steps.think_scope.outputs.push_only != 'true'
         run: |
-          node tests/verify-release.mjs
-          node --experimental-strip-types tests/verify-vault-release.mjs
           node scripts/release/record.mjs
           node tests/verify-release.mjs
           node --experimental-strip-types tests/verify-vault-release.mjs
@@ -188,7 +205,6 @@ jobs:
           [[ "$APPROVED_SHA" == "$GITHUB_SHA" && "$CHECKED_SHA" == "$APPROVED_SHA" ]]
           remote_sha="$(git ls-remote --refs "https://github.com/$GITHUB_REPOSITORY.git" refs/heads/main | cut -f1)"
           [[ "$remote_sha" == "$APPROVED_SHA" ]]
-      - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
       - name: Deploy the already checked artifact
         id: deployment
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
